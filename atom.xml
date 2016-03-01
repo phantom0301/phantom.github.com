@@ -95,11 +95,11 @@ hexo deploy 部署到远程服务器
   </entry>
   
   <entry>
-    <title>MHN开源蜜罐项目学习笔记（一）——基本架构</title>
+    <title>MHN开源蜜罐项目学习笔记（一）——HPFEEDS协议</title>
     <link href="http://phantom0301.gitcafe.io/2016/02/19/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/"/>
     <id>http://phantom0301.gitcafe.io/2016/02/19/MHN开源蜜罐项目学习笔记（一）——基本架构/</id>
     <published>2016-02-19T09:13:55.000Z</published>
-    <updated>2016-02-21T07:28:42.493Z</updated>
+    <updated>2016-03-01T09:40:00.043Z</updated>
     
     <content type="html">&lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00  前言&quot;&gt;&lt;/a&gt;0x00  前言&lt;/h2&gt;&lt;p&gt;MHN是一个开源的蜜网部署项目，通过简单的脚本编译，可以快速部署蜜网服务器以及蜜罐节点，想玩的，详细的部署过程参考这篇文章&lt;br&gt;&lt;a href=&quot;http://drops.wooyun.org/papers/5968&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://drops.wooyun.org/papers/5968&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;怎么安装上面说的很详细，但是网上对这个开源项目架构介绍的比较少，因为毕业论文打算写这方面，所以我在这里写写我的收获。&lt;/p&gt;
