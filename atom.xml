@@ -4,9 +4,9 @@
   <subtitle>Free and Share</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://phantom0301.coding.io/"/>
-  <updated>2016-03-04T03:28:40.548Z</updated>
-  <id>http://phantom0301.coding.io/</id>
+  <link href="http://phantom0301.gitcafe.io/"/>
+  <updated>2016-03-05T00:41:55.109Z</updated>
+  <id>http://phantom0301.gitcafe.io/</id>
   
   <author>
     <name>Phantom</name>
@@ -16,11 +16,205 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>HPFEEDS协议</title>
+    <link href="http://phantom0301.gitcafe.io/2016/03/05/HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://phantom0301.gitcafe.io/2016/03/05/HPFEEDS协议/</id>
+    <published>2016-03-05T00:40:10.000Z</published>
+    <updated>2016-03-05T00:41:55.109Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00-hpfeeds协议是什么？&quot;&gt;&lt;a href=&quot;#0x00-hpfeeds协议是什么？&quot; class=&quot;headerlink&quot; title=&quot;0x00 hpfeeds协议是什么？&quot;&gt;&lt;/a&gt;0x00 hpfeeds协议是什么？&lt;/h2&gt;&lt;p&gt;hpfeeds是一个轻量级的验证发布-订阅协议(authenticated publish-subscribe protocol)。&lt;/p&gt;
+&lt;p&gt;轻量级好理解，就是代码量相对较少，功能相对不复杂。那什么是发布-订阅协议呢？订阅发布协议定义了一种一对多的依赖关系，让多个订阅者对象同时监听某一个主题对象。这个主题对象在自身状态变化时，会通知所有订阅者对象，使它们能够自动更新自己的状态。它是为了解决这样一种情况的发生，一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变。我的理解，这就类似于发传单，目标发送通知，没有指定特定的对象，通知会自动传播，观察者自己决定是否需要看传单，发送者对于传单是否被看一无所知。&lt;/p&gt;
+&lt;p&gt;详细的发布订阅者介绍可以戳这里：&lt;br&gt;&lt;a href=&quot;https://msdn.microsoft.com/en-us/library/ff649664.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://msdn.microsoft.com/en-us/library/ff649664.aspx&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;线路协议组成如下：&lt;/p&gt;
+&lt;p&gt;首先是消息头：有两个参数，消息总长和消息类型&lt;/p&gt;
+&lt;p&gt;消息类型有以下几种：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;error (0): errormessage
+info (1): server name, nonce
+auth (2): client id, sha1(nonce+authkey)
+publish (3): client id, channelname, payload
+subscribe (4): client id, channelname
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;数字代表消息类型，而冒号后面的内容则代表后续的消息字段&lt;/p&gt;
+&lt;p&gt;比如说当消息类型为3，publish时，后面的字段就会有四个：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;client id的长度
+client id
+channelname的长度
+channelname
+payload
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一个完整的消息如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;length | opcode | next | identifier | next | channelname|payload
+----------------------------------------------------------------
+85       3        9       b4aa2@hp1   9      mwcapture      137941a3d8589f6728924c08561070bceb5d72b8,http://1.2.3.4/calc.exe
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;消息有了，整个消息的认证过程就是以下的几个步骤：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;服务器为每一个连接生成一个标志&lt;/li&gt;
+&lt;li&gt;客户端发送id 和 标志+authkey组成的sha1&lt;/li&gt;
+&lt;li&gt;服务器检查id和sha1&lt;/li&gt;
+&lt;li&gt;服务器检查数据类型，是要发布还是要订阅&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;最终实现服务器、发布者、订阅者之间的解耦，彼此之间完全独立，互不干扰。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-为什么要用hpfeeds协议&quot;&gt;&lt;a href=&quot;#0x01-为什么要用hpfeeds协议&quot; class=&quot;headerlink&quot; title=&quot;0x01 为什么要用hpfeeds协议&quot;&gt;&lt;/a&gt;0x01 为什么要用hpfeeds协议&lt;/h2&gt;&lt;p&gt;首先，正如以上所说的，整个协议实现了三方的功能独立。使用这种方式降低了应用与业务逻辑之间的耦合，统一一个对外的发布接口，只需要关心监听的类型，不关心监听的具体处理人。只管发，不管到不到。很方便的建立一种一对多的依赖关系。&lt;/p&gt;
+&lt;p&gt;在当一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变时，就可以使用订阅发布模式。&lt;/p&gt;
+&lt;p&gt;hpfeeds协议希望能够实现一个单一的连线形式，使得每一个人都可以在任何时间以任何语言去订阅发布数据，不同的数据以通道来划分，由通道的使用者来决定数据结构形式。而通道的验证通过authkey来完成，它由两部分组成，ident和secret，相当于身份和密码。密码在hash后和每一个临时连接标志一起发送给服务器，这样保证不会被窃听，所以它可以运行在SSL、TLS下。&lt;/p&gt;
+&lt;p&gt;1.降低耦合。发布者对于接收者的数量，身份，接收的数据类型一无所知。&lt;br&gt;2.安全性高。只有消息订阅者之间的单线信息交互，不存在其他程序的信息交换。&lt;br&gt;3.测试方便。&lt;/p&gt;
+&lt;p&gt;1.性能降低，订阅要进行管理&lt;/p&gt;
+&lt;h2 id=&quot;0x02-如何操作&quot;&gt;&lt;a href=&quot;#0x02-如何操作&quot; class=&quot;headerlink&quot; title=&quot;0x02 如何操作&quot;&gt;&lt;/a&gt;0x02 如何操作&lt;/h2&gt;&lt;p&gt;正常安装使用hpfeeds的步骤如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git clone https://github.com/rep/hpfeeds/
+cd hpfeeds
+python setup.py build
+python setup.py install
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;安装成功后，会出现下面几个文件夹。&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/1.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;appsuport：hpfeeds支持的一些蜜罐的应用程序&lt;/li&gt;
+&lt;li&gt;broker：服务器功能程序集，包括增加用户，服务器运行，查看所有用户信息等&lt;/li&gt;
+&lt;li&gt;build：一些编译环境&lt;/li&gt;
+&lt;li&gt;cli：用户程序&lt;/li&gt;
+&lt;li&gt;example：例程&lt;/li&gt;
+&lt;li&gt;lib：支持库&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;使用时先打开broker，运行其中的add_user.py添加用户信息：&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/2.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;根据提示信息，我们添加用户test，密码123456，拥有发布频道1，2，无订阅频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/3.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;再添加用户custom，密码123456，拥有订阅频道1，2，无发布频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/4.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;现在使用dump_users.py查看刚才创建的用户&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/5.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如图所示，这里应经可以查看到刚才我们新建的用户了。&lt;/p&gt;
+&lt;p&gt;接下来，我们打开服务器feedbroker.py&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/6.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;再开启一个新的进程运行cli文件夹里的用户程序hpfeeds-client&lt;/p&gt;
+&lt;p&gt;先开启订阅者custom，使用1频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/7.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;此时，服务器端显示用户登录成功&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/8.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们再打开一个新的进程，以发布者test，使用1频道发布“helloworld”&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/9.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们可以看到发布者一旦发布完消息后，立即退出进程，并不确认消息是否收到&lt;/p&gt;
+&lt;p&gt;这时，服务器显示test登录成功&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/10.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;于此同时，订阅者custom成功接收到消息&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/11.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;到此，一次完整的发送、接收消息的流程就走完了。&lt;/p&gt;
+&lt;p&gt;通过这一过程，我们发现，频道与用户分离，发送和订阅者身份平等，只需订阅者实时监听，发送者可以即时发送即时撤出。&lt;/p&gt;
+&lt;p&gt;这里是对于hpfeeds协议的简单介绍，下一部分我会从代码的角度进一步分析该协议，并适当对于协议功能进行添加。&lt;/p&gt;
+&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00-hpfeeds协议是什么？&quot;&gt;&lt;a href=&quot;#0x00-hpfeeds协议是什么？&quot; class=&quot;headerlink&quot; title=&quot;0x00 hpfeeds协议是什么？&quot;&gt;&lt;/a&gt;0x00 hpfeeds协议是什么？&lt;/h2&gt;&lt;p&gt;hpfeed
+    
+    </summary>
+    
+    
+      <category term="分享" scheme="http://phantom0301.gitcafe.io/tags/%E5%88%86%E4%BA%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>博客搬家</title>
+    <link href="http://phantom0301.gitcafe.io/2016/03/02/%E5%8D%9A%E5%AE%A2%E6%90%AC%E5%AE%B6/"/>
+    <id>http://phantom0301.gitcafe.io/2016/03/02/博客搬家/</id>
+    <published>2016-03-02T02:46:27.000Z</published>
+    <updated>2016-03-02T02:50:45.133Z</updated>
+    
+    <content type="html">&lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;/p&gt;
+&lt;p&gt;之前把博客部署在gitcafe和github上，不过最近得到了通知，gitcafe和coding合作了，原来在gitcafe上的服务到今年的5月份就停了。&lt;/p&gt;
+&lt;p&gt;所以只能把原来部署在cafe上的博客移交到coding了&lt;/p&gt;
+&lt;p&gt;现在有两个稳定可访问的域名：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://phantom0301.github.io&quot; title=&quot;phantom0301.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.github.io&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://phantom0301.coding.io&quot; title=&quot;phantom0301.coding.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.coding.io&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;/p&gt;
+&lt;p&gt;之前把博客部署在gitcafe和github上，不过最近得到了通知，gitcafe和coding合作了，原来在gitcafe上的服务到今年的5月份就停了。&lt;/p&gt;
+&lt;p&gt;所以只能把原来部署在caf
+    
+    </summary>
+    
+    
+      <category term="感悟" scheme="http://phantom0301.gitcafe.io/tags/%E6%84%9F%E6%82%9F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HEXO+github搭建博客总结</title>
+    <link href="http://phantom0301.gitcafe.io/2016/02/20/HEXO+github%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%80%BB%E7%BB%93/"/>
+    <id>http://phantom0301.gitcafe.io/2016/02/20/HEXO+github搭建博客总结/</id>
+    <published>2016-02-20T08:21:27.000Z</published>
+    <updated>2016-02-21T04:45:32.306Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下。&lt;/p&gt;
+&lt;p&gt;另外，有许多资料都是针对hexo2.x版本的，我现在的版本是3.1.1。查找资料的时候一定要注意。这里只是列出问题查找的方向，根据这个方向更便于在网上找到解决的方法。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-准备&quot;&gt;&lt;a href=&quot;#0x01-准备&quot; class=&quot;headerlink&quot; title=&quot;0x01 准备&quot;&gt;&lt;/a&gt;0x01 准备&lt;/h2&gt;&lt;p&gt;1.github账号：安装git，申请github账号，设置好ssh。再新建一个项目，然后在项目的setting中设置为个人页面。&lt;/p&gt;
+&lt;p&gt;2.安装node.js，使用npm命令安装hexo，后面还会大量的用到npm来安装。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;npm install -g hexo
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x02-搭建基本框架&quot;&gt;&lt;a href=&quot;#0x02-搭建基本框架&quot; class=&quot;headerlink&quot; title=&quot;0x02 搭建基本框架&quot;&gt;&lt;/a&gt;0x02 搭建基本框架&lt;/h2&gt;&lt;p&gt;在本地电脑新建一个文件夹a，在a里使用git bash初始化一个hexo项目。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo init
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时会生成许多文件夹，在输入&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;npm install
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;安装一些必要包。&lt;/p&gt;
+&lt;p&gt;执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo generate
+hexo server -p 8080
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时候应该可以在本地用&lt;a href=&quot;http://localhost:8080打开原始框架页面了&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost:8080打开原始框架页面了&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;注意：&lt;/p&gt;
+&lt;p&gt;-p后面的端口要根据自己的情况来写，网上大多使用默认的4000，可是我的4000端口已经用了，这样就会导致网页打不开。&lt;/p&gt;
+&lt;p&gt;在本地打开成功后，就可以开始上传到github上了。&lt;/p&gt;
+&lt;p&gt;打开a里的_config.yml,推荐使用sublime，如果使用其他工具，请注意要保存时格式应为&lt;strong&gt;utf-8&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;找到deploy一栏，修改如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;deploy:
+  type: git
+  repository: https://github.com/你的github名/你的github名.github.io.git
+  branch: master
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意，这里作为个人页面的github项目一定要和用户名相同。&lt;/p&gt;
+&lt;p&gt;然后在git bash中输入&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo deploy
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里注意有两种deploy的方式，&lt;a href=&quot;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这时，就可以用&lt;strong&gt;你的github名.github.io&lt;/strong&gt;来访问&lt;/p&gt;
+&lt;h2 id=&quot;0x03-打磨博客&quot;&gt;&lt;a href=&quot;#0x03-打磨博客&quot; class=&quot;headerlink&quot; title=&quot;0x03 打磨博客&quot;&gt;&lt;/a&gt;0x03 打磨博客&lt;/h2&gt;&lt;p&gt;1.发表博文&lt;br&gt;使用&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo new “文章名”
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;新建博文，这时会在a/source/_post下生成相应的.md文件，打开编辑。&lt;br&gt;在——下面就可以使用markdown语法写博文。&lt;/p&gt;
+&lt;p&gt;写好后，保存，执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo generate
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;就可以在a/public中相应的位置生成博文。&lt;/p&gt;
+&lt;p&gt;那么以后的程式化操作就是&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hexo new “  ” 写博文
+hexo clean 清除public
+hexo generate 编译
+hexo server -p 8080 本地测试
+hexo deploy 部署到远程服务器
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.装饰博客&lt;br&gt;基本框架布置好，装饰的事大家就各显神通了。&lt;/p&gt;
+&lt;p&gt;通常会在以下几个点进行修改&lt;/p&gt;
+&lt;p&gt;a/_config.yml&lt;/p&gt;
+&lt;p&gt;这里修改博客主页的名字，源信息，子页面url格式等&lt;/p&gt;
+&lt;p&gt;最重要的是主题的选用，插件的使用都在这里编辑完成。&lt;br&gt;如果你要使用rss、sitemap、更改deploy的对象就需要在这里修改&lt;/p&gt;
+&lt;p&gt;a/themes/&lt;br&gt;存放你找来的各种主题b、c、d……&lt;/p&gt;
+&lt;p&gt;a/themes/b/_config.yml&lt;br&gt;负责单个主题的框架修改，&lt;br&gt;包括网页的logo图片选择、框架中主菜单显示的文本及连接&lt;/p&gt;
+&lt;p&gt;a/public&lt;br&gt;静态生成的网页，也就是会上传到github上的文件。&lt;/p&gt;
+&lt;p&gt;网上有很多教程，而且如果前面都部署成功了，后面就可以自己慢慢geek了&lt;/p&gt;
+&lt;h2 id=&quot;0x04-其他的一些坑&quot;&gt;&lt;a href=&quot;#0x04-其他的一些坑&quot; class=&quot;headerlink&quot; title=&quot;0x04 其他的一些坑&quot;&gt;&lt;/a&gt;0x04 其他的一些坑&lt;/h2&gt;&lt;p&gt;github的博客可以被google站长收录，但是baidu被禁止爬去github，所以，如果想让baidu也能搜得到你，就部署在gitcafe上。&lt;/p&gt;
+&lt;p&gt;如果hexo generate报错，多半是两个地方的_config.yml更改的有问题，所以一是要备份yml文件或者从git上拉取之前部署成功的文件，二是要边改边generate在本地查看，一点点琢磨不同位置的属性。&lt;/p&gt;
+&lt;p&gt;a/_config.yml中的url设置如果没有购买域名的话，看似没有作用，但会影响生成的sitemap中的路径，所以在多个平台（github、gitcafe）部署的时候，不仅要修改deploy，还要根据需要修改url。&lt;/p&gt;
+&lt;p&gt;否则，即便sitemap能被百度站长工具访问到，也会提示说 &lt;strong&gt;主域验证错误&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;因为是事后总结，暂时想到的就这么多，其他还有什么安装过程中的问题可以直接博客留言，&lt;strong&gt;见即回 &lt;/strong&gt;  ：）&lt;/p&gt;
+&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下
+    
+    </summary>
+    
+      <category term="HEXO" scheme="http://phantom0301.gitcafe.io/categories/HEXO/"/>
+    
+    
+      <category term="HEXO" scheme="http://phantom0301.gitcafe.io/tags/HEXO/"/>
+    
+      <category term="个人博客" scheme="http://phantom0301.gitcafe.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
+    
+  </entry>
+  
+  <entry>
     <title>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议</title>
-    <link href="http://phantom0301.coding.io/2016/03/04/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
-    <id>http://phantom0301.coding.io/2016/03/04/MHN开源蜜罐项目学习笔记（一）HPFEEDS协议/</id>
-    <published>2016-03-04T03:13:55.000Z</published>
-    <updated>2016-03-04T03:28:40.548Z</updated>
+    <link href="http://phantom0301.gitcafe.io/2016/02/19/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://phantom0301.gitcafe.io/2016/02/19/MHN开源蜜罐项目学习笔记（一）HPFEEDS协议/</id>
+    <published>2016-02-19T09:13:55.000Z</published>
+    <updated>2016-03-04T03:32:38.116Z</updated>
     
     <content type="html">&lt;h2 id=&quot;0x00-hpfeeds协议是什么？&quot;&gt;&lt;a href=&quot;#0x00-hpfeeds协议是什么？&quot; class=&quot;headerlink&quot; title=&quot;0x00 hpfeeds协议是什么？&quot;&gt;&lt;/a&gt;0x00 hpfeeds协议是什么？&lt;/h2&gt;&lt;p&gt;feeds，供稿，原始数据。&lt;/p&gt;
 &lt;p&gt;hpfeeds是一个轻量级的验证发布-订阅协议(authenticated publish-subscribe protocol)。&lt;/p&gt;
@@ -94,128 +288,21 @@ python setup.py install
     
     </summary>
     
-      <category term="蜜罐" scheme="http://phantom0301.coding.io/categories/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.gitcafe.io/categories/%E8%9C%9C%E7%BD%90/"/>
     
     
-      <category term="MHN" scheme="http://phantom0301.coding.io/tags/MHN/"/>
+      <category term="MHN" scheme="http://phantom0301.gitcafe.io/tags/MHN/"/>
     
-      <category term="hpfeeds" scheme="http://phantom0301.coding.io/tags/hpfeeds/"/>
+      <category term="hpfeeds" scheme="http://phantom0301.gitcafe.io/tags/hpfeeds/"/>
     
-      <category term="蜜罐" scheme="http://phantom0301.coding.io/tags/%E8%9C%9C%E7%BD%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>博客搬家</title>
-    <link href="http://phantom0301.coding.io/2016/03/02/%E5%8D%9A%E5%AE%A2%E6%90%AC%E5%AE%B6/"/>
-    <id>http://phantom0301.coding.io/2016/03/02/博客搬家/</id>
-    <published>2016-03-02T02:46:27.000Z</published>
-    <updated>2016-03-02T02:50:45.133Z</updated>
-    
-    <content type="html">&lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;/p&gt;
-&lt;p&gt;之前把博客部署在gitcafe和github上，不过最近得到了通知，gitcafe和coding合作了，原来在gitcafe上的服务到今年的5月份就停了。&lt;/p&gt;
-&lt;p&gt;所以只能把原来部署在cafe上的博客移交到coding了&lt;/p&gt;
-&lt;p&gt;现在有两个稳定可访问的域名：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://phantom0301.github.io&quot; title=&quot;phantom0301.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.github.io&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://phantom0301.coding.io&quot; title=&quot;phantom0301.coding.io&quot;&gt;phantom0301.coding.io&lt;/a&gt;&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;/p&gt;
-&lt;p&gt;之前把博客部署在gitcafe和github上，不过最近得到了通知，gitcafe和coding合作了，原来在gitcafe上的服务到今年的5月份就停了。&lt;/p&gt;
-&lt;p&gt;所以只能把原来部署在caf
-    
-    </summary>
-    
-    
-      <category term="感悟" scheme="http://phantom0301.coding.io/tags/%E6%84%9F%E6%82%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HEXO+github搭建博客总结</title>
-    <link href="http://phantom0301.coding.io/2016/02/20/HEXO+github%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%80%BB%E7%BB%93/"/>
-    <id>http://phantom0301.coding.io/2016/02/20/HEXO+github搭建博客总结/</id>
-    <published>2016-02-20T08:21:27.000Z</published>
-    <updated>2016-02-21T04:45:32.306Z</updated>
-    
-    <content type="html">&lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下。&lt;/p&gt;
-&lt;p&gt;另外，有许多资料都是针对hexo2.x版本的，我现在的版本是3.1.1。查找资料的时候一定要注意。这里只是列出问题查找的方向，根据这个方向更便于在网上找到解决的方法。&lt;/p&gt;
-&lt;h2 id=&quot;0x01-准备&quot;&gt;&lt;a href=&quot;#0x01-准备&quot; class=&quot;headerlink&quot; title=&quot;0x01 准备&quot;&gt;&lt;/a&gt;0x01 准备&lt;/h2&gt;&lt;p&gt;1.github账号：安装git，申请github账号，设置好ssh。再新建一个项目，然后在项目的setting中设置为个人页面。&lt;/p&gt;
-&lt;p&gt;2.安装node.js，使用npm命令安装hexo，后面还会大量的用到npm来安装。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;npm install -g hexo
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x02-搭建基本框架&quot;&gt;&lt;a href=&quot;#0x02-搭建基本框架&quot; class=&quot;headerlink&quot; title=&quot;0x02 搭建基本框架&quot;&gt;&lt;/a&gt;0x02 搭建基本框架&lt;/h2&gt;&lt;p&gt;在本地电脑新建一个文件夹a，在a里使用git bash初始化一个hexo项目。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo init
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时会生成许多文件夹，在输入&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;npm install
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;安装一些必要包。&lt;/p&gt;
-&lt;p&gt;执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo generate
-hexo server -p 8080
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时候应该可以在本地用&lt;a href=&quot;http://localhost:8080打开原始框架页面了&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost:8080打开原始框架页面了&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;注意：&lt;/p&gt;
-&lt;p&gt;-p后面的端口要根据自己的情况来写，网上大多使用默认的4000，可是我的4000端口已经用了，这样就会导致网页打不开。&lt;/p&gt;
-&lt;p&gt;在本地打开成功后，就可以开始上传到github上了。&lt;/p&gt;
-&lt;p&gt;打开a里的_config.yml,推荐使用sublime，如果使用其他工具，请注意要保存时格式应为&lt;strong&gt;utf-8&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;找到deploy一栏，修改如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;deploy:
-  type: git
-  repository: https://github.com/你的github名/你的github名.github.io.git
-  branch: master
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意，这里作为个人页面的github项目一定要和用户名相同。&lt;/p&gt;
-&lt;p&gt;然后在git bash中输入&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo deploy
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里注意有两种deploy的方式，&lt;a href=&quot;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;这时，就可以用&lt;strong&gt;你的github名.github.io&lt;/strong&gt;来访问&lt;/p&gt;
-&lt;h2 id=&quot;0x03-打磨博客&quot;&gt;&lt;a href=&quot;#0x03-打磨博客&quot; class=&quot;headerlink&quot; title=&quot;0x03 打磨博客&quot;&gt;&lt;/a&gt;0x03 打磨博客&lt;/h2&gt;&lt;p&gt;1.发表博文&lt;br&gt;使用&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo new “文章名”
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;新建博文，这时会在a/source/_post下生成相应的.md文件，打开编辑。&lt;br&gt;在——下面就可以使用markdown语法写博文。&lt;/p&gt;
-&lt;p&gt;写好后，保存，执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo generate
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;就可以在a/public中相应的位置生成博文。&lt;/p&gt;
-&lt;p&gt;那么以后的程式化操作就是&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo new “  ” 写博文
-hexo clean 清除public
-hexo generate 编译
-hexo server -p 8080 本地测试
-hexo deploy 部署到远程服务器
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.装饰博客&lt;br&gt;基本框架布置好，装饰的事大家就各显神通了。&lt;/p&gt;
-&lt;p&gt;通常会在以下几个点进行修改&lt;/p&gt;
-&lt;p&gt;a/_config.yml&lt;/p&gt;
-&lt;p&gt;这里修改博客主页的名字，源信息，子页面url格式等&lt;/p&gt;
-&lt;p&gt;最重要的是主题的选用，插件的使用都在这里编辑完成。&lt;br&gt;如果你要使用rss、sitemap、更改deploy的对象就需要在这里修改&lt;/p&gt;
-&lt;p&gt;a/themes/&lt;br&gt;存放你找来的各种主题b、c、d……&lt;/p&gt;
-&lt;p&gt;a/themes/b/_config.yml&lt;br&gt;负责单个主题的框架修改，&lt;br&gt;包括网页的logo图片选择、框架中主菜单显示的文本及连接&lt;/p&gt;
-&lt;p&gt;a/public&lt;br&gt;静态生成的网页，也就是会上传到github上的文件。&lt;/p&gt;
-&lt;p&gt;网上有很多教程，而且如果前面都部署成功了，后面就可以自己慢慢geek了&lt;/p&gt;
-&lt;h2 id=&quot;0x04-其他的一些坑&quot;&gt;&lt;a href=&quot;#0x04-其他的一些坑&quot; class=&quot;headerlink&quot; title=&quot;0x04 其他的一些坑&quot;&gt;&lt;/a&gt;0x04 其他的一些坑&lt;/h2&gt;&lt;p&gt;github的博客可以被google站长收录，但是baidu被禁止爬去github，所以，如果想让baidu也能搜得到你，就部署在gitcafe上。&lt;/p&gt;
-&lt;p&gt;如果hexo generate报错，多半是两个地方的_config.yml更改的有问题，所以一是要备份yml文件或者从git上拉取之前部署成功的文件，二是要边改边generate在本地查看，一点点琢磨不同位置的属性。&lt;/p&gt;
-&lt;p&gt;a/_config.yml中的url设置如果没有购买域名的话，看似没有作用，但会影响生成的sitemap中的路径，所以在多个平台（github、gitcafe）部署的时候，不仅要修改deploy，还要根据需要修改url。&lt;/p&gt;
-&lt;p&gt;否则，即便sitemap能被百度站长工具访问到，也会提示说 &lt;strong&gt;主域验证错误&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;因为是事后总结，暂时想到的就这么多，其他还有什么安装过程中的问题可以直接博客留言，&lt;strong&gt;见即回 &lt;/strong&gt;  ：）&lt;/p&gt;
-&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下
-    
-    </summary>
-    
-      <category term="HEXO" scheme="http://phantom0301.coding.io/categories/HEXO/"/>
-    
-    
-      <category term="HEXO" scheme="http://phantom0301.coding.io/tags/HEXO/"/>
-    
-      <category term="个人博客" scheme="http://phantom0301.coding.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
+      <category term="蜜罐" scheme="http://phantom0301.gitcafe.io/tags/%E8%9C%9C%E7%BD%90/"/>
     
   </entry>
   
   <entry>
     <title>PyMongo官方文档翻译</title>
-    <link href="http://phantom0301.coding.io/2016/02/19/PyMongo%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
-    <id>http://phantom0301.coding.io/2016/02/19/PyMongo官方文档翻译/</id>
+    <link href="http://phantom0301.gitcafe.io/2016/02/19/PyMongo%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
+    <id>http://phantom0301.gitcafe.io/2016/02/19/PyMongo官方文档翻译/</id>
     <published>2016-02-19T09:00:36.000Z</published>
     <updated>2016-02-21T04:45:56.579Z</updated>
     
@@ -348,19 +435,19 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
     
     </summary>
     
-      <category term="python" scheme="http://phantom0301.coding.io/categories/python/"/>
+      <category term="python" scheme="http://phantom0301.gitcafe.io/categories/python/"/>
     
     
-      <category term="pymongo" scheme="http://phantom0301.coding.io/tags/pymongo/"/>
+      <category term="pymongo" scheme="http://phantom0301.gitcafe.io/tags/pymongo/"/>
     
-      <category term="python" scheme="http://phantom0301.coding.io/tags/python/"/>
+      <category term="python" scheme="http://phantom0301.gitcafe.io/tags/python/"/>
     
   </entry>
   
   <entry>
     <title>博客纪元，写在前面</title>
-    <link href="http://phantom0301.coding.io/2016/02/19/%E5%8D%9A%E5%AE%A2%E7%BA%AA%E5%85%83%EF%BC%8C%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2/"/>
-    <id>http://phantom0301.coding.io/2016/02/19/博客纪元，写在前面/</id>
+    <link href="http://phantom0301.gitcafe.io/2016/02/19/%E5%8D%9A%E5%AE%A2%E7%BA%AA%E5%85%83%EF%BC%8C%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2/"/>
+    <id>http://phantom0301.gitcafe.io/2016/02/19/博客纪元，写在前面/</id>
     <published>2016-02-19T08:51:02.000Z</published>
     <updated>2016-02-21T04:46:10.754Z</updated>
     
@@ -377,10 +464,10 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
     
     </summary>
     
-      <category term="感悟" scheme="http://phantom0301.coding.io/categories/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.gitcafe.io/categories/%E6%84%9F%E6%82%9F/"/>
     
     
-      <category term="感悟" scheme="http://phantom0301.coding.io/tags/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.gitcafe.io/tags/%E6%84%9F%E6%82%9F/"/>
     
   </entry>
   
