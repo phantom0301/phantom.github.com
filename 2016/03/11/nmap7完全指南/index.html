@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>HPFEEDS协议 | 零の杂货铺</title>
+  <title>nmap7完全指南 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -122,7 +122,9 @@
 				    
 				    <li><a href="/categories/python/" class="animsition-link">python<small>(1)</small></a></li>
 				    
-				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(1)</small></a></li>
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(2)</small></a></li>
 				    
 				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(1)</small></a></li>
 				    
@@ -251,86 +253,200 @@
         <div class="row col-md-offset-2">
             <div class="col-md-8">
     			<span class="post-meta">
-      <time datetime="2016-03-05T00:40:10.000Z" itemprop="datePublished">
-          2016-03-05
+      <time datetime="2016-03-11T02:50:07.000Z" itemprop="datePublished">
+          2016-03-11
       </time>
     
     
     | 
-    <a href='/tags/分享/'>分享</a>
+    <a href='/tags/namp/'>namp</a>
     
     
 </span>
-                <h1>HPFEEDS协议</h1>
+                <h1>nmap7完全指南</h1>
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x00-hpfeeds协议是什么？"><a href="#0x00-hpfeeds协议是什么？" class="headerlink" title="0x00 hpfeeds协议是什么？"></a>0x00 hpfeeds协议是什么？</h2><p>hpfeeds是一个轻量级的验证发布-订阅协议(authenticated publish-subscribe protocol)。</p>
-<p>轻量级好理解，就是代码量相对较少，功能相对不复杂。那什么是发布-订阅协议呢？订阅发布协议定义了一种一对多的依赖关系，让多个订阅者对象同时监听某一个主题对象。这个主题对象在自身状态变化时，会通知所有订阅者对象，使它们能够自动更新自己的状态。它是为了解决这样一种情况的发生，一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变。我的理解，这就类似于发传单，目标发送通知，没有指定特定的对象，通知会自动传播，观察者自己决定是否需要看传单，发送者对于传单是否被看一无所知。</p>
-<p>详细的发布订阅者介绍可以戳这里：<br><a href="https://msdn.microsoft.com/en-us/library/ff649664.aspx" target="_blank" rel="external">https://msdn.microsoft.com/en-us/library/ff649664.aspx</a></p>
-<p>线路协议组成如下：</p>
-<p>首先是消息头：有两个参数，消息总长和消息类型</p>
-<p>消息类型有以下几种：</p>
-<pre><code>error (0): errormessage
-info (1): server name, nonce
-auth (2): client id, sha1(nonce+authkey)
-publish (3): client id, channelname, payload
-subscribe (4): client id, channelname
-</code></pre><p>数字代表消息类型，而冒号后面的内容则代表后续的消息字段</p>
-<p>比如说当消息类型为3，publish时，后面的字段就会有四个：</p>
-<pre><code>client id的长度
-client id
-channelname的长度
-channelname
-payload
-</code></pre><p>一个完整的消息如下：</p>
-<pre><code>length | opcode | next | identifier | next | channelname|payload
-----------------------------------------------------------------
-85       3        9       b4aa2@hp1   9      mwcapture      137941a3d8589f6728924c08561070bceb5d72b8,http://1.2.3.4/calc.exe
-</code></pre><p>消息有了，整个消息的认证过程就是以下的几个步骤：</p>
+      		<h2 id="0x00-基本介绍"><a href="#0x00-基本介绍" class="headerlink" title="0x00 基本介绍"></a>0x00 基本介绍</h2><p>整合了官网和网上的一些资料，本来是有配图的，但是一想到可能会暴露一些敏感信息，就不摆在这了，不足之处，欢迎交流。</p>
+<p>Nmap现在最新的版本是Nmap 7。主要是增加了IPV6和ssl方面的支持。</p>
+<p>Nmap，全称Network Mapper，开源网络探测与审计框架。使用构造异常IP包的方式来探测主机服务。</p>
+<p>完整的Namp套件包括界面图形化的Zenmap，数据传输、重定向与调试工具Ncat，扫描结果比较器Ndiff以及数据包生成与响应工具Nping。</p>
+<p>最常规的Nmap组成指令为</p>
+<pre><code>nmap [扫描类型] [选项] [目标]
+</code></pre><h2 id="0x02-参数-【目标】"><a href="#0x02-参数-【目标】" class="headerlink" title="0x02 参数-【目标】"></a>0x02 参数-【目标】</h2><p>目标参数可以输入域名、IP、网络等<br>例如：</p>
+<pre><code>www.baidu.com
+microsoft.com/24
+192.168.0.1
+10.0.0-255.1-254
+</code></pre><p>另外还有如下参数可选：</p>
+<ol>
+<li>-iL &lt;文件名&gt;，从表单中读取扫描目标。</li>
+<li>-iR &lt;主机数量&gt;，选取随机扫描目标，私有段ip、多播ip、未分配使用的ip会被自动跳过，<0>可以指定一个无休止的扫描，如果在一个雨天的午后，你十分无聊的时候，可以运行。<br><code>nmap -Pn -sS -p 80 -iR 0 --open</code></0></li>
+<li>–exclude &lt;主机1&gt;，&lt;主机2&gt;，跳过部分目标。</li>
+<li>–exclude &lt;文件名&gt;，从表单中读取跳过目标。</li>
+</ol>
+<h2 id="0x03-参数-【主机发现】"><a href="#0x03-参数-【主机发现】" class="headerlink" title="0x03 参数-【主机发现】"></a>0x03 参数-【主机发现】</h2><ol>
+<li>-sL，列表扫描，通过访问DNS的方式得到目标主机的ip。</li>
+<li>-sn，不进行端口扫描，ping scan。</li>
+<li>-Pn，不进行ping，强行扫描。</li>
+<li>-PS &lt;端口列表&gt;，TCP SYN Ping扫描端口</li>
+<li>-PA &lt;端口列表&gt;，TCP ACK Ping扫描端口</li>
+<li>-PU &lt;端口列表&gt;，UDP Ping</li>
+<li>-PY &lt;端口列表&gt;，SCTP INIT Ping</li>
+<li>-PE;-PP;-PM，ICMP Ping Types</li>
+<li>-PO &lt;协议号&gt;，IP Protocol Ping</li>
+<li>-PR，ARP Ping</li>
+<li>–disable-arp-pin 不使用ARP ping</li>
+<li>–traceroute 探测到达主机的Trace路径</li>
+<li>-n 不使用DNS结果</li>
+<li>-R 始终使用DNS结果</li>
+<li>–system-dns 使用系统的DNS解析，不请求域名服务器</li>
+<li>–dns-servers &lt;服务1&gt;,&lt;服务2&gt; 查询的DNS服务器队列</li>
+</ol>
+<p><a href="https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers" title="protocol_list" target="_blank" rel="external">https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers</a></p>
+<h2 id="0x04-参数-【端口扫描】"><a href="#0x04-参数-【端口扫描】" class="headerlink" title="0x04 参数-【端口扫描】"></a>0x04 参数-【端口扫描】</h2><p>使用六种状态描述端口状态：</p>
 <ul>
-<li></li>
-<li>服务器为每一个连接生成一个标志</li>
-<li>客户端发送id 和 标志+authkey组成的sha1</li>
-<li>服务器检查id和sha1</li>
-<li>服务器检查数据类型，是要发布还是要订阅</li>
+<li>open，端口积极接收数据</li>
+<li>closed，无应用程序监听此端口</li>
+<li>filtered，端口难以抵达，无法准确判断</li>
+<li>unfiltered，端口可以抵达，无法准确判断</li>
+<li>open|filtered，两种状态不确定</li>
+<li>closed|filtered，两种状态不确定</li>
 </ul>
-<p>最终实现服务器、发布者、订阅者之间的解耦，彼此之间完全独立，互不干扰。</p>
-<h2 id="0x01-为什么要用hpfeeds协议"><a href="#0x01-为什么要用hpfeeds协议" class="headerlink" title="0x01 为什么要用hpfeeds协议"></a>0x01 为什么要用hpfeeds协议</h2><p>首先，正如以上所说的，整个协议实现了三方的功能独立。使用这种方式降低了应用与业务逻辑之间的耦合，统一一个对外的发布接口，只需要关心监听的类型，不关心监听的具体处理人。只管发，不管到不到。很方便的建立一种一对多的依赖关系。</p>
-<p>在当一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变时，就可以使用订阅发布模式。</p>
-<p>hpfeeds协议希望能够实现一个单一的连线形式，使得每一个人都可以在任何时间以任何语言去订阅发布数据，不同的数据以通道来划分，由通道的使用者来决定数据结构形式。而通道的验证通过authkey来完成，它由两部分组成，ident和secret，相当于身份和密码。密码在hash后和每一个临时连接标志一起发送给服务器，这样保证不会被窃听，所以它可以运行在SSL、TLS下。</p>
-<p>1.降低耦合。发布者对于接收者的数量，身份，接收的数据类型一无所知。<br>2.安全性高。只有消息订阅者之间的单线信息交互，不存在其他程序的信息交换。<br>3.测试方便。</p>
-<p>1.性能降低，订阅要进行管理</p>
-<h2 id="0x02-如何操作"><a href="#0x02-如何操作" class="headerlink" title="0x02 如何操作"></a>0x02 如何操作</h2><p>正常安装使用hpfeeds的步骤如下：</p>
-<pre><code>git clone https://github.com/rep/hpfeeds/
-cd hpfeeds
-python setup.py build
-python setup.py install
-</code></pre><p>安装成功后，会出现下面几个文件夹。<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/1.jpg" alt=""></p>
-<ul>
-<li>appsuport：hpfeeds支持的一些蜜罐的应用程序</li>
-<li>broker：服务器功能程序集，包括增加用户，服务器运行，查看所有用户信息等</li>
-<li>build：一些编译环境</li>
-<li>cli：用户程序</li>
-<li>example：例程</li>
-<li>lib：支持库</li>
-</ul>
-<p>使用时先打开broker，运行其中的add_user.py添加用户信息：<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/2.jpg" alt=""></p>
-<p>根据提示信息，我们添加用户test，密码123456，拥有发布频道1，2，无订阅频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/3.jpg" alt=""></p>
-<p>再添加用户custom，密码123456，拥有订阅频道1，2，无发布频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/4.jpg" alt=""></p>
-<p>现在使用dump_users.py查看刚才创建的用户<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/5.jpg" alt=""></p>
-<p>如图所示，这里应经可以查看到刚才我们新建的用户了。</p>
-<p>接下来，我们打开服务器feedbroker.py<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/6.jpg" alt=""></p>
-<p>再开启一个新的进程运行cli文件夹里的用户程序hpfeeds-client</p>
-<p>先开启订阅者custom，使用1频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/7.jpg" alt=""></p>
-<p>此时，服务器端显示用户登录成功<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/8.jpg" alt=""></p>
-<p>我们再打开一个新的进程，以发布者test，使用1频道发布“helloworld”<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/9.jpg" alt=""></p>
-<p>我们可以看到发布者一旦发布完消息后，立即退出进程，并不确认消息是否收到</p>
-<p>这时，服务器显示test登录成功<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/10.jpg" alt=""></p>
-<p>于此同时，订阅者custom成功接收到消息<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/11.jpg" alt=""></p>
-<p>到此，一次完整的发送、接收消息的流程就走完了。</p>
-<p>通过这一过程，我们发现，频道与用户分离，发送和订阅者身份平等，只需订阅者实时监听，发送者可以即时发送即时撤出。</p>
-<p>这里是对于hpfeeds协议的简单介绍，下一部分我会从代码的角度进一步分析该协议，并适当对于协议功能进行添加。</p>
+<hr>
+<ol>
+<li>-sS，TCP SYN scan，默认状态下的扫描模式，半开扫描，扫描快速，动静小。</li>
+<li>-sT，TCP connect scan，当没有原始数据包特权时使用，容易被发现。</li>
+<li>-sU，UDP scans，扫描UDP服务端口，DNS/SNMP/DHCP</li>
+<li>-sY，SCTP INIT scan，SCTP是一种较新的用来替代TCP和UDP的协议，类似于1</li>
+<li>-sN;-sF;-sX，TCP NULL, FIN, and Xmas scans，利用RFC 793的一些漏洞来判断端口状态。改变一些特殊标志的比特值。更加隐蔽，可以逃过一些防火墙，但是系统协议必须严格遵守RFC 793。</li>
+<li>-sA，TCP ACK scan，不用来判断端口是否打开，用来探测防火墙过滤规则</li>
+<li>-sW，TCP Window scan，类似ACK scan，增加不同系统的细节，但是结果不一定可信，甚至有可能正好相反。</li>
+<li>-sM，TCP Maimon scan，Uriel Maimon发现的一些BSD的系统在端口打开时会简单的终止包</li>
+<li>–scanflags，Custom TCP scan，自己通过TCP标志的设置构造自己的扫描，可以使用：</li>
+</ol>
+<pre><code>*URG，紧急指针有效*
+
+*ACK，确认序号有效*
+
+*PSH，接收方应该尽快将这个报文段交给应用层*
+
+*RST，重建连接*
+
+*SYN，同步序号用来发起一个连接*
+
+*FIN，发送端完成发送任务*
+</code></pre><ol>
+<li>-sZ，SCTP COOKIE ECHO scan</li>
+<li>-sI <zombie host="">:<probeport>，idle scan，实现真正的盲扫，不会从你的真实IP发送包。使用边信道攻击实现僵尸机攻击。隐蔽性很好。</probeport></zombie></li>
+<li>-sO，IP protocol scan，ip协议扫描。</li>
+<li>-b，&lt;主机&gt;，FTP bounce scan，使用FTP代理扫描。因为使用FTP更容易绕过防火墙。</li>
+</ol>
+<blockquote>
+<p>SCTP（Stream Control Transmission Protocol，流控制传输协议）</p>
+<p>BSD (Berkeley Software Distribution，伯克利软件套件)是Unix的衍生系统</p>
+</blockquote>
+<h2 id="0x05-参数-【端口号】"><a href="#0x05-参数-【端口号】" class="headerlink" title="0x05 参数-【端口号】"></a>0x05 参数-【端口号】</h2><ol>
+<li>-p &lt;端口范围&gt;</li>
+<li>–exclude-ports &lt;端口范围&gt;</li>
+<li>-F，快速扫描常用端口，比默认的端口更少</li>
+<li>-r，按顺序扫描，默认情况下Nmap是随机扫描所指定的端口号的</li>
+<li>–port-ratio &lt;比例&gt;0-1之间，大于给的比例扫描servuces文件中的端口。</li>
+<li>–top-ports &lt;数量&gt;扫描指定数量的熟知端口<h2 id="0x06-参数-【服务和版本检测】"><a href="#0x06-参数-【服务和版本检测】" class="headerlink" title="0x06 参数-【服务和版本检测】"></a>0x06 参数-【服务和版本检测】</h2></li>
+<li>-sV，服务版本检测</li>
+<li>–allports，版本检测不跳过任何端口，默认情况下会跳过TCP端口9100，因为一些打印机会打印传送到该端口的任何信息。</li>
+<li>–version-intensity &lt;强度&gt; 0-9，修改版本扫描检测强度。</li>
+<li>–version-light，强度2</li>
+<li>–version-all，强度9</li>
+<li>–version-trace，显示Nmap的版本识别过程<h2 id="0x07-参数-【系统检测】"><a href="#0x07-参数-【系统检测】" class="headerlink" title="0x07 参数-【系统检测】"></a>0x07 参数-【系统检测】</h2></li>
+<li>-O 开启系统检测</li>
+<li>–osscan-limit，只检查一定条件的系统，有一个检测到的端口</li>
+<li>–osscan-guess，百分比显示可能的系统选项</li>
+<li>–max-os-tries，在未能匹配系统时，Nmap会重复检测5次，这个次数可以设置<h2 id="0x08-参数-【NSE】"><a href="#0x08-参数-【NSE】" class="headerlink" title="0x08 参数-【NSE】"></a>0x08 参数-【NSE】</h2>NSE,Nmap脚本引擎，Nmap里最强大最灵活的特性，允许用户编写LUA语言脚本实现各种测试任务。</li>
+</ol>
+<p>目前的脚本类别目录有：</p>
+<hr>
+<pre><code>auth，认证-目标系统身份验证
+broadcast，广播-广播发现目标
+brute，爆破-爆破身份验证
+default，缺省-默认调用
+discovery，发现-积极发现更多公共注册服务
+dos，拒绝服务-DOS攻击
+exploit，利用-利用一些漏洞
+external，外部-会将数据发送给第三方
+fuzzer，模糊测试-随机字段发送包，可以发现一些未被发现的漏洞
+intrusive，侵入-风险过高的脚本
+malware，恶意程序-测试目标是否被恶意程序感染
+safe，安全-风险很低的脚本
+version，版本-扩展版本检测功能，不能显式调用
+vuln，漏洞-检测特定的已知漏洞
+</code></pre><hr>
+<ol>
+<li>-sC，缺省脚本执行</li>
+<li><p>–script &lt;文件名&gt;|&lt;类别&gt;|&lt;目录&gt;|&lt;表达式&gt;…，可以使用+来强制脚本运行，也可以用 <em>all</em> 来遍历所有脚本，这两个选项要慎重使用</p>
+<p> nmap –script “http-*” 加载所有http前缀的脚本</p>
+<p> nmap –script “not intrusive”</p>
+<p> nmap –script “default or safe”</p>
+<p> nmap –script “default and safe”</p>
+</li>
+<li><p>–script-args &lt;脚本&gt;=&lt;参数&gt;,给脚本提供参数</p>
+</li>
+<li>–script-args-file &lt;文件名&gt;，从文件提供参数</li>
+<li>–script-help &lt;脚本名&gt;，帮助</li>
+<li>–script-trace 打印脚本执行过程</li>
+<li><p>–script-updatedb，升级脚本库</p>
+<h2 id="0x09-参数-【时间与性能】"><a href="#0x09-参数-【时间与性能】" class="headerlink" title="0x09 参数-【时间与性能】"></a>0x09 参数-【时间与性能】</h2><p>时间单位：ms s m h</p>
+</li>
+<li><p>–min(max)-hostgroup &lt;主机数&gt;，调整并行扫描组主机数。</p>
+</li>
+<li>–min(max)-parallelism &lt;探针数&gt;，调整并行探针数。</li>
+<li>–min(max，initial)-rtt-timeout &lt;时间&gt;，调整探针超时时间</li>
+<li>–max-retries &lt;数量&gt;，指定端口扫描探针最大值，最大重试次数</li>
+<li>–host-timeout &lt;时间&gt;，放弃超时主机目标</li>
+<li>–scan-delay &lt;时间&gt;，调整探针之间的延迟时间</li>
+<li>–min(max)-rate &lt;数字&gt;，调整扫描速率，每秒发送的包数</li>
+<li>-T <0-5>时间模板，越大越快<h2 id="0x10-参数-【防火墙IDS逃逸】"><a href="#0x10-参数-【防火墙IDS逃逸】" class="headerlink" title="0x10 参数-【防火墙IDS逃逸】"></a>0x10 参数-【防火墙IDS逃逸】</h2></0-5></li>
+<li>-f，分隔包碎片</li>
+<li>-mtu，指定偏移量分隔包碎片</li>
+<li>-D &lt;诱饵&gt;&lt;,ME&gt;，使用诱饵掩盖IP</li>
+<li>-S &lt; IP &gt;，伪造源地址IP</li>
+<li>-e &lt; interface &gt;，使用特定接口发送接收包</li>
+<li>–source-port &lt; portnum &gt;，伪造源端口号</li>
+<li>–data &lt; hex string &gt;，添加自定义二进制数据到发送包</li>
+<li>–data &lt; string &gt;，添加自定义字符串到发送包</li>
+<li>–data-length &lt; num &gt;，添加随机数据到发送包</li>
+<li>–ip-option &lt; hex string &gt;，用指定的IP选项发送数据包</li>
+<li>–ttl &lt; value &gt;，设置存活时间</li>
+<li>–randomize-hosts，随机主机目标顺序</li>
+<li>–spoof-mac &lt; MAC,prefix,… &gt;伪造MAC地址</li>
+<li>–proxies &lt; URL &gt;，通过代理链中继TCP连接</li>
+<li>–badsum，发送虚假校验和</li>
+<li>–adler32，使用另一种校验和代替CRC32C<h2 id="0x11-参数-【输出】"><a href="#0x11-参数-【输出】" class="headerlink" title="0x11 参数-【输出】"></a>0x11 参数-【输出】</h2></li>
+<li>-oN &lt; file &gt;，正常输出</li>
+<li>-oX，XML输出</li>
+<li>-oS，脚本输出</li>
+<li>-oG，已弃用</li>
+<li>-oA，全格式</li>
+<li>-v &lt; level &gt;，增加Nmap输出普通信息水平</li>
+<li>-d &lt; level &gt;，增加调试信息输出水平</li>
+<li>–reason，给出原因</li>
+<li>–stats-every &lt; time &gt;，每过固定时间打印一次数据</li>
+<li>–packet-trace，数据包路径</li>
+<li>–open，显示打开的端口</li>
+<li>–iflist，列表接口和路径</li>
+<li>–append-output，结果添加到输出</li>
+<li>–resume <filename>，恢复终止的扫描<h2 id="0x12-参数-【混合选项】"><a href="#0x12-参数-【混合选项】" class="headerlink" title="0x12 参数-【混合选项】"></a>0x12 参数-【混合选项】</h2></filename></li>
+<li>-6，开启IPv6扫描</li>
+<li>-A，积极扫描策略（-O，-sV，-sC，–traceroute）</li>
+<li>–datadir &lt; directoryname &gt; 指定Nmap数据文件</li>
+<li>–servicedb &lt; services file &gt;，指定Nmap服务库</li>
+<li>–versiondb &lt; service probes file &gt;，指定版本库</li>
+<li>–release-memory，推出前释放内存</li>
+<li>-V，显示版本号<br>参考：</li>
+</ol>
+<p><a href="http://nmap.org" target="_blank" rel="external">http://nmap.org</a></p>
+<p><a href="https://www.91ri.org/4105.html" target="_blank" rel="external">实战高级用法</a></p>
+<p><a href="https://www.91ri.org/3870.html" target="_blank" rel="external">绕过防火墙与脚本使用</a></p>
 <p>原创文章，转载请注明： 转载自零の杂货铺</p>
 
             <div class="clearfix"></div>
@@ -346,7 +462,7 @@ python setup.py install
 </nav>
 
         <div class="duoshuo">
-<div class="ds-thread" data-thread-key="2016/03/05/HPFEEDS协议/" data-title="HPFEEDS协议" data-url="http://phantom0301.gitcafe.io/2016/03/05/HPFEEDS协议/"></div>
+<div class="ds-thread" data-thread-key="2016/03/11/nmap7完全指南/" data-title="nmap7完全指南" data-url="http://phantom0301.gitcafe.io/2016/03/11/nmap7完全指南/"></div>
 <script type="text/javascript">
 var duoshuoQuery = {short_name:"phantom0301"};
 (function() {
