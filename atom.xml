@@ -4,9 +4,9 @@
   <subtitle>Free and Share</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://phantom0301.gitcafe.io/"/>
-  <updated>2016-03-11T02:52:36.949Z</updated>
-  <id>http://phantom0301.gitcafe.io/</id>
+  <link href="http://phantom0301.coding.io/"/>
+  <updated>2016-03-22T06:32:31.076Z</updated>
+  <id>http://phantom0301.coding.io/</id>
   
   <author>
     <name>Phantom</name>
@@ -16,9 +16,64 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>MHN学习笔记（二）Dionaea蜜罐架构</title>
+    <link href="http://phantom0301.coding.io/2016/03/17/MHN%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Dionaea%E8%9C%9C%E7%BD%90%E6%9E%B6%E6%9E%84/"/>
+    <id>http://phantom0301.coding.io/2016/03/17/MHN学习笔记（二）Dionaea蜜罐架构/</id>
+    <published>2016-03-17T10:51:04.000Z</published>
+    <updated>2016-03-22T06:32:31.076Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x01-前言&quot;&gt;&lt;a href=&quot;#0x01-前言&quot; class=&quot;headerlink&quot; title=&quot;0x01 前言&quot;&gt;&lt;/a&gt;0x01 前言&lt;/h2&gt;&lt;p&gt;上次记录了学习hpfeeds协议的一些收获，这次将介绍开源项目中的一款模拟功能丰富的蜜罐——dionaea。&lt;/p&gt;
+&lt;p&gt;百度、google、github一下dionaea，就能看到很多关于这个蜜罐的简介、使用情况以及对蜜罐捕获数据的分析。&lt;/p&gt;
+&lt;p&gt;其实dionaea项目现在可以分成两种，一种是原生的dioanea蜜罐，另一种是经过MHN改造后的dionaea，两者的服务模拟、捕获数据构成等略有不同。不过，这两种dionaea蜜罐我都尝试搭建并成功运行。所以，这次我打算从代码构成的角度讲讲dionaea蜜罐。&lt;/p&gt;
+&lt;p&gt;按照你能成功的方式安装好dionaea蜜罐后，dionaea文件夹下会有如下的几个文件。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;dioanea
+|-bin
+|-etc
+|-include
+|-lib
+|-share
+|-var
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;
+&lt;li&gt;bin：运行的主要程序的可执行文件&lt;/li&gt;
+&lt;li&gt;etc：dionaea的配置文件&lt;/li&gt;
+&lt;li&gt;include：各种系统的环境需求&lt;/li&gt;
+&lt;li&gt;lib：库文件以及服务模拟文件存储文件夹&lt;/li&gt;
+&lt;li&gt;var：蜜罐系统日志以及捕获数据的存储文件夹&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里，我会详细介绍配置文件和捕获数据文件&lt;/p&gt;
+&lt;h2 id=&quot;0x02-配置文件&quot;&gt;&lt;a href=&quot;#0x02-配置文件&quot; class=&quot;headerlink&quot; title=&quot;0x02 配置文件&quot;&gt;&lt;/a&gt;0x02 配置文件&lt;/h2&gt;&lt;pre&gt;&lt;code&gt;etc
+|-dionaea
+    |-dionaea.conf
+    |-dionaea.conf.dist
+    |-dionaea.conf.org
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;作为蜜罐的配置文件，这里对于蜜罐运行时加载的协议、文件存储的位置、监听的端口等做了详细的描述。&lt;/p&gt;
+&lt;p&gt;第一个参数是logging，负责存储蜜罐运行过程中的默认日志和出错日志的路径和日志等级设定&lt;/p&gt;
+&lt;p&gt;第二个参数是processors，负责加载几个对于捕获数据进行过滤的程序，包括二进制流、会话等&lt;/p&gt;
+&lt;p&gt;第三个参数是download，负责恶意程序的下载路径&lt;/p&gt;
+&lt;p&gt;第四个参数是bistreams，负责二进制流下载路径&lt;/p&gt;
+&lt;p&gt;第五个参数submit，负责第三方数据提交&lt;/p&gt;
+&lt;p&gt;第六个参数是listen，负责蜜罐监听ip的设置，有三种模式。getifaddrs模式监听所有ip，包括自己的127.0.0.1。manual模式允许用户设置不进行监听的ip。nl模式加载一个列表监听。&lt;/p&gt;
+&lt;p&gt;第七个参数是modules，加载用到的模块，lib中服务模拟的python程序就会在这里加载，捕获数据入库也在这里进行设置&lt;/p&gt;
+&lt;p&gt;从配置文件中，可以看出dionaea的许多功能都处于开发阶段，还有一部分功能被注释掉了，喜欢探索的高级玩家可以解开注释的封印，去试试dionaea的洪荒之力~~ 中二ing~~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x01-前言&quot;&gt;&lt;a href=&quot;#0x01-前言&quot; class=&quot;headerlink&quot; title=&quot;0x01 前言&quot;&gt;&lt;/a&gt;0x01 前言&lt;/h2&gt;&lt;p&gt;上次记录了学习hpfeeds协议的一些收获，这次将介绍开源项目中的一款模拟功能丰富的蜜罐——dion
+    
+    </summary>
+    
+      <category term="蜜罐" scheme="http://phantom0301.coding.io/categories/%E8%9C%9C%E7%BD%90/"/>
+    
+    
+      <category term="蜜罐" scheme="http://phantom0301.coding.io/tags/%E8%9C%9C%E7%BD%90/"/>
+    
+  </entry>
+  
+  <entry>
     <title>nmap7完全指南</title>
-    <link href="http://phantom0301.gitcafe.io/2016/03/11/nmap7%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/"/>
-    <id>http://phantom0301.gitcafe.io/2016/03/11/nmap7完全指南/</id>
+    <link href="http://phantom0301.coding.io/2016/03/11/nmap7%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/"/>
+    <id>http://phantom0301.coding.io/2016/03/11/nmap7完全指南/</id>
     <published>2016-03-11T02:50:07.000Z</published>
     <updated>2016-03-11T02:52:36.949Z</updated>
     
@@ -211,17 +266,17 @@ vuln，漏洞-检测特定的已知漏洞
     
     </summary>
     
-      <category term="安全工具" scheme="http://phantom0301.gitcafe.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
+      <category term="安全工具" scheme="http://phantom0301.coding.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
     
     
-      <category term="namp" scheme="http://phantom0301.gitcafe.io/tags/namp/"/>
+      <category term="namp" scheme="http://phantom0301.coding.io/tags/namp/"/>
     
   </entry>
   
   <entry>
     <title>博客搬家</title>
-    <link href="http://phantom0301.gitcafe.io/2016/03/02/%E5%8D%9A%E5%AE%A2%E6%90%AC%E5%AE%B6/"/>
-    <id>http://phantom0301.gitcafe.io/2016/03/02/博客搬家/</id>
+    <link href="http://phantom0301.coding.io/2016/03/02/%E5%8D%9A%E5%AE%A2%E6%90%AC%E5%AE%B6/"/>
+    <id>http://phantom0301.coding.io/2016/03/02/博客搬家/</id>
     <published>2016-03-02T02:46:27.000Z</published>
     <updated>2016-03-11T02:47:30.515Z</updated>
     
@@ -230,7 +285,7 @@ vuln，漏洞-检测特定的已知漏洞
 &lt;p&gt;所以只能把原来部署在cafe上的博客移交到coding了&lt;/p&gt;
 &lt;p&gt;现在有两个稳定可访问的域名：&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://phantom0301.github.io&quot; title=&quot;phantom0301.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.github.io&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://phantom0301.coding.io&quot; title=&quot;phantom0301.coding.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.coding.io&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://phantom0301.coding.io&quot; title=&quot;phantom0301.coding.io&quot;&gt;phantom0301.coding.io&lt;/a&gt;&lt;/p&gt;
 </content>
     
     <summary type="html">
@@ -241,17 +296,17 @@ vuln，漏洞-检测特定的已知漏洞
     
     </summary>
     
-      <category term="感悟" scheme="http://phantom0301.gitcafe.io/categories/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.io/categories/%E6%84%9F%E6%82%9F/"/>
     
     
-      <category term="感悟" scheme="http://phantom0301.gitcafe.io/tags/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.io/tags/%E6%84%9F%E6%82%9F/"/>
     
   </entry>
   
   <entry>
     <title>HEXO+github搭建博客总结</title>
-    <link href="http://phantom0301.gitcafe.io/2016/02/20/HEXO+github%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%80%BB%E7%BB%93/"/>
-    <id>http://phantom0301.gitcafe.io/2016/02/20/HEXO+github搭建博客总结/</id>
+    <link href="http://phantom0301.coding.io/2016/02/20/HEXO+github%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%80%BB%E7%BB%93/"/>
+    <id>http://phantom0301.coding.io/2016/02/20/HEXO+github搭建博客总结/</id>
     <published>2016-02-20T08:21:27.000Z</published>
     <updated>2016-02-21T04:45:32.306Z</updated>
     
@@ -318,19 +373,19 @@ hexo deploy 部署到远程服务器
     
     </summary>
     
-      <category term="HEXO" scheme="http://phantom0301.gitcafe.io/categories/HEXO/"/>
+      <category term="HEXO" scheme="http://phantom0301.coding.io/categories/HEXO/"/>
     
     
-      <category term="HEXO" scheme="http://phantom0301.gitcafe.io/tags/HEXO/"/>
+      <category term="HEXO" scheme="http://phantom0301.coding.io/tags/HEXO/"/>
     
-      <category term="个人博客" scheme="http://phantom0301.gitcafe.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
+      <category term="个人博客" scheme="http://phantom0301.coding.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
     
   </entry>
   
   <entry>
     <title>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议</title>
-    <link href="http://phantom0301.gitcafe.io/2016/02/19/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
-    <id>http://phantom0301.gitcafe.io/2016/02/19/MHN开源蜜罐项目学习笔记（一）HPFEEDS协议/</id>
+    <link href="http://phantom0301.coding.io/2016/02/19/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://phantom0301.coding.io/2016/02/19/MHN开源蜜罐项目学习笔记（一）HPFEEDS协议/</id>
     <published>2016-02-19T09:13:55.000Z</published>
     <updated>2016-03-05T01:06:12.750Z</updated>
     
@@ -417,21 +472,21 @@ python setup.py install
     
     </summary>
     
-      <category term="蜜罐" scheme="http://phantom0301.gitcafe.io/categories/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.io/categories/%E8%9C%9C%E7%BD%90/"/>
     
     
-      <category term="MHN" scheme="http://phantom0301.gitcafe.io/tags/MHN/"/>
+      <category term="MHN" scheme="http://phantom0301.coding.io/tags/MHN/"/>
     
-      <category term="hpfeeds" scheme="http://phantom0301.gitcafe.io/tags/hpfeeds/"/>
+      <category term="hpfeeds" scheme="http://phantom0301.coding.io/tags/hpfeeds/"/>
     
-      <category term="蜜罐" scheme="http://phantom0301.gitcafe.io/tags/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.io/tags/%E8%9C%9C%E7%BD%90/"/>
     
   </entry>
   
   <entry>
     <title>PyMongo官方文档翻译</title>
-    <link href="http://phantom0301.gitcafe.io/2016/02/19/PyMongo%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
-    <id>http://phantom0301.gitcafe.io/2016/02/19/PyMongo官方文档翻译/</id>
+    <link href="http://phantom0301.coding.io/2016/02/19/PyMongo%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
+    <id>http://phantom0301.coding.io/2016/02/19/PyMongo官方文档翻译/</id>
     <published>2016-02-19T09:00:36.000Z</published>
     <updated>2016-02-21T04:45:56.579Z</updated>
     
@@ -564,19 +619,19 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
     
     </summary>
     
-      <category term="python" scheme="http://phantom0301.gitcafe.io/categories/python/"/>
+      <category term="python" scheme="http://phantom0301.coding.io/categories/python/"/>
     
     
-      <category term="pymongo" scheme="http://phantom0301.gitcafe.io/tags/pymongo/"/>
+      <category term="pymongo" scheme="http://phantom0301.coding.io/tags/pymongo/"/>
     
-      <category term="python" scheme="http://phantom0301.gitcafe.io/tags/python/"/>
+      <category term="python" scheme="http://phantom0301.coding.io/tags/python/"/>
     
   </entry>
   
   <entry>
     <title>博客纪元，写在前面</title>
-    <link href="http://phantom0301.gitcafe.io/2016/02/19/%E5%8D%9A%E5%AE%A2%E7%BA%AA%E5%85%83%EF%BC%8C%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2/"/>
-    <id>http://phantom0301.gitcafe.io/2016/02/19/博客纪元，写在前面/</id>
+    <link href="http://phantom0301.coding.io/2016/02/19/%E5%8D%9A%E5%AE%A2%E7%BA%AA%E5%85%83%EF%BC%8C%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2/"/>
+    <id>http://phantom0301.coding.io/2016/02/19/博客纪元，写在前面/</id>
     <published>2016-02-19T08:51:02.000Z</published>
     <updated>2016-02-21T04:46:10.754Z</updated>
     
@@ -593,10 +648,10 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
     
     </summary>
     
-      <category term="感悟" scheme="http://phantom0301.gitcafe.io/categories/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.io/categories/%E6%84%9F%E6%82%9F/"/>
     
     
-      <category term="感悟" scheme="http://phantom0301.gitcafe.io/tags/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.io/tags/%E6%84%9F%E6%82%9F/"/>
     
   </entry>
   

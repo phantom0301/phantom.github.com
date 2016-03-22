@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>零の杂货铺</title>
+  <title>MHN学习笔记（二）Dionaea蜜罐架构 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -86,7 +86,7 @@
 </head>
 
 <!--
-<body class="home-template">
+<body class="post-template">
 -->
 <body id="index" class="lightnav animsition">
 
@@ -247,103 +247,91 @@
         <!-- // End height spacing helper -->
 
         <!-- ============================ END Hero Image =========================== -->
-      <!-- ============================ Content =========================== -->
-
+      
 <section id="intro">
     <div class="container">
-        
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2 opening-statement">
-                <div class="col-md-4">
-                    <h3><a href="/2016/02/19/PyMongo官方文档翻译/">PyMongo官方文档翻译</a></h3>
-                    <span>
-                        <span class="post-meta">
-      <time datetime="2016-02-19T09:00:36.000Z" itemprop="datePublished">
-          2016-02-19
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-03-17T10:51:04.000Z" itemprop="datePublished">
+          2016-03-17
       </time>
     
     
     | 
-    <a href='/tags/pymongo/'>pymongo</a>,
-    
-    <a href='/tags/python/'>python</a>
+    <a href='/tags/蜜罐/'>蜜罐</a>
     
     
 </span>
-                    </span>
-                </div>
-                <div class="col-md-8">
-                    <p>
-                      
-                        最近做的几个项目都用到了Python+MongoDB，好像更新一版的Mongo刚刚发布。既然是使用python，肯定是绕不过Pymongo库了，先从官方文档看起。
-想练习英语的戳这里~http://api.mongodb.org/python/current/tutorial.html
-教程本教程旨在介绍使用MongoDB和PyMongo
-准备安装PyMongo模块，MongoDB数据库。恩，在python的shell里，下面这句话没报
-                      
-                    </p>
-                    
-                    <p class="pull-right readMore">
-                        <a href="/2016/02/19/PyMongo官方文档翻译/">Read More...</a>
-                    </p>
-                    
-                </div>
-                <div class="clearfix"></div>
-                <hr class="nogutter">
+                <h1>MHN学习笔记（二）Dionaea蜜罐架构</h1>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2 opening-statement">
-                <div class="col-md-4">
-                    <h3><a href="/2016/02/19/博客纪元，写在前面/">博客纪元，写在前面</a></h3>
-                    <span>
-                        <span class="post-meta">
-      <time datetime="2016-02-19T08:51:02.000Z" itemprop="datePublished">
-          2016-02-19
-      </time>
-    
-    
-    | 
-    <a href='/tags/感悟/'>感悟</a>
-    
-    
-</span>
-                    </span>
-                </div>
-                <div class="col-md-8">
-                    <p>
-                      
-                        其实很早之前就希望能够开通一个个人博客，在这里分享所见、所学，将头脑里零碎的知识和感悟整理成系统的结构。
-最初，是打算用wp搭建博客，然后再买个阿里云的服务器和独立域名。wp的博客年前就已经搭好了，但是谁知买服务器的时候，提示说大四不能享受学生优惠~啊摔
-没办法，又折腾起github的个人页面来了，用的是hexo+github，折腾了一天，解决了各种奇葩的问题，终于能够勉强运行了。
-先简单的从之前wp的博客上搬几篇文章过来填白，话说如果
-                      
-                    </p>
-                    
-                    <p class="pull-right readMore">
-                        <a href="/2016/02/19/博客纪元，写在前面/">Read More...</a>
-                    </p>
-                    
-                </div>
-                <div class="clearfix"></div>
-                <hr class="nogutter">
-            </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>上次记录了学习hpfeeds协议的一些收获，这次将介绍开源项目中的一款模拟功能丰富的蜜罐——dionaea。</p>
+<p>百度、google、github一下dionaea，就能看到很多关于这个蜜罐的简介、使用情况以及对蜜罐捕获数据的分析。</p>
+<p>其实dionaea项目现在可以分成两种，一种是原生的dioanea蜜罐，另一种是经过MHN改造后的dionaea，两者的服务模拟、捕获数据构成等略有不同。不过，这两种dionaea蜜罐我都尝试搭建并成功运行。所以，这次我打算从代码构成的角度讲讲dionaea蜜罐。</p>
+<p>按照你能成功的方式安装好dionaea蜜罐后，dionaea文件夹下会有如下的几个文件。</p>
+<pre><code>dioanea
+|-bin
+|-etc
+|-include
+|-lib
+|-share
+|-var
+</code></pre><ul>
+<li>bin：运行的主要程序的可执行文件</li>
+<li>etc：dionaea的配置文件</li>
+<li>include：各种系统的环境需求</li>
+<li>lib：库文件以及服务模拟文件存储文件夹</li>
+<li>var：蜜罐系统日志以及捕获数据的存储文件夹</li>
+</ul>
+<p>这里，我会详细介绍配置文件和捕获数据文件</p>
+<h2 id="0x02-配置文件"><a href="#0x02-配置文件" class="headerlink" title="0x02 配置文件"></a>0x02 配置文件</h2><pre><code>etc
+|-dionaea
+    |-dionaea.conf
+    |-dionaea.conf.dist
+    |-dionaea.conf.org
+</code></pre><p>作为蜜罐的配置文件，这里对于蜜罐运行时加载的协议、文件存储的位置、监听的端口等做了详细的描述。</p>
+<p>第一个参数是logging，负责存储蜜罐运行过程中的默认日志和出错日志的路径和日志等级设定</p>
+<p>第二个参数是processors，负责加载几个对于捕获数据进行过滤的程序，包括二进制流、会话等</p>
+<p>第三个参数是download，负责恶意程序的下载路径</p>
+<p>第四个参数是bistreams，负责二进制流下载路径</p>
+<p>第五个参数submit，负责第三方数据提交</p>
+<p>第六个参数是listen，负责蜜罐监听ip的设置，有三种模式。getifaddrs模式监听所有ip，包括自己的127.0.0.1。manual模式允许用户设置不进行监听的ip。nl模式加载一个列表监听。</p>
+<p>第七个参数是modules，加载用到的模块，lib中服务模拟的python程序就会在这里加载，捕获数据入库也在这里进行设置</p>
+<p>从配置文件中，可以看出dionaea的许多功能都处于开发阶段，还有一部分功能被注释掉了，喜欢探索的高级玩家可以解开注释的封印，去试试dionaea的洪荒之力~~ 中二ing~~</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
         </div>
-        
         <nav class="pagination" role="pagination">
-          <a class="pull-left" href="/">← Newer Posts</a>
-          
-        </nav>
+    
+    
+    <a class="pull-right" href="/2016/03/11/nmap7完全指南/">
+        nmap7完全指南 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/03/17/MHN学习笔记（二）Dionaea蜜罐架构/" data-title="MHN学习笔记（二）Dionaea蜜罐架构" data-url="http://phantom0301.coding.io/2016/03/17/MHN学习笔记（二）Dionaea蜜罐架构/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
     </div>
 </section>
-<section id="statement">
-    <div class="container text-center wow fadeInUp" data-wow-delay="0.5s">
-        <div class="row">
-            <p>Free and Share。</p>
-        </div>
-    </div>
-</section>
-<!-- ============================ END Content =========================== -->
+
 
       
 <!-- ============================ Footer =========================== -->
