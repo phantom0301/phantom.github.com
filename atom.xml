@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-03-22T06:32:31.076Z</updated>
+  <updated>2016-03-23T04:14:08.959Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -14,6 +14,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>反蜜罐技术学习</title>
+    <link href="http://phantom0301.github.io/2016/03/23/%E5%8F%8D%E8%9C%9C%E7%BD%90%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://phantom0301.github.io/2016/03/23/反蜜罐技术学习/</id>
+    <published>2016-03-23T04:08:28.000Z</published>
+    <updated>2016-03-23T04:14:08.959Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00-写在最先&quot;&gt;&lt;a href=&quot;#0x00-写在最先&quot; class=&quot;headerlink&quot; title=&quot;0x00 写在最先&quot;&gt;&lt;/a&gt;0x00 写在最先&lt;/h2&gt;&lt;p&gt;之前都在卖盾了，这次讲讲卖矛的故事。&lt;/p&gt;
+&lt;p&gt;翻译自别人的文章，Neal Krawetz，hackerfactor网站的创建者，主要从事反垃圾邮件、计算机取证和安全方面的研究。&lt;/p&gt;
+&lt;p&gt;还是一样，有错直接留言 ：）&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160323113106.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;有意思的插图，图侵删&lt;/p&gt;
+&lt;h2 id=&quot;0x01-前言&quot;&gt;&lt;a href=&quot;#0x01-前言&quot; class=&quot;headerlink&quot; title=&quot;0x01 前言&quot;&gt;&lt;/a&gt;0x01 前言&lt;/h2&gt;&lt;p&gt;垃圾邮件发送者经常扫描一些网络中开放的代理中继，通过代理，他们可以隐藏自己的原始IP。然而，假如他们不走运的遇到了蜜罐服务，蜜罐会收集一些有价值的信息，而这些信息可以帮助我们判断垃圾邮件散播者的真实身份，揭去他们的面具。&lt;/p&gt;
+&lt;p&gt;作为对蜜罐的回应，第一个商业化的反蜜罐技术已经出现，Send-Safe的蜜罐猎人们试图为垃圾邮件发送工具找到安全的代理。这种蜜罐检测系统和其他新兴的垃圾邮件工具，呈现出三个重要的特征：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;蜜罐正在影响发送者&lt;/li&gt;
+&lt;li&gt;目前的蜜罐技术是可检测的&lt;/li&gt;
+&lt;li&gt;大多数蜜罐识别系统很相似&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;不只是垃圾邮件的发送者会掌握这一技术，其他的恶意组织也会从相似的技术中受益，所以我们需要去研究反蜜罐技术，来改善目前的蜜罐技术。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-基础蜜罐服务&quot;&gt;&lt;a href=&quot;#0x02-基础蜜罐服务&quot; class=&quot;headerlink&quot; title=&quot;0x02 基础蜜罐服务&quot;&gt;&lt;/a&gt;0x02 基础蜜罐服务&lt;/h2&gt;&lt;p&gt;蜜罐按照一个看似有效的系统来设计。前面也说了，它使用这个模拟系统的外壳来收集攻击者的信息和方法。&lt;/p&gt;
+&lt;p&gt;为了让自己伪装的更到位，蜜罐提供多种多样看似脆弱的系统。尽管如此的多样，但是总的来说，可以具体分为以下四级：最低限度、有限制、仿照模拟、完全一样。复杂度自然从低到高。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;最低限度的服务，只是提供一个开放的服务端口&lt;/li&gt;
+&lt;li&gt;有限制的服务，提供一些基础的交互&lt;/li&gt;
+&lt;li&gt;仿照模拟的服务，提供一些复杂的交互&lt;/li&gt;
+&lt;li&gt;完全真实一样，自然是提供一个真实的服务完整的支持&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一些最低限度的服务会返回基本的连接头，但通常不会有更多细节的内容。一个最典型的例子就是模拟SMTP服务的蜜罐BOF，对于攻击，它只会返回一个“&lt;em&gt;503 Service Unavailable&lt;/em&gt;”&lt;/p&gt;
+&lt;p&gt;最低限度服务通过增加一些少量的交互，就成了有限制的服务。有限制的服务可以呈现出基础交互的功能，即时没有认证机制可用。BOF蜜罐模拟的telnet服务就是这样，它会提示输入账号和密码，但没有运行任何登录机制。Niels Provos和他的研究组有一个网页介绍他们的honeyd项目&lt;a href=&quot;http://www.citi.umich.edu/u/provos/honeyd/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;戳这里&lt;/a&gt;，这个项目提供一系列有限制服务的蜜罐脚本，包括SMTP和简单的WEB代理。&lt;/p&gt;
+&lt;p&gt;仿照模拟的服务呈现出一个完整的工作过程，但不是真实的。它会记录下行为，但不执行外部的操作。模拟服务接收登录和登陆后的一系列请求，会返回那些通常已知的标准回复和错误信息。比如那些仿真完整SMTP和微软IIS网页服务的脚本程序。&lt;/p&gt;
+&lt;p&gt;和以上提到的虚拟蜜罐相比，完全真实的蜜罐服务很少见。他们不仅只是回复请求，它们还可以和恶意程序充分互动，甚至接收被破坏。大多数的完全蜜罐也会限制一些连接，这样可以防止这些真实蜜罐被攻破后作为Dos攻击的一部分。&lt;/p&gt;
+&lt;p&gt;尽管crackers或者black—hat在攻击时会使用多个代理，大多数的垃圾邮件工具只支持单一代理。如果蜜罐伪装成代理，那么垃圾邮件发送者的真实IP就会暴露给蜜罐。我们可以用这些信息进行取证。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-垃圾邮件发送者的反击&quot;&gt;&lt;a href=&quot;#0x03-垃圾邮件发送者的反击&quot; class=&quot;headerlink&quot; title=&quot;0x03 垃圾邮件发送者的反击&quot;&gt;&lt;/a&gt;0x03 垃圾邮件发送者的反击&lt;/h2&gt;&lt;p&gt;垃圾邮件发送者通常是被动的，当工具失效时，他们只能换其他工具。举个例子，最早的反垃圾邮件技术使用哈希散列表过滤的方法来将每一封邮件内容加到一个散列表中。重复的散列表示重复的内容，这就意味着，它是重复被邮寄出去的。为了应对散列系统，垃圾邮件技术研究者们创造了哈希克星，可以通过生成不同字符串来改变哈希值。同样，时至今天，批量邮件发送工具使用反贝叶斯编码的方法来对抗贝叶斯过滤器。&lt;/p&gt;
+&lt;p&gt;Send-Safe套件是一款被广泛使用的商业邮件批量发送工具套件，它的很多功能在垃圾邮件发送者眼里都很实用。它的代理扫描器可以发现很多开放的代理服务来隐藏发送者的身份；它的其他工具包括邮件校验器和生成大量即时信息的工具。&lt;/p&gt;
+&lt;p&gt;这一套件最新的工具——“蜜罐猎人”，帮助垃圾邮件发送者识别他们需要警惕的蜜罐。工具的开发人员在工具描述中暗示了收到蜜罐影响的群体。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“Send-Safe Honeypot&lt;br&gt;Hunter is a tool designed for&lt;br&gt;checking lists of HTTPS and&lt;br&gt;SOCKS proxies for so called&lt;br&gt;“honey pots”. “Honey pots”&lt;br&gt;are fake proxies run by the&lt;br&gt;people who are attempting to&lt;br&gt;frame bulkers by using those&lt;br&gt;fake proxies for logging traffic&lt;br&gt;through them and then send&lt;br&gt;complaints to ones’ ISPs.”&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;我们可以充分认识到垃圾邮件发送者不是唯一的蜜罐“受害者”。&lt;/p&gt;
+&lt;p&gt;有一点我们必须意识到的是，垃圾邮件发送工具并没有使用什么独特的技术。使用副本和加密副本来增加分布是一种古老的IRC Dos攻击。我们可以通过查询发送邮件服务中的“VRFY”查询邮件发送的地址，这是一种常用的信息收集手段。&lt;/p&gt;
+&lt;p&gt;蜜罐猎人使用的是网络“地下社团”众所周知的蜜罐检测方法，这些方法有很多，当然其中的一些也很复杂。一些开源的蜜罐项目在安装过程中有默认的固定回复，而安装者往往不会去改变这些默认信息，这就提供给攻击者一个辨识蜜罐的独特方法。其他的方法还有，已知程序的错误处理、操作系统指纹识别、TCP序列分析和ARP地址。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-蜜罐猎人干了什么？&quot;&gt;&lt;a href=&quot;#0x03-蜜罐猎人干了什么？&quot; class=&quot;headerlink&quot; title=&quot;0x03 蜜罐猎人干了什么？&quot;&gt;&lt;/a&gt;0x03 蜜罐猎人干了什么？&lt;/h2&gt;&lt;p&gt;蜜罐猎人被设计成可以测试开放的代理连接，对于回应进行定位分级，它把代理的等级分割为安全（好的代理），失效（不能用的代理），陷阱（蜜罐）三种。蜜罐猎人目前测试端口1080的Socks4和Socks5代理以及其他的http代理。&lt;/p&gt;
+&lt;p&gt;蜜罐猎人会执行一系列简单的测试。首先,它打开了一个错误的邮件服务器在　　本地系统(端口25)测试代理连接,然后连接到代理服务器的端口。连接后,蜜罐猎人尝试返回到自己错误的邮件服务器。这样的方法足够识别那些无效的代理和蜜罐。另外,如果远程服务器声称已经成功连接,但蜜罐猎人的虚假邮件服务器没有收到连接,那么这个代理可能是蜜罐。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-对于蜜罐的影响&quot;&gt;&lt;a href=&quot;#0x03-对于蜜罐的影响&quot; class=&quot;headerlink&quot; title=&quot;0x03 对于蜜罐的影响&quot;&gt;&lt;/a&gt;0x03 对于蜜罐的影响&lt;/h2&gt;&lt;p&gt;影响是显而易见的，如果恶意用户可以检测到蜜罐，那么他们就可以绕过蜜罐。&lt;/p&gt;
+&lt;p&gt;对于低交互的蜜罐，影响可能仅仅是少收集一些攻击信息。&lt;/p&gt;
+&lt;p&gt;但更重要的是，如果攻击者可以检测出蜜罐，他们既可以针对蜜罐进行攻击。三个最基本的攻击方法是：利用、投毒和学习研究。研究者通常会把蜜罐放在临近关键网络的一个孤立的局域网中。通过利用的方式，可以让蜜罐成为内部攻击的跳台。当然，也可以利用蜜罐作为跳板攻击整个互联网。&lt;/p&gt;
+&lt;p&gt;取代利用的手段还有投毒，通过将大量无用信息投掷给蜜罐，可以利用噪声掩盖住蜜罐中有价值的信息，使得其他恶意攻击者不被发现。&lt;/p&gt;
+&lt;p&gt;第三种方式就是去学习蜜罐，通过收集蜜罐的信息，可以提供给攻击者一个观察蜜罐使用者的视角，包括收集蜜罐使用者的个人信息、作息习惯和技能水平。甚至于可以收集蜜罐使用组织的情况，比如一个使用ORACLE蜜罐的公司很有可能运行着真正的oracle数据服务，或者他就是该服务的提供商。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-后记&quot;&gt;&lt;a href=&quot;#0x04-后记&quot; class=&quot;headerlink&quot; title=&quot;0x04 后记&quot;&gt;&lt;/a&gt;0x04 后记&lt;/h2&gt;&lt;p&gt;文章的后半段讲述了如何对抗反蜜罐技术，这个不是我这次翻译的重点，就不在这里贴出来了，有兴趣的可以阅读原文。&lt;/p&gt;
+&lt;p&gt;最后，作者总结道，由于反蜜罐技术的出现，很多蜜罐服务提供商都面临一些困境，总的来就是，蜜罐技术侦查的蜜月期已经结束，接下来的很长一段时间都将是蜜罐技术与反蜜罐技术互相斗法的阶段，无论你是旁观者，还是参与者，这样的对决一定有许多值得我们学习的地方。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00-写在最先&quot;&gt;&lt;a href=&quot;#0x00-写在最先&quot; class=&quot;headerlink&quot; title=&quot;0x00 写在最先&quot;&gt;&lt;/a&gt;0x00 写在最先&lt;/h2&gt;&lt;p&gt;之前都在卖盾了，这次讲讲卖矛的故事。&lt;/p&gt;
+&lt;p&gt;翻译自别人的文章，Neal Kr
+    
+    </summary>
+    
+      <category term="蜜罐" scheme="http://phantom0301.github.io/categories/%E8%9C%9C%E7%BD%90/"/>
+    
+    
+      <category term="蜜罐" scheme="http://phantom0301.github.io/tags/%E8%9C%9C%E7%BD%90/"/>
+    
+  </entry>
   
   <entry>
     <title>MHN学习笔记（二）Dionaea蜜罐架构</title>
