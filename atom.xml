@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.io/"/>
-  <updated>2016-03-23T04:14:08.959Z</updated>
+  <updated>2016-03-25T01:56:44.630Z</updated>
   <id>http://phantom0301.coding.io/</id>
   
   <author>
@@ -14,6 +14,106 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>爆破工具Bruter文档翻译</title>
+    <link href="http://phantom0301.coding.io/2016/03/25/%E7%88%86%E7%A0%B4%E5%B7%A5%E5%85%B7Bruter%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
+    <id>http://phantom0301.coding.io/2016/03/25/爆破工具Bruter文档翻译/</id>
+    <published>2016-03-25T01:54:43.000Z</published>
+    <updated>2016-03-25T01:56:44.630Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;说到爆破神器，kali中的msf爆破插件、hydra、medusa都足够强大，这里推荐一款win环境使用的爆破测试工具，bruter。&lt;/p&gt;
+&lt;p&gt;仅仅翻译一下官方文档，bruter的所有说明文件都在目录的doc中。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-介绍&quot;&gt;&lt;a href=&quot;#0x01-介绍&quot; class=&quot;headerlink&quot; title=&quot;0x01 介绍&quot;&gt;&lt;/a&gt;0x01 介绍&lt;/h2&gt;&lt;p&gt;Bruter是一个多线程暴力破解器，这款工具的诞生是为了证明选择强口令的重要性（反正我是信了~~），我们的目标是支持多种允许远程登录认证的服务。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;警告：请记住，这款工具只能用于合法的目的&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x02-使用方法&quot;&gt;&lt;a href=&quot;#0x02-使用方法&quot; class=&quot;headerlink&quot; title=&quot;0x02 使用方法&quot;&gt;&lt;/a&gt;0x02 使用方法&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;连接选项，输入目标和选择协议的地方&lt;ol&gt;
+&lt;li&gt;目标：可以输入ipv4和host，不支持批量操作&lt;/li&gt;
+&lt;li&gt;协议：不同的协议有不同的选项，更多协议内容查看协议相关文档&lt;/li&gt;
+&lt;li&gt;端口：一般会有默认端口号，也可以手动修改&lt;/li&gt;
+&lt;li&gt;SSL：是否使用SSL，选择时端口号也相应会改变&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;代理选项&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;使用代理：选择是否使用代理&lt;/li&gt;
+&lt;li&gt;类型：支持HTTP、socks4、socks5代理&lt;/li&gt;
+&lt;li&gt;让代理解析host：选择本地解析还是让代理决定&lt;/li&gt;
+&lt;li&gt;端口：代理端口&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;要求认证：查看代理是否需要验证&lt;/p&gt;
+&lt;p&gt; 注意： http连接只支持基础认证；&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;socks5只支持用户名/密码认证
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;账号和密码：输入账号和密码的地方&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;爆破用户名选项&lt;ol&gt;
+&lt;li&gt;输入用户名或者用户名列表路径。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;密码模式选项&lt;ol&gt;
+&lt;li&gt;联合模式：当你的密码或列表输入使用username:password形式时，会自动去提取“：”后的password&lt;br&gt; 注意：会忽视username的内容；可以在选项里选择分隔符&lt;/li&gt;
+&lt;li&gt;字典模式：正常的模式，可以输入单个密码或者列表路径，不同之处在于它可以变量替换，类似（%username%）的输入可以将爆破用到的所有用户名添加到密码中来。&lt;br&gt; 注意：空密码就用空字符，而不是用空格；由于替换规则，你用不了“%username%”这个密码；使用时会先加载全部密码到内存，所以密码字典不要太大&lt;/li&gt;
+&lt;li&gt;暴力模式：根据提供的字符进行遍历&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;字典选项，使用字典模式附带的选项&lt;ol&gt;
+&lt;li&gt;小写，转化所有输入为小写&lt;/li&gt;
+&lt;li&gt;大写，转化所有输入为大写&lt;/li&gt;
+&lt;li&gt;大写首字母&lt;/li&gt;
+&lt;li&gt;翻转&lt;/li&gt;
+&lt;li&gt;重复两次，将输入的admin，变为adminadmin&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;杂项选项&lt;ol&gt;
+&lt;li&gt;连接数：设置进程数，win限制最大为64&lt;/li&gt;
+&lt;li&gt;最大重试数：同一个用户密码尝试次数&lt;/li&gt;
+&lt;li&gt;超时：整个破解过程使用多长时间&lt;/li&gt;
+&lt;li&gt;重试时间：同一个用户密码尝试间隔时间&lt;/li&gt;
+&lt;li&gt;重试时间：不同的用户密码尝试间隔时间&lt;/li&gt;
+&lt;li&gt;最大接受连接数：有两个值，-1表示自动检测；0表示直到服务断开&lt;/li&gt;
+&lt;li&gt;当发现有成功结果时是否停止&lt;/li&gt;
+&lt;li&gt;密码优先：这个选项会使程序优先以密码去遍历用户名&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;显示区&lt;ol&gt;
+&lt;li&gt;结果&lt;/li&gt;
+&lt;li&gt;正在测试情况&lt;/li&gt;
+&lt;li&gt;返回信息&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;状态栏&lt;ol&gt;
+&lt;li&gt;第一列：当前任务状态&lt;/li&gt;
+&lt;li&gt;第二列：每秒爆破数&lt;/li&gt;
+&lt;li&gt;第三列：总测试数&lt;/li&gt;
+&lt;li&gt;第四列：总用时&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;菜单&lt;ol&gt;
+&lt;li&gt;文件：保存和退出&lt;/li&gt;
+&lt;li&gt;设置：可以加载默认设置、保存设置、加载设置&lt;/li&gt;
+&lt;li&gt;日志：选择输出的日志级别&lt;/li&gt;
+&lt;li&gt;帮助：不用说了&lt;h2 id=&quot;0x03-后记&quot;&gt;&lt;a href=&quot;#0x03-后记&quot; class=&quot;headerlink&quot; title=&quot;0x03 后记&quot;&gt;&lt;/a&gt;0x03 后记&lt;/h2&gt;话说，3389的爆破工具都有哪些？以前似乎听说过一些，但是现在好像都销声匿迹了，是因为MS这方面防护做的更好了，3389爆破测试工具难以绕过一些规则吗？&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;说到爆破神器，kali中的msf爆破插件、hydra、medusa都足够强大，这里推荐一款win环境
+    
+    </summary>
+    
+      <category term="安全工具" scheme="http://phantom0301.coding.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
+    
+    
+      <category term="bruter" scheme="http://phantom0301.coding.io/tags/bruter/"/>
+    
+      <category term="爆破" scheme="http://phantom0301.coding.io/tags/%E7%88%86%E7%A0%B4/"/>
+    
+  </entry>
   
   <entry>
     <title>反蜜罐技术学习</title>
