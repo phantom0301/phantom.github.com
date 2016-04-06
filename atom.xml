@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.io/"/>
-  <updated>2016-03-25T01:56:44.630Z</updated>
+  <updated>2016-04-06T07:18:11.405Z</updated>
   <id>http://phantom0301.coding.io/</id>
   
   <author>
@@ -14,6 +14,40 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>效率利器-Synergy</title>
+    <link href="http://phantom0301.coding.io/2016/04/06/%E6%95%88%E7%8E%87%E5%88%A9%E5%99%A8-Synergy/"/>
+    <id>http://phantom0301.coding.io/2016/04/06/效率利器-Synergy/</id>
+    <published>2016-04-06T06:52:16.000Z</published>
+    <updated>2016-04-06T07:18:11.405Z</updated>
+    
+    <content type="html">&lt;p&gt;最近要同时操作两台机器，一台是win的，一台是linux的。无论是准备两套键鼠，还是用SSH远程都不够方便。&lt;/p&gt;
+&lt;p&gt;在网上找到了这个软件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy1.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;发现很好的解决了我的需求，而且它不仅可以让两个系统的主机共用一套键鼠，还可以实现两台主机上的简单分屏，虽然不能直接从一个屏幕拖到另一个屏幕，但是鼠标可以无缝连接滑动，而且共享剪贴板。&lt;/p&gt;
+&lt;p&gt;设置也很简单&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy2.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在两台电脑上分别安装Synergy，并且在同一个局域网中。一台作为server主机（键鼠物理连接的电脑），一台作为client从机。&lt;/p&gt;
+&lt;p&gt;在主机上进行配置，&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy3.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在这里选择分屏的位置。&lt;/p&gt;
+&lt;p&gt;再在 Advanced server settings设置主从机切换的快捷键&lt;/p&gt;
+&lt;p&gt;分别启动，软件就会自动去检测主从机。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近要同时操作两台机器，一台是win的，一台是linux的。无论是准备两套键鼠，还是用SSH远程都不够方便。&lt;/p&gt;
+&lt;p&gt;在网上找到了这个软件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy1.jpg&quot; 
+    
+    </summary>
+    
+    
+      <category term="工具" scheme="http://phantom0301.coding.io/tags/%E5%B7%A5%E5%85%B7/"/>
+    
+  </entry>
   
   <entry>
     <title>爆破工具Bruter文档翻译</title>
