@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>nmap7完全指南 | 零の杂货铺</title>
+  <title>Js-Python实现socket通信 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -257,220 +257,161 @@
         <div class="row col-md-offset-2">
             <div class="col-md-8">
     			<span class="post-meta">
-      <time datetime="2016-03-11T02:50:07.000Z" itemprop="datePublished">
-          2016-03-11
+      <time datetime="2016-04-12T07:51:55.000Z" itemprop="datePublished">
+          2016-04-12
       </time>
     
     
     | 
-    <a href='/tags/namp/'>namp</a>
+    <a href='/tags/JS/'>JS</a>,
+    
+    <a href='/tags/Python/'>Python</a>,
+    
+    <a href='/tags/Socket/'>Socket</a>
     
     
 </span>
-                <h1>nmap7完全指南</h1>
+                <h1>Js-Python实现socket通信</h1>
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x00-基本介绍"><a href="#0x00-基本介绍" class="headerlink" title="0x00 基本介绍"></a>0x00 基本介绍</h2><p>整合了官网和网上的一些资料，本来是有配图的，但是一想到可能会暴露一些敏感信息，就不摆在这了，不足之处，欢迎交流。</p>
-<p>Nmap现在最新的版本是Nmap 7。主要是增加了IPV6和ssl方面的支持。</p>
-<p>Nmap，全称Network Mapper，开源网络探测与审计框架。使用构造异常IP包的方式来探测主机服务。</p>
-<p>完整的Namp套件包括界面图形化的Zenmap，数据传输、重定向与调试工具Ncat，扫描结果比较器Ndiff以及数据包生成与响应工具Nping。</p>
-<p>最常规的Nmap组成指令为</p>
-<pre><code>nmap [扫描类型] [选项] [目标]
-</code></pre><h2 id="0x02-参数-【目标】"><a href="#0x02-参数-【目标】" class="headerlink" title="0x02 参数-【目标】"></a>0x02 参数-【目标】</h2><p>目标参数可以输入域名、IP、网络等<br>例如：</p>
-<pre><code>www.baidu.com
-microsoft.com/24
-192.168.0.1
-10.0.0-255.1-254
-</code></pre><p>另外还有如下参数可选：</p>
-<ol>
-<li>-iL &lt;文件名&gt;，从表单中读取扫描目标。</li>
-<li>-iR &lt;主机数量&gt;，选取随机扫描目标，私有段ip、多播ip、未分配使用的ip会被自动跳过，<0>可以指定一个无休止的扫描，如果在一个雨天的午后，你十分无聊的时候，可以运行。<br><code>nmap -Pn -sS -p 80 -iR 0 --open</code></0></li>
-<li>–exclude &lt;主机1&gt;，&lt;主机2&gt;，跳过部分目标。</li>
-<li>–exclude &lt;文件名&gt;，从表单中读取跳过目标。</li>
-</ol>
-<h2 id="0x03-参数-【主机发现】"><a href="#0x03-参数-【主机发现】" class="headerlink" title="0x03 参数-【主机发现】"></a>0x03 参数-【主机发现】</h2><ol>
-<li>-sL，列表扫描，通过访问DNS的方式得到目标主机的ip。</li>
-<li>-sn，不进行端口扫描，ping scan。</li>
-<li>-Pn，不进行ping，强行扫描。</li>
-<li>-PS &lt;端口列表&gt;，TCP SYN Ping扫描端口</li>
-<li>-PA &lt;端口列表&gt;，TCP ACK Ping扫描端口</li>
-<li>-PU &lt;端口列表&gt;，UDP Ping</li>
-<li>-PY &lt;端口列表&gt;，SCTP INIT Ping</li>
-<li>-PE;-PP;-PM，ICMP Ping Types</li>
-<li>-PO &lt;协议号&gt;，IP Protocol Ping</li>
-<li>-PR，ARP Ping</li>
-<li>–disable-arp-pin 不使用ARP ping</li>
-<li>–traceroute 探测到达主机的Trace路径</li>
-<li>-n 不使用DNS结果</li>
-<li>-R 始终使用DNS结果</li>
-<li>–system-dns 使用系统的DNS解析，不请求域名服务器</li>
-<li>–dns-servers &lt;服务1&gt;,&lt;服务2&gt; 查询的DNS服务器队列</li>
-</ol>
-<p><a href="https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers" title="protocol_list" target="_blank" rel="external">https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers</a></p>
-<h2 id="0x04-参数-【端口扫描】"><a href="#0x04-参数-【端口扫描】" class="headerlink" title="0x04 参数-【端口扫描】"></a>0x04 参数-【端口扫描】</h2><p>使用六种状态描述端口状态：</p>
-<ul>
-<li>open，端口积极接收数据</li>
-<li>closed，无应用程序监听此端口</li>
-<li>filtered，端口难以抵达，无法准确判断</li>
-<li>unfiltered，端口可以抵达，无法准确判断</li>
-<li>open|filtered，两种状态不确定</li>
-<li>closed|filtered，两种状态不确定</li>
-</ul>
-<hr>
-<ol>
-<li>-sS，TCP SYN scan，默认状态下的扫描模式，半开扫描，扫描快速，动静小。</li>
-<li>-sT，TCP connect scan，当没有原始数据包特权时使用，容易被发现。</li>
-<li>-sU，UDP scans，扫描UDP服务端口，DNS/SNMP/DHCP</li>
-<li>-sY，SCTP INIT scan，SCTP是一种较新的用来替代TCP和UDP的协议，类似于1</li>
-<li>-sN;-sF;-sX，TCP NULL, FIN, and Xmas scans，利用RFC 793的一些漏洞来判断端口状态。改变一些特殊标志的比特值。更加隐蔽，可以逃过一些防火墙，但是系统协议必须严格遵守RFC 793。</li>
-<li>-sA，TCP ACK scan，不用来判断端口是否打开，用来探测防火墙过滤规则</li>
-<li>-sW，TCP Window scan，类似ACK scan，增加不同系统的细节，但是结果不一定可信，甚至有可能正好相反。</li>
-<li>-sM，TCP Maimon scan，Uriel Maimon发现的一些BSD的系统在端口打开时会简单的终止包</li>
-<li>–scanflags，Custom TCP scan，自己通过TCP标志的设置构造自己的扫描，可以使用：</li>
-</ol>
-<pre><code>*URG，紧急指针有效*
+      		<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Socket，一种开销很小的实现程序之间通信的方式。不同的编程语言几乎都有自己实现Socket的库和方法，建立在Socket基础上的许多通信协议也都广泛运用于各种框架中，之前在博客分享的Hpfeeds协议实际上就是建立在Socket的基础上。</p>
+<p>不同编程语言之间也经常使用Socket来传递消息，这样可以避免不同语言之间的嵌套调用。如题，这里我们需要在Python和Js之间实现一个消息传递。</p>
+<h2 id="0x01-实现"><a href="#0x01-实现" class="headerlink" title="0x01 实现"></a>0x01 实现</h2><p>最初查找资料的时候，许多博客中都提到了说，Js本身是不能够实现Socket的，而常用的方法实际上是利用Flash的Socket来进行通信，然后通过Js获得Flash的响应事件来传递数据。为此有一个专门的Js库叫Aflax。</p>
+<p>同时，另一种更新的方法是使用Html5协议中的WebSocket来实现浏览器和服务器的通信。</p>
+<p>关于WebSocket的具体协议就不在这里详述了，毕竟我也没有认真去看。</p>
+<p>实现WebSocket通信的方法也有很多种，网上容易查到的是使用Node.js的实现方法<br><a href="https://github.com/SushisMakis/WebSocket" target="_blank" rel="external">https://github.com/SushisMakis/WebSocket</a></p>
+<p>这里，作者提供个一个Python实现的服务器</p>
+<pre><code>import struct
+import SocketServer
+from base64 import b64encode, b64decode
+from hashlib import sha1
+from mimetools import Message
+from StringIO import StringIO
 
-*ACK，确认序号有效*
+clients = [];
+class WebSocketsHandler(SocketServer.StreamRequestHandler):
+    magic = &apos;258EAFA5-E914-47DA-95CA-C5AB0DC85B11&apos;
 
-*PSH，接收方应该尽快将这个报文段交给应用层*
+    def setup(self):
+        SocketServer.StreamRequestHandler.setup(self)
+        print &quot;connection established&quot;, self.client_address
+        self.handshake_done = False
 
-*RST，重建连接*
+    def handle(self):
+        while True:
+            if not self.handshake_done:
+                self.handshake()
+                clients.append(self)
+            else:
+                try:
+                    self.read_next_message()
+                except:
+                    self.request.close()
+                    return
 
-*SYN，同步序号用来发起一个连接*
+    def read_next_message(self):
+        length = ord(self.rfile.read(2)[1]) &amp; 127
+        if length == 126:
+            length = struct.unpack(&quot;&gt;H&quot;, self.rfile.read(2))[0]
+        elif length == 127:
+            length = struct.unpack(&quot;&gt;Q&quot;, self.rfile.read(8))[0]
+        masks = [ord(byte) for byte in self.rfile.read(4)]
+        decoded = &quot;&quot;
+        for char in self.rfile.read(length):
+            decoded += chr(ord(char) ^ masks[len(decoded) % 4])
+        self.on_message(decoded)
 
-*FIN，发送端完成发送任务*
-</code></pre><ol>
-<li>-sZ，SCTP COOKIE ECHO scan</li>
-<li>-sI <zombie host="">:<probeport>，idle scan，实现真正的盲扫，不会从你的真实IP发送包。使用边信道攻击实现僵尸机攻击。隐蔽性很好。</probeport></zombie></li>
-<li>-sO，IP protocol scan，ip协议扫描。</li>
-<li>-b，&lt;主机&gt;，FTP bounce scan，使用FTP代理扫描。因为使用FTP更容易绕过防火墙。</li>
-</ol>
-<blockquote>
-<p>SCTP（Stream Control Transmission Protocol，流控制传输协议）</p>
-<p>BSD (Berkeley Software Distribution，伯克利软件套件)是Unix的衍生系统</p>
-</blockquote>
-<h2 id="0x05-参数-【端口号】"><a href="#0x05-参数-【端口号】" class="headerlink" title="0x05 参数-【端口号】"></a>0x05 参数-【端口号】</h2><ol>
-<li>-p &lt;端口范围&gt;</li>
-<li>–exclude-ports &lt;端口范围&gt;</li>
-<li>-F，快速扫描常用端口，比默认的端口更少</li>
-<li>-r，按顺序扫描，默认情况下Nmap是随机扫描所指定的端口号的</li>
-<li>–port-ratio &lt;比例&gt;0-1之间，大于给的比例扫描servuces文件中的端口。</li>
-<li>–top-ports &lt;数量&gt;扫描指定数量的熟知端口<h2 id="0x06-参数-【服务和版本检测】"><a href="#0x06-参数-【服务和版本检测】" class="headerlink" title="0x06 参数-【服务和版本检测】"></a>0x06 参数-【服务和版本检测】</h2></li>
-<li>-sV，服务版本检测</li>
-<li>–allports，版本检测不跳过任何端口，默认情况下会跳过TCP端口9100，因为一些打印机会打印传送到该端口的任何信息。</li>
-<li>–version-intensity &lt;强度&gt; 0-9，修改版本扫描检测强度。</li>
-<li>–version-light，强度2</li>
-<li>–version-all，强度9</li>
-<li>–version-trace，显示Nmap的版本识别过程<h2 id="0x07-参数-【系统检测】"><a href="#0x07-参数-【系统检测】" class="headerlink" title="0x07 参数-【系统检测】"></a>0x07 参数-【系统检测】</h2></li>
-<li>-O 开启系统检测</li>
-<li>–osscan-limit，只检查一定条件的系统，有一个检测到的端口</li>
-<li>–osscan-guess，百分比显示可能的系统选项</li>
-<li>–max-os-tries，在未能匹配系统时，Nmap会重复检测5次，这个次数可以设置<h2 id="0x08-参数-【NSE】"><a href="#0x08-参数-【NSE】" class="headerlink" title="0x08 参数-【NSE】"></a>0x08 参数-【NSE】</h2>NSE,Nmap脚本引擎，Nmap里最强大最灵活的特性，允许用户编写LUA语言脚本实现各种测试任务。</li>
-</ol>
-<p>目前的脚本类别目录有：</p>
-<hr>
-<pre><code>auth，认证-目标系统身份验证
-broadcast，广播-广播发现目标
-brute，爆破-爆破身份验证
-default，缺省-默认调用
-discovery，发现-积极发现更多公共注册服务
-dos，拒绝服务-DOS攻击
-exploit，利用-利用一些漏洞
-external，外部-会将数据发送给第三方
-fuzzer，模糊测试-随机字段发送包，可以发现一些未被发现的漏洞
-intrusive，侵入-风险过高的脚本
-malware，恶意程序-测试目标是否被恶意程序感染
-safe，安全-风险很低的脚本
-version，版本-扩展版本检测功能，不能显式调用
-vuln，漏洞-检测特定的已知漏洞
-</code></pre><hr>
-<ol>
-<li>-sC，缺省脚本执行</li>
-<li><p>–script &lt;文件名&gt;|&lt;类别&gt;|&lt;目录&gt;|&lt;表达式&gt;…，可以使用+来强制脚本运行，也可以用 <em>all</em> 来遍历所有脚本，这两个选项要慎重使用</p>
-<p> nmap –script “http-*” 加载所有http前缀的脚本</p>
-<p> nmap –script “not intrusive”</p>
-<p> nmap –script “default or safe”</p>
-<p> nmap –script “default and safe”</p>
-</li>
-<li><p>–script-args &lt;脚本&gt;=&lt;参数&gt;,给脚本提供参数</p>
-</li>
-<li>–script-args-file &lt;文件名&gt;，从文件提供参数</li>
-<li>–script-help &lt;脚本名&gt;，帮助</li>
-<li>–script-trace 打印脚本执行过程</li>
-<li><p>–script-updatedb，升级脚本库</p>
-<h2 id="0x09-参数-【时间与性能】"><a href="#0x09-参数-【时间与性能】" class="headerlink" title="0x09 参数-【时间与性能】"></a>0x09 参数-【时间与性能】</h2><p>时间单位：ms s m h</p>
-</li>
-<li><p>–min(max)-hostgroup &lt;主机数&gt;，调整并行扫描组主机数。</p>
-</li>
-<li>–min(max)-parallelism &lt;探针数&gt;，调整并行探针数。</li>
-<li>–min(max，initial)-rtt-timeout &lt;时间&gt;，调整探针超时时间</li>
-<li>–max-retries &lt;数量&gt;，指定端口扫描探针最大值，最大重试次数</li>
-<li>–host-timeout &lt;时间&gt;，放弃超时主机目标</li>
-<li>–scan-delay &lt;时间&gt;，调整探针之间的延迟时间</li>
-<li>–min(max)-rate &lt;数字&gt;，调整扫描速率，每秒发送的包数</li>
-<li>-T <0-5>时间模板，越大越快<h2 id="0x10-参数-【防火墙IDS逃逸】"><a href="#0x10-参数-【防火墙IDS逃逸】" class="headerlink" title="0x10 参数-【防火墙IDS逃逸】"></a>0x10 参数-【防火墙IDS逃逸】</h2></0-5></li>
-<li>-f，分隔包碎片</li>
-<li>-mtu，指定偏移量分隔包碎片</li>
-<li>-D &lt;诱饵&gt;&lt;,ME&gt;，使用诱饵掩盖IP</li>
-<li>-S &lt; IP &gt;，伪造源地址IP</li>
-<li>-e &lt; interface &gt;，使用特定接口发送接收包</li>
-<li>–source-port &lt; portnum &gt;，伪造源端口号</li>
-<li>–data &lt; hex string &gt;，添加自定义二进制数据到发送包</li>
-<li>–data &lt; string &gt;，添加自定义字符串到发送包</li>
-<li>–data-length &lt; num &gt;，添加随机数据到发送包</li>
-<li>–ip-option &lt; hex string &gt;，用指定的IP选项发送数据包</li>
-<li>–ttl &lt; value &gt;，设置存活时间</li>
-<li>–randomize-hosts，随机主机目标顺序</li>
-<li>–spoof-mac &lt; MAC,prefix,… &gt;伪造MAC地址</li>
-<li>–proxies &lt; URL &gt;，通过代理链中继TCP连接</li>
-<li>–badsum，发送虚假校验和</li>
-<li>–adler32，使用另一种校验和代替CRC32C<h2 id="0x11-参数-【输出】"><a href="#0x11-参数-【输出】" class="headerlink" title="0x11 参数-【输出】"></a>0x11 参数-【输出】</h2></li>
-<li>-oN &lt; file &gt;，正常输出</li>
-<li>-oX，XML输出</li>
-<li>-oS，脚本输出</li>
-<li>-oG，已弃用</li>
-<li>-oA，全格式</li>
-<li>-v &lt; level &gt;，增加Nmap输出普通信息水平</li>
-<li>-d &lt; level &gt;，增加调试信息输出水平</li>
-<li>–reason，给出原因</li>
-<li>–stats-every &lt; time &gt;，每过固定时间打印一次数据</li>
-<li>–packet-trace，数据包路径</li>
-<li>–open，显示打开的端口</li>
-<li>–iflist，列表接口和路径</li>
-<li>–append-output，结果添加到输出</li>
-<li>–resume <filename>，恢复终止的扫描<h2 id="0x12-参数-【混合选项】"><a href="#0x12-参数-【混合选项】" class="headerlink" title="0x12 参数-【混合选项】"></a>0x12 参数-【混合选项】</h2></filename></li>
-<li>-6，开启IPv6扫描</li>
-<li>-A，积极扫描策略（-O，-sV，-sC，–traceroute）</li>
-<li>–datadir &lt; directoryname &gt; 指定Nmap数据文件</li>
-<li>–servicedb &lt; services file &gt;，指定Nmap服务库</li>
-<li>–versiondb &lt; service probes file &gt;，指定版本库</li>
-<li>–release-memory，推出前释放内存</li>
-<li>-V，显示版本号<br>参考：</li>
-</ol>
-<p><a href="http://nmap.org" target="_blank" rel="external">http://nmap.org</a></p>
-<p><a href="https://www.91ri.org/4105.html" target="_blank" rel="external">实战高级用法</a></p>
-<p><a href="https://www.91ri.org/3870.html" target="_blank" rel="external">绕过防火墙与脚本使用</a></p>
-<p>原创文章，转载请注明： 转载自零の杂货铺</p>
+    def send_message(self, data, fin=True, opcode=1, masking_key=False):
+        header = struct.pack(&apos;!B&apos;, ((fin &lt;&lt; 7) | (0 &lt;&lt; 6)| (0 &lt;&lt; 5)| (0 &lt;&lt; 4)| opcode))
+        if masking_key:
+            mask_bit = 1 &lt;&lt; 7
+        else:
+            mask_bit = 0
+        length = len(data)
+        if length &lt; 126:
+            header += struct.pack(&apos;!B&apos;, (mask_bit | length))
+        elif length &lt; (1 &lt;&lt; 16):
+            header += struct.pack(&apos;!B&apos;, (mask_bit | 126)) + struct.pack(&apos;!H&apos;, length)
+        elif length &lt; (1 &lt;&lt; 63):
+            header += struct.pack(&apos;!B&apos;, (mask_bit | 127)) + struct.pack(&apos;!Q&apos;, length)
+        body = data
+        self.request.send(bytes(header + body))
+
+    def handshake(self):
+        data = self.request.recv(1024).strip()
+        headers = Message(StringIO(data.split(&apos;\r\n&apos;, 1)[1]))
+        if headers.get(&quot;Upgrade&quot;, None) != &quot;websocket&quot;:
+            return
+        print &apos;Handshaking...&apos;
+        key = headers[&apos;Sec-WebSocket-Key&apos;]
+        digest = b64encode(sha1(key + self.magic).hexdigest().decode(&apos;hex&apos;))
+        response = &apos;HTTP/1.1 101 Switching Protocols\r\n&apos;+&apos;Upgrade: websocket\r\n&apos;+&apos;Connection: Upgrade\r\n&apos;
+        response += &apos;Sec-WebSocket-Accept: %s\r\n\r\n&apos; % digest
+        self.handshake_done = self.request.send(response)
+
+    def on_message(self, message):
+        text = b64decode(message)
+        print text
+        for client in clients:
+            if client.client_address != self.client_address:
+                client.send_message(b64encode(text))
+
+class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
+
+if __name__ == &quot;__main__&quot;:
+    server = ThreadedTCPServer((&quot;localhost&quot;, 9999), WebSocketsHandler)
+    server.serve_forever()   
+</code></pre><p>我们使用其中的这段代码作为服务器。</p>
+<p>用这段Ps作为浏览器端的接收Pemo</p>
+<pre><code>// SmWebSocket(url,port,b64encode,fonMessage, ...)
+var smWs = new SmWebSocket(&quot;localhost&quot;,9999,true,handle_recv);
+smWs.open();
+var myDictObjectProtocol = {&quot;p1top2&quot;: handle_transit}; // {id : function, ... }
+var p = new Protocol(myDictObjectProtocol,&quot;|&quot;);
+
+function handle_recv(event)
+{
+    var data = event.data;
+    data = Base64.decode(data);
+    alert(data);
+    p.handleMessage(data);
+}
+
+function handle_transit(mess){
+    document.getElementById(&quot;data_in&quot;).innerText = mess;
+} 
+</code></pre><p>这里作者只实现了浏览器发送到服务器以及浏览器之间的交互，所以现在我们还缺一个Python发送的程序，我最初希望直接使用Pyhton的Socket来实现一个端口发送，但是最后发现每次发送的程序都被服务器拒绝了，所以我又找到了一个Python实现的WebSocket库，当然这个和Pip下载的WebSocket库不同。</p>
+<p><a href="https://github.com/liris/websocket-client" target="_blank" rel="external">https://github.com/liris/websocket-client</a></p>
+<p>我修改了其中编码的部分，以和之前的程序适应</p>
+<pre><code>from __future__ import print_function
+import websocket
+import base64
+
+if __name__ == &quot;__main__&quot;:
+    #websocket.enableTrace(True)
+    ws = websocket.create_connection(&quot;ws://localhost:9999&quot;)
+    data = &quot;p1top2|Hello World&quot;
+    data = base64.b64encode(data)
+    ws.send(data)
+    ws.close()
+</code></pre><p>要求的库直接Clone上面项目里的即可，这样，我们就实现了通过Python和Js进行Socket通信的程序。</p>
 
             <div class="clearfix"></div>
             <hr class="nogutter">
         </div>
         <nav class="pagination" role="pagination">
     
-    <a class="pull-left" href="/2016/03/17/MHN学习笔记（二）Dionaea蜜罐架构/" style="float: left;">
-        ← MHN学习笔记（二）Dionaea蜜罐架构
-    </a>
     
-    
-    <a class="pull-right" href="/2016/03/02/博客搬家/">
-        博客搬家 →
+    <a class="pull-right" href="/2016/04/06/效率利器-Synergy/">
+        效率利器-Synergy →
     </a>
     
 </nav>
 
         <div class="duoshuo">
-<div class="ds-thread" data-thread-key="2016/03/11/nmap7完全指南/" data-title="nmap7完全指南" data-url="http://phantom0301.github.io/2016/03/11/nmap7完全指南/"></div>
+<div class="ds-thread" data-thread-key="2016/04/12/Js-Python实现socket通信/" data-title="Js-Python实现socket通信" data-url="http://phantom0301.github.io/2016/04/12/Js-Python实现socket通信/"></div>
 <script type="text/javascript">
 var duoshuoQuery = {short_name:"phantom0301"};
 (function() {

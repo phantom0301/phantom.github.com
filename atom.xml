@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-04-06T07:18:11.405Z</updated>
+  <updated>2016-04-12T08:38:25.979Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -14,6 +14,154 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Js-Python实现socket通信</title>
+    <link href="http://phantom0301.github.io/2016/04/12/Js-Python%E5%AE%9E%E7%8E%B0socket%E9%80%9A%E4%BF%A1/"/>
+    <id>http://phantom0301.github.io/2016/04/12/Js-Python实现socket通信/</id>
+    <published>2016-04-12T07:51:55.000Z</published>
+    <updated>2016-04-12T08:38:25.979Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;Socket，一种开销很小的实现程序之间通信的方式。不同的编程语言几乎都有自己实现Socket的库和方法，建立在Socket基础上的许多通信协议也都广泛运用于各种框架中，之前在博客分享的Hpfeeds协议实际上就是建立在Socket的基础上。&lt;/p&gt;
+&lt;p&gt;不同编程语言之间也经常使用Socket来传递消息，这样可以避免不同语言之间的嵌套调用。如题，这里我们需要在Python和Js之间实现一个消息传递。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-实现&quot;&gt;&lt;a href=&quot;#0x01-实现&quot; class=&quot;headerlink&quot; title=&quot;0x01 实现&quot;&gt;&lt;/a&gt;0x01 实现&lt;/h2&gt;&lt;p&gt;最初查找资料的时候，许多博客中都提到了说，Js本身是不能够实现Socket的，而常用的方法实际上是利用Flash的Socket来进行通信，然后通过Js获得Flash的响应事件来传递数据。为此有一个专门的Js库叫Aflax。&lt;/p&gt;
+&lt;p&gt;同时，另一种更新的方法是使用Html5协议中的WebSocket来实现浏览器和服务器的通信。&lt;/p&gt;
+&lt;p&gt;关于WebSocket的具体协议就不在这里详述了，毕竟我也没有认真去看。&lt;/p&gt;
+&lt;p&gt;实现WebSocket通信的方法也有很多种，网上容易查到的是使用Node.js的实现方法&lt;br&gt;&lt;a href=&quot;https://github.com/SushisMakis/WebSocket&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/SushisMakis/WebSocket&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这里，作者提供个一个Python实现的服务器&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import struct
+import SocketServer
+from base64 import b64encode, b64decode
+from hashlib import sha1
+from mimetools import Message
+from StringIO import StringIO
+
+clients = [];
+class WebSocketsHandler(SocketServer.StreamRequestHandler):
+    magic = &amp;apos;258EAFA5-E914-47DA-95CA-C5AB0DC85B11&amp;apos;
+
+    def setup(self):
+        SocketServer.StreamRequestHandler.setup(self)
+        print &amp;quot;connection established&amp;quot;, self.client_address
+        self.handshake_done = False
+
+    def handle(self):
+        while True:
+            if not self.handshake_done:
+                self.handshake()
+                clients.append(self)
+            else:
+                try:
+                    self.read_next_message()
+                except:
+                    self.request.close()
+                    return
+
+    def read_next_message(self):
+        length = ord(self.rfile.read(2)[1]) &amp;amp; 127
+        if length == 126:
+            length = struct.unpack(&amp;quot;&amp;gt;H&amp;quot;, self.rfile.read(2))[0]
+        elif length == 127:
+            length = struct.unpack(&amp;quot;&amp;gt;Q&amp;quot;, self.rfile.read(8))[0]
+        masks = [ord(byte) for byte in self.rfile.read(4)]
+        decoded = &amp;quot;&amp;quot;
+        for char in self.rfile.read(length):
+            decoded += chr(ord(char) ^ masks[len(decoded) % 4])
+        self.on_message(decoded)
+
+    def send_message(self, data, fin=True, opcode=1, masking_key=False):
+        header = struct.pack(&amp;apos;!B&amp;apos;, ((fin &amp;lt;&amp;lt; 7) | (0 &amp;lt;&amp;lt; 6)| (0 &amp;lt;&amp;lt; 5)| (0 &amp;lt;&amp;lt; 4)| opcode))
+        if masking_key:
+            mask_bit = 1 &amp;lt;&amp;lt; 7
+        else:
+            mask_bit = 0
+        length = len(data)
+        if length &amp;lt; 126:
+            header += struct.pack(&amp;apos;!B&amp;apos;, (mask_bit | length))
+        elif length &amp;lt; (1 &amp;lt;&amp;lt; 16):
+            header += struct.pack(&amp;apos;!B&amp;apos;, (mask_bit | 126)) + struct.pack(&amp;apos;!H&amp;apos;, length)
+        elif length &amp;lt; (1 &amp;lt;&amp;lt; 63):
+            header += struct.pack(&amp;apos;!B&amp;apos;, (mask_bit | 127)) + struct.pack(&amp;apos;!Q&amp;apos;, length)
+        body = data
+        self.request.send(bytes(header + body))
+
+    def handshake(self):
+        data = self.request.recv(1024).strip()
+        headers = Message(StringIO(data.split(&amp;apos;\r\n&amp;apos;, 1)[1]))
+        if headers.get(&amp;quot;Upgrade&amp;quot;, None) != &amp;quot;websocket&amp;quot;:
+            return
+        print &amp;apos;Handshaking...&amp;apos;
+        key = headers[&amp;apos;Sec-WebSocket-Key&amp;apos;]
+        digest = b64encode(sha1(key + self.magic).hexdigest().decode(&amp;apos;hex&amp;apos;))
+        response = &amp;apos;HTTP/1.1 101 Switching Protocols\r\n&amp;apos;+&amp;apos;Upgrade: websocket\r\n&amp;apos;+&amp;apos;Connection: Upgrade\r\n&amp;apos;
+        response += &amp;apos;Sec-WebSocket-Accept: %s\r\n\r\n&amp;apos; % digest
+        self.handshake_done = self.request.send(response)
+
+    def on_message(self, message):
+        text = b64decode(message)
+        print text
+        for client in clients:
+            if client.client_address != self.client_address:
+                client.send_message(b64encode(text))
+
+class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
+
+if __name__ == &amp;quot;__main__&amp;quot;:
+    server = ThreadedTCPServer((&amp;quot;localhost&amp;quot;, 9999), WebSocketsHandler)
+    server.serve_forever()   
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们使用其中的这段代码作为服务器。&lt;/p&gt;
+&lt;p&gt;用这段Ps作为浏览器端的接收Pemo&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// SmWebSocket(url,port,b64encode,fonMessage, ...)
+var smWs = new SmWebSocket(&amp;quot;localhost&amp;quot;,9999,true,handle_recv);
+smWs.open();
+var myDictObjectProtocol = {&amp;quot;p1top2&amp;quot;: handle_transit}; // {id : function, ... }
+var p = new Protocol(myDictObjectProtocol,&amp;quot;|&amp;quot;);
+
+function handle_recv(event)
+{
+    var data = event.data;
+    data = Base64.decode(data);
+    alert(data);
+    p.handleMessage(data);
+}
+
+function handle_transit(mess){
+    document.getElementById(&amp;quot;data_in&amp;quot;).innerText = mess;
+} 
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里作者只实现了浏览器发送到服务器以及浏览器之间的交互，所以现在我们还缺一个Python发送的程序，我最初希望直接使用Pyhton的Socket来实现一个端口发送，但是最后发现每次发送的程序都被服务器拒绝了，所以我又找到了一个Python实现的WebSocket库，当然这个和Pip下载的WebSocket库不同。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/liris/websocket-client&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/liris/websocket-client&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;我修改了其中编码的部分，以和之前的程序适应&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;from __future__ import print_function
+import websocket
+import base64
+
+if __name__ == &amp;quot;__main__&amp;quot;:
+    #websocket.enableTrace(True)
+    ws = websocket.create_connection(&amp;quot;ws://localhost:9999&amp;quot;)
+    data = &amp;quot;p1top2|Hello World&amp;quot;
+    data = base64.b64encode(data)
+    ws.send(data)
+    ws.close()
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;要求的库直接Clone上面项目里的即可，这样，我们就实现了通过Python和Js进行Socket通信的程序。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00 前言&lt;/h2&gt;&lt;p&gt;Socket，一种开销很小的实现程序之间通信的方式。不同的编程语言几乎都有自己实现Socket的库和
+    
+    </summary>
+    
+      <category term="python" scheme="http://phantom0301.github.io/categories/python/"/>
+    
+    
+      <category term="JS" scheme="http://phantom0301.github.io/tags/JS/"/>
+    
+      <category term="Python" scheme="http://phantom0301.github.io/tags/Python/"/>
+    
+      <category term="Socket" scheme="http://phantom0301.github.io/tags/Socket/"/>
+    
+  </entry>
   
   <entry>
     <title>效率利器-Synergy</title>
