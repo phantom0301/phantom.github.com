@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.io/"/>
-  <updated>2016-04-20T01:48:49.910Z</updated>
+  <updated>2016-05-18T13:12:18.241Z</updated>
   <id>http://phantom0301.coding.io/</id>
   
   <author>
@@ -14,6 +14,45 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>闲谈-隐匿于网络中的入侵者</title>
+    <link href="http://phantom0301.coding.io/2016/05/18/%E9%97%B2%E8%B0%88-%E9%9A%90%E5%8C%BF%E4%BA%8E%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%85%A5%E4%BE%B5%E8%80%85/"/>
+    <id>http://phantom0301.coding.io/2016/05/18/闲谈-隐匿于网络中的入侵者/</id>
+    <published>2016-05-18T12:05:53.000Z</published>
+    <updated>2016-05-18T13:12:18.241Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x00&quot;&gt;&lt;a href=&quot;#0x00&quot; class=&quot;headerlink&quot; title=&quot;0x00&quot;&gt;&lt;/a&gt;0x00&lt;/h2&gt;&lt;p&gt;最近一段时间都在赶毕业设计了，觉得这期间被挖出来的那些影响比较大的漏洞都没有细致的去了解。不过论文之余，晚上睡前都在看Gregory Fell和Mike Barlow的《Who are the bad guys and what do they want？》，其中的第一部分就是书名的前半段。&lt;/p&gt;
+&lt;p&gt;查过一些作者们的资料，似乎两位都不是专门研究信息安全的学者，所以书中大量的内容其实应该是来自作者们对于相关专家话语的记录，不过书中提到的很多观点都很有意思。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-白帽子还是黑帽子&quot;&gt;&lt;a href=&quot;#0x01-白帽子还是黑帽子&quot; class=&quot;headerlink&quot; title=&quot;0x01 白帽子还是黑帽子&quot;&gt;&lt;/a&gt;0x01 白帽子还是黑帽子&lt;/h2&gt;&lt;p&gt;我们经常会给一些hacker或是cracker（这两者是很不一样的）贴上一些标签，这是个白帽子平台，那是个黑帽子社区等等。但在文章中提到，有时候这些表面上的标签往往会让我们忽视某一群体在发现漏洞时的意图。&lt;/p&gt;
+&lt;p&gt;那么在这种情况下，单纯的用“好人”或者“坏人”这样二进制意味浓厚的划分原则将会掩盖复杂的入侵意图。&lt;/p&gt;
+&lt;p&gt;使用意图来对攻击进行定义或许能够让我们看到事情的本质。有些是出于研究意图的测试，那么这种行为往往带有友好的提醒；有些是出于个人情感，对于个人或者企业的一种打击报复；有些纯粹是出于贪婪，企图获取金钱或者其他利益；还有的可能是更复杂的情况，包括各国之间的窥探行为，或者只是偶然的一个点击等等，这些意图彼此之间并非泾渭分明的，它们往往能够在一定条件下进行转化。&lt;/p&gt;
+&lt;p&gt;实际情况将会比上述这样简单的理论层面的分类更趋于多样化，大家也可以结合自身的经历来分析身边的“意图”，而不是仅仅靠扣上几个颜色的帽子就定义出谁是正义的谁是邪恶的。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-隐匿在网络中的人&quot;&gt;&lt;a href=&quot;#0x02-隐匿在网络中的人&quot; class=&quot;headerlink&quot; title=&quot;0x02 隐匿在网络中的人&quot;&gt;&lt;/a&gt;0x02 隐匿在网络中的人&lt;/h2&gt;&lt;p&gt;很多时候，我们的视线都汇聚到一个0day是怎么实现的、泄露出的数据体量到底有多少、哪个著名的企业在圣诞前夕又被DDOS威胁了等等这些十分吸引眼球的问题上，当然关注这些问题也是十分有意义的。不过，对于漏洞背后人的探索似乎很多时候没有引起足够多的关注。&lt;/p&gt;
+&lt;p&gt;之前说过我们不应该简单的通过扣帽子的方式来给网络中的人们下定义，而是应该确定出那些驱使他们挖掘漏洞的因素。&lt;/p&gt;
+&lt;p&gt;这里用了书中的一张表来对网络中的活动者下定义，&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160518204514.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这张表中划分出的类别算是补充了之前我的认知，他将网络中的活动者分成了五类，其实这些词不是太好准确的翻译，大概是内部人员、网络犯罪者、纯粹的黑客、恐怖分子和国家层面活动者，同样的，这些角色彼此之间也都是有关联的，那么按照我的想法，将图中几个角色的位置重新放置一下，我们其实可以做一个雷达图来对每一个信息安全事件背后的行动派进行角色判定，这样我们更能够清晰的认识到许多的网络活动的目的都不会那么的单一。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-是管理风险还是管理代码&quot;&gt;&lt;a href=&quot;#0x03-是管理风险还是管理代码&quot; class=&quot;headerlink&quot; title=&quot;0x03 是管理风险还是管理代码&quot;&gt;&lt;/a&gt;0x03 是管理风险还是管理代码&lt;/h2&gt;&lt;p&gt;另一个在书中提到的认知就是，信息安全的问题恐怕很难通过技术的进步去解决，无论你有多么先进的加密手段、无论你的机器学习能够模仿多么专业的安全研究人员，入侵者依然能够找到撕破防线的短板。当防线被攻破，最终，信息安全问题转化为了一个风险控制的问题。&lt;/p&gt;
+&lt;p&gt;那么在这种情况下，采用更加合理的风险控制策略可能起到的作用会大于在代码中加入了一段安全的防护。当然，这两者并未站在对立的两个极端，我们显然可以通过彼此结合的手段来增强对资产的防护，当然，这里提到的是谁更应该放在主位的问题。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-结尾&quot;&gt;&lt;a href=&quot;#0x04-结尾&quot; class=&quot;headerlink&quot; title=&quot;0x04 结尾&quot;&gt;&lt;/a&gt;0x04 结尾&lt;/h2&gt;&lt;p&gt;就瞎扯到这里，好像后面和主题已经无关了，不管那么多了。&lt;/p&gt;
+&lt;p&gt;有兴趣的可以阅读他们的原书。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x00&quot;&gt;&lt;a href=&quot;#0x00&quot; class=&quot;headerlink&quot; title=&quot;0x00&quot;&gt;&lt;/a&gt;0x00&lt;/h2&gt;&lt;p&gt;最近一段时间都在赶毕业设计了，觉得这期间被挖出来的那些影响比较大的漏洞都没有细致的去了解。不过论文之余，晚上睡前都在看Gre
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.coding.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="信息安全" scheme="http://phantom0301.coding.io/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
+    
+      <category term="闲谈" scheme="http://phantom0301.coding.io/tags/%E9%97%B2%E8%B0%88/"/>
+    
+  </entry>
   
   <entry>
     <title>略读《通鉴》-汉纪-那些打破我们常规认识的宦官形象</title>
