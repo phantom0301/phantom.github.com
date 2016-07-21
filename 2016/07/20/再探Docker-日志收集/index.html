@@ -118,7 +118,7 @@
         		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
             	<ul class="sb-submenu">
 				  	
-				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(2)</small></a></li>
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
 				    
 				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
 				    
@@ -319,7 +319,6 @@ output {
 <p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker21.png" alt=""></p>
 <p>这一步调试成功后，我们接着调试Elastic的部分，Elastic+Kibana我是运行在一台Windows的主机上的，运行前调整Elastic的配置文件中的，使得宿主机可以访问到它，当然这里的访问是没有任何认证的，但是作为测试，我们先不讨论安全问题。</p>
 <p>通过windows主机访问宿主机上的Wordpress-docker，然后访问</p>
-<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker22.png" alt=""></p>
 <p>此时，宿主机中容器的日志已经显示在了Windows的主机中。</p>
 <h2 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h2><p>利用这种方式，我们实现了容器日志传输到任意主机上存储的目的，而日志传输则是通过在多个容器之间挂载目录实现。这样做，可以很好的实现应用、日志（或数据）之间的解耦合，将重要日志存储在更安全的实体主机上，便于实现中心对应分布的日志分析。</p>
 
@@ -327,6 +326,10 @@ output {
             <hr class="nogutter">
         </div>
         <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/07/21/再探Docker-另类Docker安全/" style="float: left;">
+        ← 再探Docker-另类Docker安全防护
+    </a>
     
     
     <a class="pull-right" href="/2016/07/19/效率利器-NSSM/">

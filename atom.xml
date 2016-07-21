@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-07-21T03:07:29.845Z</updated>
+  <updated>2016-07-21T09:30:20.182Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -16,11 +16,55 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>再探Docker-另类Docker安全防护</title>
+    <link href="http://phantom0301.github.io/2016/07/21/%E5%86%8D%E6%8E%A2Docker-%E5%8F%A6%E7%B1%BBDocker%E5%AE%89%E5%85%A8/"/>
+    <id>http://phantom0301.github.io/2016/07/21/再探Docker-另类Docker安全/</id>
+    <published>2016-07-21T05:53:06.000Z</published>
+    <updated>2016-07-21T09:30:20.182Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;0x01-别人说&quot;&gt;&lt;a href=&quot;#0x01-别人说&quot; class=&quot;headerlink&quot; title=&quot;0x01 别人说&quot;&gt;&lt;/a&gt;0x01 别人说&lt;/h2&gt;&lt;p&gt;Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。&lt;/p&gt;
+&lt;p&gt;还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。&lt;/p&gt;
+&lt;p&gt;相关的参考文件：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://yq.aliyun.com/articles/48689&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://yq.aliyun.com/articles/48689&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://cache.baiducontent.com/c?m=9f65cb4a8c8507ed4fece7631040973b5b1597634b928d483493cf5f93130601127ba5e065635559809e203c4bee084beb812173401420b786cb8d4cdebf8f3c6ad567627f4adb104b8459b8ca3632b122872ae9b868edad834284afa2c4ae5244bb56120c82e7f8511715ba7881672692a6&amp;amp;p=8b2a9715d9c042a40caa8c0c4e47c6&amp;amp;newp=817ec54ad5c04ab94ebcc7710f0090231615d70e37d1da01298ffe0cc4241a1a1a3aecbf26201403d6cf7f6604a94c5feff53c78340634f1f689df08d2ecce7e399e76&amp;amp;user=baidu&amp;amp;fm=sc&amp;amp;query=Docker%B0%B2%C8%AB%C4%C7%D0%A9%CA%C2&amp;amp;qid=e65331f700005115&amp;amp;p1=5&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Docker安全那些事&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.91ri.org/15837.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://www.91ri.org/15837.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x02-另类视角一：孤岛限制&quot;&gt;&lt;a href=&quot;#0x02-另类视角一：孤岛限制&quot; class=&quot;headerlink&quot; title=&quot;0x02 另类视角一：孤岛限制&quot;&gt;&lt;/a&gt;0x02 另类视角一：孤岛限制&lt;/h2&gt;&lt;p&gt;我们这里谈到的安全，将从另一个视角来解读，假设我们默认部署好的容器应用存在某种漏洞而被利用，最坏的情况是攻击者完全拿下了容器并且取得了root权限。可以预想到的是，在默认的配置下，拥有root权限的Docker就如同真正的跳板机一样，容器如同使用宿主机作为路由器的主机，不仅能够扫描到宿主机的端口情况，还可以扫描到宿主机所在网段的拓扑。&lt;/p&gt;
+&lt;p&gt;最初是想在宿主机上做端口转发策略的限制，进而限制容器访问到更大范围的局域网。本以为在宿主机上的端口转发并不会影响宿主机的网络访问功能。使用如下指令：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sysctl net.ipv4.ip_forward
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在宿主机上运行上面的指令可以查看当前的转发策略是否开启，当键值为1时表示开启，此时的容器网络访问是畅行无阻的。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo sysctl -w net.ipv4.ip_forward=0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;使用上面的命令可以临时将这个参数的键值改为0，此时我们发现容器只能访问到同一网段的其它容器而无法访问到宿主机所在的局域网中，与此同时，我们只要保证作为路由器的宿主机上没有运行开启端口的应用，就应该是安全的。可是随后注意到一个问题，关闭容器对外的端口转发后，外界对于容器的访问也一起被禁止了。&lt;/p&gt;
+&lt;p&gt;这样的话，只能乖乖的在iptables上做文章了。因为不是介绍iptables的文章，就不多对这个Linux下自带的防火墙做过多的介绍。我的想法是使用宿主机的iptables禁止相应的应用容器访问外网（包括宿主机所在的局域网），这样既能实现容器限制，又不会影响外界访问容器。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;iptables -I FORWARD -s 172.17.0.3 -j DROP
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;该命令可以从宿主机的层面限制容器对外的访问，这样可以从一定程度上解决通过容器做跳板的问题。这样的场景实际上就像是将容器设置成只有一条单向入口的孤岛，只允许外界对容器进行访问，而不允许使用容器在做进一步的其它网络访问。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-另类视角二：文件监控&quot;&gt;&lt;a href=&quot;#0x03-另类视角二：文件监控&quot; class=&quot;headerlink&quot; title=&quot;0x03 另类视角二：文件监控&quot;&gt;&lt;/a&gt;0x03 另类视角二：文件监控&lt;/h2&gt;&lt;p&gt;除了上述限制的方法外，我们还可以对于容器中的重点文件夹或文件做监控，一旦检测到相应的文件发生变化，可以立即重新生成新的镜像，以应对攻击。&lt;/p&gt;
+&lt;p&gt;这里的架构思路如下，作为监控程序，它不应该位于目标容器内，所以我们考虑使用我在上一个谈论Docker日志的笔记里提到的挂载的方式，将容器内部重要的文件夹挂载进监控容器内，在监控容器内运行程序监控相应文件的增、删、改等操作，一旦发现不被允许的操作执行，就关闭容器或者重新构建容器。具体文件监控容器方面的学习有机会再在后面贴出。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-综述&quot;&gt;&lt;a href=&quot;#0x04-综述&quot; class=&quot;headerlink&quot; title=&quot;0x04 综述&quot;&gt;&lt;/a&gt;0x04 综述&lt;/h2&gt;&lt;p&gt;由于容器的便携性、易部署性、隔离性，我们可以很方便的在部署容器服务的同时，连带部署一系列的监控、处理容器对于服务容器做维护。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;0x01-别人说&quot;&gt;&lt;a href=&quot;#0x01-别人说&quot; class=&quot;headerlink&quot; title=&quot;0x01 别人说&quot;&gt;&lt;/a&gt;0x01 别人说&lt;/h2&gt;&lt;p&gt;Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Dock
+    
+    </summary>
+    
+      <category term="Docker" scheme="http://phantom0301.github.io/categories/Docker/"/>
+    
+    
+      <category term="Docker" scheme="http://phantom0301.github.io/tags/Docker/"/>
+    
+      <category term="信息安全" scheme="http://phantom0301.github.io/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
+    
+      <category term="入门" scheme="http://phantom0301.github.io/tags/%E5%85%A5%E9%97%A8/"/>
+    
+  </entry>
+  
+  <entry>
     <title>再探Docker-日志收集</title>
     <link href="http://phantom0301.github.io/2016/07/20/%E5%86%8D%E6%8E%A2Docker-%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/"/>
     <id>http://phantom0301.github.io/2016/07/20/再探Docker-日志收集/</id>
     <published>2016-07-20T08:11:59.000Z</published>
-    <updated>2016-07-21T03:07:29.845Z</updated>
+    <updated>2016-07-21T05:52:12.353Z</updated>
     
     <content type="html">&lt;h2 id=&quot;0x01-方法选择&quot;&gt;&lt;a href=&quot;#0x01-方法选择&quot; class=&quot;headerlink&quot; title=&quot;0x01 方法选择&quot;&gt;&lt;/a&gt;0x01 方法选择&lt;/h2&gt;&lt;p&gt;当我们的Docker部署完成后，为了能够掌握Docker的状态，除了使用logs、event、diff等实时运维命令查看外，我们还存在需要对Docker产生的日志进行收集整理分析的必要。&lt;/p&gt;
 &lt;p&gt;网上能找到的日志收集系统有很多，例如Flume、Fluentd、Logstash等等。经过一段时间的摸索搭建，个人最容易搭建成功的是Logstash，而且整个ELK体系也提供一套完整的日志收集、存储、查找、可视化流程，可以省去很多编写中间件的精力。&lt;/p&gt;
@@ -54,7 +98,6 @@ output {
 &lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker21.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;这一步调试成功后，我们接着调试Elastic的部分，Elastic+Kibana我是运行在一台Windows的主机上的，运行前调整Elastic的配置文件中的，使得宿主机可以访问到它，当然这里的访问是没有任何认证的，但是作为测试，我们先不讨论安全问题。&lt;/p&gt;
 &lt;p&gt;通过windows主机访问宿主机上的Wordpress-docker，然后访问&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker22.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;此时，宿主机中容器的日志已经显示在了Windows的主机中。&lt;/p&gt;
 &lt;h2 id=&quot;0x03-总结&quot;&gt;&lt;a href=&quot;#0x03-总结&quot; class=&quot;headerlink&quot; title=&quot;0x03 总结&quot;&gt;&lt;/a&gt;0x03 总结&lt;/h2&gt;&lt;p&gt;利用这种方式，我们实现了容器日志传输到任意主机上存储的目的，而日志传输则是通过在多个容器之间挂载目录实现。这样做，可以很好的实现应用、日志（或数据）之间的解耦合，将重要日志存储在更安全的实体主机上，便于实现中心对应分布的日志分析。&lt;/p&gt;
 </content>
@@ -203,7 +246,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#105;&amp;#108;&amp;#x74;&amp;#111;&amp;#x3a;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x78;&quot;&gt;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#x69;&amp;#108;&amp;#x74;&amp;#111;&amp;#58;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&quot;&gt;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;

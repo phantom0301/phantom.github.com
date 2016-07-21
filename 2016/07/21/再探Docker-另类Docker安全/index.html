@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>Tag: 闲谈 | 零の杂货铺</title>
+  <title>再探Docker-另类Docker安全防护 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -86,7 +86,7 @@
 </head>
 
 <!--
-<body class="home-template">
+<body class="post-template">
 -->
 <body id="index" class="lightnav animsition">
 
@@ -266,37 +266,80 @@
 
         <!-- ============================ END Hero Image =========================== -->
       
-
-
-<section id="services">
+<section id="intro">
     <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="row boxes">
-                    
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/05/18/闲谈-隐匿于网络中的入侵者/">闲谈-隐匿于网络中的入侵者</a></h4>
-                            
-                            <p><time datetime="2016-05-18T12:05:53.000Z"><a href="/2016/05/18/闲谈-隐匿于网络中的入侵者/">2016-05-18</a></time></p>
-                        </div>
-                    
-                </div>
-            </div>    
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-21T05:53:06.000Z" itemprop="datePublished">
+          2016-07-21
+      </time>
+    
+    
+    | 
+    <a href='/tags/Docker/'>Docker</a>,
+    
+    <a href='/tags/信息安全/'>信息安全</a>,
+    
+    <a href='/tags/入门/'>入门</a>
+    
+    
+</span>
+                <h1>再探Docker-另类Docker安全防护</h1>
+            </div>
         </div>
-    </div>
-</section> 
+        <div class="col-md-8 col-md-offset-2">
+      		<h2 id="0x01-别人说"><a href="#0x01-别人说" class="headerlink" title="0x01 别人说"></a>0x01 别人说</h2><p>Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。</p>
+<p>还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。</p>
+<p>相关的参考文件：</p>
+<p><a href="https://yq.aliyun.com/articles/48689" target="_blank" rel="external">https://yq.aliyun.com/articles/48689</a></p>
+<p><a href="http://cache.baiducontent.com/c?m=9f65cb4a8c8507ed4fece7631040973b5b1597634b928d483493cf5f93130601127ba5e065635559809e203c4bee084beb812173401420b786cb8d4cdebf8f3c6ad567627f4adb104b8459b8ca3632b122872ae9b868edad834284afa2c4ae5244bb56120c82e7f8511715ba7881672692a6&amp;p=8b2a9715d9c042a40caa8c0c4e47c6&amp;newp=817ec54ad5c04ab94ebcc7710f0090231615d70e37d1da01298ffe0cc4241a1a1a3aecbf26201403d6cf7f6604a94c5feff53c78340634f1f689df08d2ecce7e399e76&amp;user=baidu&amp;fm=sc&amp;query=Docker%B0%B2%C8%AB%C4%C7%D0%A9%CA%C2&amp;qid=e65331f700005115&amp;p1=5" target="_blank" rel="external">Docker安全那些事</a></p>
+<p><a href="https://www.91ri.org/15837.html" target="_blank" rel="external">https://www.91ri.org/15837.html</a></p>
+<h2 id="0x02-另类视角一：孤岛限制"><a href="#0x02-另类视角一：孤岛限制" class="headerlink" title="0x02 另类视角一：孤岛限制"></a>0x02 另类视角一：孤岛限制</h2><p>我们这里谈到的安全，将从另一个视角来解读，假设我们默认部署好的容器应用存在某种漏洞而被利用，最坏的情况是攻击者完全拿下了容器并且取得了root权限。可以预想到的是，在默认的配置下，拥有root权限的Docker就如同真正的跳板机一样，容器如同使用宿主机作为路由器的主机，不仅能够扫描到宿主机的端口情况，还可以扫描到宿主机所在网段的拓扑。</p>
+<p>最初是想在宿主机上做端口转发策略的限制，进而限制容器访问到更大范围的局域网。本以为在宿主机上的端口转发并不会影响宿主机的网络访问功能。使用如下指令：</p>
+<pre><code>sysctl net.ipv4.ip_forward
+</code></pre><p>在宿主机上运行上面的指令可以查看当前的转发策略是否开启，当键值为1时表示开启，此时的容器网络访问是畅行无阻的。</p>
+<pre><code>sudo sysctl -w net.ipv4.ip_forward=0
+</code></pre><p>使用上面的命令可以临时将这个参数的键值改为0，此时我们发现容器只能访问到同一网段的其它容器而无法访问到宿主机所在的局域网中，与此同时，我们只要保证作为路由器的宿主机上没有运行开启端口的应用，就应该是安全的。可是随后注意到一个问题，关闭容器对外的端口转发后，外界对于容器的访问也一起被禁止了。</p>
+<p>这样的话，只能乖乖的在iptables上做文章了。因为不是介绍iptables的文章，就不多对这个Linux下自带的防火墙做过多的介绍。我的想法是使用宿主机的iptables禁止相应的应用容器访问外网（包括宿主机所在的局域网），这样既能实现容器限制，又不会影响外界访问容器。</p>
+<pre><code>iptables -I FORWARD -s 172.17.0.3 -j DROP
+</code></pre><p>该命令可以从宿主机的层面限制容器对外的访问，这样可以从一定程度上解决通过容器做跳板的问题。这样的场景实际上就像是将容器设置成只有一条单向入口的孤岛，只允许外界对容器进行访问，而不允许使用容器在做进一步的其它网络访问。</p>
+<h2 id="0x03-另类视角二：文件监控"><a href="#0x03-另类视角二：文件监控" class="headerlink" title="0x03 另类视角二：文件监控"></a>0x03 另类视角二：文件监控</h2><p>除了上述限制的方法外，我们还可以对于容器中的重点文件夹或文件做监控，一旦检测到相应的文件发生变化，可以立即重新生成新的镜像，以应对攻击。</p>
+<p>这里的架构思路如下，作为监控程序，它不应该位于目标容器内，所以我们考虑使用我在上一个谈论Docker日志的笔记里提到的挂载的方式，将容器内部重要的文件夹挂载进监控容器内，在监控容器内运行程序监控相应文件的增、删、改等操作，一旦发现不被允许的操作执行，就关闭容器或者重新构建容器。具体文件监控容器方面的学习有机会再在后面贴出。</p>
+<h2 id="0x04-综述"><a href="#0x04-综述" class="headerlink" title="0x04 综述"></a>0x04 综述</h2><p>由于容器的便携性、易部署性、隔离性，我们可以很方便的在部署容器服务的同时，连带部署一系列的监控、处理容器对于服务容器做维护。</p>
 
-<section id="statement">
-    <div class="container text-center wow fadeInUp" data-wow-delay="0.5s">
-        <div class="row">
-            <p>Free and Share。</p>
+            <div class="clearfix"></div>
+            <hr class="nogutter">
         </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2016/07/20/再探Docker-日志收集/">
+        再探Docker-日志收集 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/07/21/再探Docker-另类Docker安全/" data-title="再探Docker-另类Docker安全防护" data-url="http://phantom0301.github.io/2016/07/21/再探Docker-另类Docker安全/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
     </div>
 </section>
+
+
       
 <!-- ============================ Footer =========================== -->
 
