@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>爆破工具Bruter文档翻译 | 零の杂货铺</title>
+  <title>再探Docker-日志收集 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -271,117 +271,72 @@
         <div class="row col-md-offset-2">
             <div class="col-md-8">
     			<span class="post-meta">
-      <time datetime="2016-03-25T01:54:43.000Z" itemprop="datePublished">
-          2016-03-25
+      <time datetime="2016-07-20T08:11:59.000Z" itemprop="datePublished">
+          2016-07-20
       </time>
     
     
     | 
-    <a href='/tags/bruter/'>bruter</a>,
+    <a href='/tags/Docker/'>Docker</a>,
     
-    <a href='/tags/爆破/'>爆破</a>
+    <a href='/tags/入门/'>入门</a>
     
     
 </span>
-                <h1>爆破工具Bruter文档翻译</h1>
+                <h1>再探Docker-日志收集</h1>
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>说到爆破神器，kali中的msf爆破插件、hydra、medusa都足够强大，这里推荐一款win环境使用的爆破测试工具，bruter。</p>
-<p>仅仅翻译一下官方文档，bruter的所有说明文件都在目录的doc中。</p>
-<h2 id="0x01-介绍"><a href="#0x01-介绍" class="headerlink" title="0x01 介绍"></a>0x01 介绍</h2><p>Bruter是一个多线程暴力破解器，这款工具的诞生是为了证明选择强口令的重要性（反正我是信了~~），我们的目标是支持多种允许远程登录认证的服务。</p>
-<p><em>警告：请记住，这款工具只能用于合法的目的</em></p>
-<h2 id="0x02-使用方法"><a href="#0x02-使用方法" class="headerlink" title="0x02 使用方法"></a>0x02 使用方法</h2><ul>
-<li>连接选项，输入目标和选择协议的地方<ol>
-<li>目标：可以输入ipv4和host，不支持批量操作</li>
-<li>协议：不同的协议有不同的选项，更多协议内容查看协议相关文档</li>
-<li>端口：一般会有默认端口号，也可以手动修改</li>
-<li>SSL：是否使用SSL，选择时端口号也相应会改变</li>
-</ol>
-</li>
-<li><p>代理选项</p>
-<ol>
-<li>使用代理：选择是否使用代理</li>
-<li>类型：支持HTTP、socks4、socks5代理</li>
-<li>让代理解析host：选择本地解析还是让代理决定</li>
-<li>端口：代理端口</li>
-<li><p>要求认证：查看代理是否需要验证</p>
-<p> 注意： http连接只支持基础认证；</p>
-<pre><code>socks5只支持用户名/密码认证
-</code></pre></li>
-<li>账号和密码：输入账号和密码的地方</li>
-</ol>
-</li>
-<li>爆破用户名选项<ol>
-<li>输入用户名或者用户名列表路径。</li>
-</ol>
-</li>
-<li>密码模式选项<ol>
-<li>联合模式：当你的密码或列表输入使用username:password形式时，会自动去提取“：”后的password<br> 注意：会忽视username的内容；可以在选项里选择分隔符</li>
-<li>字典模式：正常的模式，可以输入单个密码或者列表路径，不同之处在于它可以变量替换，类似（%username%）的输入可以将爆破用到的所有用户名添加到密码中来。<br> 注意：空密码就用空字符，而不是用空格；由于替换规则，你用不了“%username%”这个密码；使用时会先加载全部密码到内存，所以密码字典不要太大</li>
-<li>暴力模式：根据提供的字符进行遍历</li>
-</ol>
-</li>
-<li>字典选项，使用字典模式附带的选项<ol>
-<li>小写，转化所有输入为小写</li>
-<li>大写，转化所有输入为大写</li>
-<li>大写首字母</li>
-<li>翻转</li>
-<li>重复两次，将输入的admin，变为adminadmin</li>
-</ol>
-</li>
-<li>杂项选项<ol>
-<li>连接数：设置进程数，win限制最大为64</li>
-<li>最大重试数：同一个用户密码尝试次数</li>
-<li>超时：整个破解过程使用多长时间</li>
-<li>重试时间：同一个用户密码尝试间隔时间</li>
-<li>重试时间：不同的用户密码尝试间隔时间</li>
-<li>最大接受连接数：有两个值，-1表示自动检测；0表示直到服务断开</li>
-<li>当发现有成功结果时是否停止</li>
-<li>密码优先：这个选项会使程序优先以密码去遍历用户名</li>
-</ol>
-</li>
-<li>显示区<ol>
-<li>结果</li>
-<li>正在测试情况</li>
-<li>返回信息</li>
-</ol>
-</li>
-<li>状态栏<ol>
-<li>第一列：当前任务状态</li>
-<li>第二列：每秒爆破数</li>
-<li>第三列：总测试数</li>
-<li>第四列：总用时</li>
-</ol>
-</li>
-<li>菜单<ol>
-<li>文件：保存和退出</li>
-<li>设置：可以加载默认设置、保存设置、加载设置</li>
-<li>日志：选择输出的日志级别</li>
-<li>帮助：不用说了<h2 id="0x03-后记"><a href="#0x03-后记" class="headerlink" title="0x03 后记"></a>0x03 后记</h2>话说，3389的爆破工具都有哪些？以前似乎听说过一些，但是现在好像都销声匿迹了，是因为MS这方面防护做的更好了，3389爆破测试工具难以绕过一些规则吗？</li>
-</ol>
-</li>
-</ul>
-<p>原创文章，转载请注明： 转载自零の杂货铺</p>
+      		<h2 id="0x01-方法选择"><a href="#0x01-方法选择" class="headerlink" title="0x01 方法选择"></a>0x01 方法选择</h2><p>当我们的Docker部署完成后，为了能够掌握Docker的状态，除了使用logs、event、diff等实时运维命令查看外，我们还存在需要对Docker产生的日志进行收集整理分析的必要。</p>
+<p>网上能找到的日志收集系统有很多，例如Flume、Fluentd、Logstash等等。经过一段时间的摸索搭建，个人最容易搭建成功的是Logstash，而且整个ELK体系也提供一套完整的日志收集、存储、查找、可视化流程，可以省去很多编写中间件的精力。</p>
+<h2 id="0x02-调试"><a href="#0x02-调试" class="headerlink" title="0x02 调试"></a>0x02 调试</h2><p>所以最终我的整体架构如下：</p>
+<pre><code>docker1\
+        \
+docker2——————&gt;docker-logstash————&gt;任意机器（可以不是宿主机）
+        /
+docker3/
+</code></pre><p>ELK一整套工具可以很方便的从Elastic的官网上下到，在这里就不在赘述。在任意一台主机上安装Elasticsearch和Kibana，在宿主机上安装不同的Docker以及一个Logstash的Docker。这里我使用我在上一篇博客中编译好的Wordpress的Docker。不同的是我需要将WP中记录日志的文件夹挂载到logstash-docker上。命令如下：</p>
+<pre><code>docker run -d -v /var/log/nginx/ --name wordpress -p 0.0.0.0:80:80 long/wordpress
+</code></pre><p>简单解释一下这条命令，我们运行了之前编译好的Wordpress，将其中的Nginx下的日志挂载出来。</p>
+<p>接下来，我们再从官网仓库中pull下Docker版的Logstash，使用如下命令开启：</p>
+<pre><code>docker run -it --rm --volumes-from wordpress -v &quot;$PWD&quot;:/home  logstash logstash -f /home/test.conf
+</code></pre><p>这里有几个坑要事先声明一下，一个是这里我使用了Logstash的配置文件，而这个配置文件我是从宿主机挂载到容器的home文件夹下，另一个点就是Logstash容器从Wordpress中接手之前挂载的文件夹，从里面实时增量读取日志，但是两个容器的权限不对应，所以要注意在Wordpress容器对相应的文件夹做权限变更。</p>
+<p>Logstash的配置文件我写法如下：</p>
+<pre><code>input {
+    file {
+        path =&gt; &quot;xxxx&quot;
+        start_position =&gt; beginning
+         }
+      }
+filter {
+
+       }
+
+output {
+    stdout { }
+       }
+</code></pre><p>从日志中读取信息，打印在标准输出中。</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker21.png" alt=""></p>
+<p>这一步调试成功后，我们接着调试Elastic的部分，Elastic+Kibana我是运行在一台Windows的主机上的，运行前调整Elastic的配置文件中的，使得宿主机可以访问到它，当然这里的访问是没有任何认证的，但是作为测试，我们先不讨论安全问题。</p>
+<p>通过windows主机访问宿主机上的Wordpress-docker，然后访问</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker22.png" alt=""></p>
+<p>此时，宿主机中容器的日志已经显示在了Windows的主机中。</p>
+<h2 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h2><p>利用这种方式，我们实现了容器日志传输到任意主机上存储的目的，而日志传输则是通过在多个容器之间挂载目录实现。这样做，可以很好的实现应用、日志（或数据）之间的解耦合，将重要日志存储在更安全的实体主机上，便于实现中心对应分布的日志分析。</p>
 
             <div class="clearfix"></div>
             <hr class="nogutter">
         </div>
         <nav class="pagination" role="pagination">
     
-    <a class="pull-left" href="/2016/04/06/效率利器-Synergy/" style="float: left;">
-        ← 效率利器-Synergy
-    </a>
     
-    
-    <a class="pull-right" href="/2016/03/23/反蜜罐技术学习/">
-        反蜜罐技术学习 →
+    <a class="pull-right" href="/2016/07/19/效率利器-NSSM/">
+        效率利器-NSSM →
     </a>
     
 </nav>
 
         <div class="duoshuo">
-<div class="ds-thread" data-thread-key="2016/03/25/爆破工具Bruter文档翻译/" data-title="爆破工具Bruter文档翻译" data-url="http://phantom0301.github.io/2016/03/25/爆破工具Bruter文档翻译/"></div>
+<div class="ds-thread" data-thread-key="2016/07/20/再探Docker-日志收集/" data-title="再探Docker-日志收集" data-url="http://phantom0301.github.io/2016/07/20/再探Docker-日志收集/"></div>
 <script type="text/javascript">
 var duoshuoQuery = {short_name:"phantom0301"};
 (function() {
