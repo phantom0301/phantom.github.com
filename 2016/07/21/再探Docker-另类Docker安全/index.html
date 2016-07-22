@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>再探Docker-另类Docker安全防护 | 零の杂货铺</title>
+  <title>再探Docker-另类Docker安全 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -285,12 +285,22 @@
     
     
 </span>
-                <h1>再探Docker-另类Docker安全防护</h1>
+                <h1>再探Docker-另类Docker安全</h1>
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
       		<h2 id="0x01-别人说"><a href="#0x01-别人说" class="headerlink" title="0x01 别人说"></a>0x01 别人说</h2><p>Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。</p>
 <p>还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。</p>
+<p>我们可以在本地复现一下这个漏洞，首先我们关闭Docker daemon的本地sock，开启远程访问，并绑定端口。</p>
+<pre><code>service stop docker
+docker daemon -H unix:///var/run/docker.sock -H 0.0.0.0:9090
+</code></pre><p>之后我们访问</p>
+<pre><code>curl http://127.0.0.1:9090/containers/json
+</code></pre><p>我们来获取一些敏感的信息</p>
+<pre><code>curl http://127.0.0.1:9090/containers/(id)/logs?stdout=1
+
+curl http://127.0.0.1:9090/containers/(id)/json
+</code></pre><p>另外通过Post包我们还可以新建、开启和关闭容器。</p>
 <p>相关的参考文件：</p>
 <p><a href="https://yq.aliyun.com/articles/48689" target="_blank" rel="external">https://yq.aliyun.com/articles/48689</a></p>
 <p><a href="http://cache.baiducontent.com/c?m=9f65cb4a8c8507ed4fece7631040973b5b1597634b928d483493cf5f93130601127ba5e065635559809e203c4bee084beb812173401420b786cb8d4cdebf8f3c6ad567627f4adb104b8459b8ca3632b122872ae9b868edad834284afa2c4ae5244bb56120c82e7f8511715ba7881672692a6&amp;p=8b2a9715d9c042a40caa8c0c4e47c6&amp;newp=817ec54ad5c04ab94ebcc7710f0090231615d70e37d1da01298ffe0cc4241a1a1a3aecbf26201403d6cf7f6604a94c5feff53c78340634f1f689df08d2ecce7e399e76&amp;user=baidu&amp;fm=sc&amp;query=Docker%B0%B2%C8%AB%C4%C7%D0%A9%CA%C2&amp;qid=e65331f700005115&amp;p1=5" target="_blank" rel="external">Docker安全那些事</a></p>
@@ -306,7 +316,8 @@
 </code></pre><p>该命令可以从宿主机的层面限制容器对外的访问，这样可以从一定程度上解决通过容器做跳板的问题。这样的场景实际上就像是将容器设置成只有一条单向入口的孤岛，只允许外界对容器进行访问，而不允许使用容器在做进一步的其它网络访问。</p>
 <h2 id="0x03-另类视角二：文件监控"><a href="#0x03-另类视角二：文件监控" class="headerlink" title="0x03 另类视角二：文件监控"></a>0x03 另类视角二：文件监控</h2><p>除了上述限制的方法外，我们还可以对于容器中的重点文件夹或文件做监控，一旦检测到相应的文件发生变化，可以立即重新生成新的镜像，以应对攻击。</p>
 <p>这里的架构思路如下，作为监控程序，它不应该位于目标容器内，所以我们考虑使用我在上一个谈论Docker日志的笔记里提到的挂载的方式，将容器内部重要的文件夹挂载进监控容器内，在监控容器内运行程序监控相应文件的增、删、改等操作，一旦发现不被允许的操作执行，就关闭容器或者重新构建容器。具体文件监控容器方面的学习有机会再在后面贴出。</p>
-<h2 id="0x04-综述"><a href="#0x04-综述" class="headerlink" title="0x04 综述"></a>0x04 综述</h2><p>由于容器的便携性、易部署性、隔离性，我们可以很方便的在部署容器服务的同时，连带部署一系列的监控、处理容器对于服务容器做维护。</p>
+<h2 id="0x04-综述"><a href="#0x04-综述" class="headerlink" title="0x04 综述"></a>0x04 综述</h2><p>Docker一旦部署到真实环境中，我们就要对它的安全性做全面的衡量，不过通过上述分析，在排除可能存在0Day的情况下，只要配置得当，Docker的安全性还是有保障的。</p>
+<p>由于容器的便携性、易部署性、隔离性，我们可以很方便的在部署容器服务的同时，连带部署一系列的监控、处理容器对于服务容器做维护。</p>
 
             <div class="clearfix"></div>
             <hr class="nogutter">
@@ -321,7 +332,7 @@
 </nav>
 
         <div class="duoshuo">
-<div class="ds-thread" data-thread-key="2016/07/21/再探Docker-另类Docker安全/" data-title="再探Docker-另类Docker安全防护" data-url="http://phantom0301.coding.io/2016/07/21/再探Docker-另类Docker安全/"></div>
+<div class="ds-thread" data-thread-key="2016/07/21/再探Docker-另类Docker安全/" data-title="再探Docker-另类Docker安全" data-url="http://phantom0301.coding.io/2016/07/21/再探Docker-另类Docker安全/"></div>
 <script type="text/javascript">
 var duoshuoQuery = {short_name:"phantom0301"};
 (function() {
