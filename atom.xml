@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-07-22T11:28:33.654Z</updated>
+  <updated>2016-07-30T01:30:40.965Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://phantom0301.github.io/2016/07/21/%E5%86%8D%E6%8E%A2Docker-%E5%8F%A6%E7%B1%BBDocker%E5%AE%89%E5%85%A8/"/>
     <id>http://phantom0301.github.io/2016/07/21/再探Docker-另类Docker安全/</id>
     <published>2016-07-21T05:53:06.000Z</published>
-    <updated>2016-07-22T11:28:33.654Z</updated>
+    <updated>2016-07-30T01:30:40.965Z</updated>
     
     <content type="html">&lt;h2 id=&quot;0x01-别人说&quot;&gt;&lt;a href=&quot;#0x01-别人说&quot; class=&quot;headerlink&quot; title=&quot;0x01 别人说&quot;&gt;&lt;/a&gt;0x01 别人说&lt;/h2&gt;&lt;p&gt;Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。&lt;/p&gt;
 &lt;p&gt;还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。&lt;/p&gt;
@@ -45,7 +45,8 @@ curl http://127.0.0.1:9090/containers/(id)/json
 &lt;pre&gt;&lt;code&gt;sudo sysctl -w net.ipv4.ip_forward=0
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;使用上面的命令可以临时将这个参数的键值改为0，此时我们发现容器只能访问到同一网段的其它容器而无法访问到宿主机所在的局域网中，与此同时，我们只要保证作为路由器的宿主机上没有运行开启端口的应用，就应该是安全的。可是随后注意到一个问题，关闭容器对外的端口转发后，外界对于容器的访问也一起被禁止了。&lt;/p&gt;
 &lt;p&gt;这样的话，只能乖乖的在iptables上做文章了。因为不是介绍iptables的文章，就不多对这个Linux下自带的防火墙做过多的介绍。我的想法是使用宿主机的iptables禁止相应的应用容器访问外网（包括宿主机所在的局域网），这样既能实现容器限制，又不会影响外界访问容器。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;iptables -I FORWARD -s 172.17.0.3 -j DROP
+&lt;pre&gt;&lt;code&gt;sudo iptables -I FORWARD -i docker0 -o ens33 -j DROP
+sudo iptables -I FORWARD -i docker0 -o ens33 -m state --state RELATED,ESTABLISHED  -j ACCEPT
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;该命令可以从宿主机的层面限制容器对外的访问，这样可以从一定程度上解决通过容器做跳板的问题。这样的场景实际上就像是将容器设置成只有一条单向入口的孤岛，只允许外界对容器进行访问，而不允许使用容器在做进一步的其它网络访问。&lt;/p&gt;
 &lt;h2 id=&quot;0x03-另类视角二：文件监控&quot;&gt;&lt;a href=&quot;#0x03-另类视角二：文件监控&quot; class=&quot;headerlink&quot; title=&quot;0x03 另类视角二：文件监控&quot;&gt;&lt;/a&gt;0x03 另类视角二：文件监控&lt;/h2&gt;&lt;p&gt;除了上述限制的方法外，我们还可以对于容器中的重点文件夹或文件做监控，一旦检测到相应的文件发生变化，可以立即重新生成新的镜像，以应对攻击。&lt;/p&gt;
 &lt;p&gt;这里的架构思路如下，作为监控程序，它不应该位于目标容器内，所以我们考虑使用我在上一个谈论Docker日志的笔记里提到的挂载的方式，将容器内部重要的文件夹挂载进监控容器内，在监控容器内运行程序监控相应文件的增、删、改等操作，一旦发现不被允许的操作执行，就关闭容器或者重新构建容器。具体文件监控容器方面的学习有机会再在后面贴出。&lt;/p&gt;
@@ -257,7 +258,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#105;&amp;#108;&amp;#x74;&amp;#x6f;&amp;#x3a;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&quot;&gt;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#105;&amp;#108;&amp;#116;&amp;#x6f;&amp;#58;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&quot;&gt;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
