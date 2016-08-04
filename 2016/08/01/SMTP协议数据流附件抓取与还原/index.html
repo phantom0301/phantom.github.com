@@ -370,8 +370,10 @@ Content-Transfer-Encoding: 7bit\r\n\r\n123456\r\n
 Content-Type: image/png\r\n
 MIME-Version: 1.0\r\n
 Content-Transfer-Encoding: base64\r\n
-Content-ID: application/octet-stream\r\
-\niVBORw0KGgoAAAANSUhEUgAAAKoAAA
+Content-ID: application/octet-stream\r\n
+
+
+iVBORw0KGgoAAAANSUhEUgAAAKoAAA
 FHCAYAAAAx29dqAAAgAElEQVR4nKy9d5T
 c2XXfeSt0d3XO\r\nOQNooLuR02ByYpjhcEi
 KSTYlS5S0+4dE7ZElK9iWLC+8Pmd3La20K1
@@ -390,11 +392,20 @@ l7wVOj83I4AAAAASUVORK5CYII=\r\n
 </code></pre><p>简单分析一下，在这里，我们传递的真是多MIME的邮件，第一个分隔符以上说明是多部分合在一起，第一段内是邮件的发送者信息和标题，第二段是我们传递的邮件正文，第三段是附件。重点再看一下第三部分，第三部分首先声明了附件类型、编码方式,紧接着就是文件二进制的base64编码。</p>
 <p>通过上述分析，为了能够还原出附件，我们大致需要进行以下步骤：</p>
 <ol>
-<li>准确分离出附件的base64编码正文</li>
+<li>准确分离出一封完整的邮件</li>
+<li>准确分离出附件段</li>
+<li>从附件段分离出附件的base64编码正文</li>
 <li>将base64解码为二进制文件</li>
 <li>获取当前文件类型，保存二进制文件为当前文件类型</li>
 </ol>
-<p>一次完整的发送过程包括若干次完整的包，我们需要保存下这一次发送中的若干个的包，这就需要我们在捕捉到的多次发送包中先匹配出邮件开始和结束的标志，从上面可以看到，邮件结束时都使用一个单行的“.”来标志。我们匹配出完整的邮件包后，</p>
+<p>一次完整的发送过程包括若干次完整的包，我们需要保存这一次发送中的若干个包，这就需要我们在捕捉到的多次发送包中先匹配出邮件开始和结束的标志，从上面可以看到，邮件结束时都使用一个单行的“.”来标志。我们匹配出完整的邮件包后，根据边界标志来匹配出附件部分的文件类型声明和编码正文，得到正文后我们使用Python的base64模块进行解码，将解码后的文件存成相应类型，就基本完成了附件的还原。</p>
+<h2 id="0x03-存在的问题"><a href="#0x03-存在的问题" class="headerlink" title="0x03 存在的问题"></a>0x03 存在的问题</h2><p>上面对于一次单一的发送行为做了附件还原，但其实还有很多问题有待解决。</p>
+<ol>
+<li>TCP发送过程中存在重复发送和乱序的问题，需要一定的机制去做判断，暂时想到的方法是使用TCP包中的Seq和Ack参数按照包编号和大小去逐个递增查找</li>
+<li>多个发送行为存在的时候，如何在可能交叉的发送包中匹配出一次完整的发送包</li>
+<li>当发送程序使用不同的编码时，还需要获取到编码方式再对应进行解码</li>
+</ol>
+<p>接下来将会侧重于这部分问题解决方法的探索~~ </p>
 
             <div class="clearfix"></div>
             <hr class="nogutter">
