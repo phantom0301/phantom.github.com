@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>Archives: 2016 | 零の杂货铺</title>
+  <title>SMTP协议附件数据流抓取与还原 | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -86,7 +86,7 @@
 </head>
 
 <!--
-<body class="home-template">
+<body class="post-template">
 -->
 <body id="index" class="lightnav animsition">
 
@@ -268,76 +268,166 @@
 
         <!-- ============================ END Hero Image =========================== -->
       
-
-
-<section id="services">
+<section id="intro">
     <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="row boxes">
-                    
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/07/04/碎碎念/">碎碎念</a></h4>
-                            
-                            <p><time datetime="2016-07-04T10:49:17.000Z"><a href="/2016/07/04/碎碎念/">2016-07-04</a></time></p>
-                        </div>
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/05/18/闲谈-隐匿于网络中的入侵者/">闲谈-隐匿于网络中的入侵者</a></h4>
-                            
-                            <p><time datetime="2016-05-18T12:05:53.000Z"><a href="/2016/05/18/闲谈-隐匿于网络中的入侵者/">2016-05-18</a></time></p>
-                        </div>
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/04/14/略读《通鉴》-汉纪/">略读《通鉴》-汉纪-那些打破我们常规认识的宦官形象</a></h4>
-                            
-                            <p><time datetime="2016-04-14T09:53:27.000Z"><a href="/2016/04/14/略读《通鉴》-汉纪/">2016-04-14</a></time></p>
-                        </div>
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/04/12/Js-Python实现socket通信/">Js-Python实现socket通信</a></h4>
-                            
-                            <p><time datetime="2016-04-12T07:51:55.000Z"><a href="/2016/04/12/Js-Python实现socket通信/">2016-04-12</a></time></p>
-                        </div>
-                    
-                        
-                            </div><div class="row boxes">
-                            
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/04/06/效率利器-Synergy/">效率利器-Synergy</a></h4>
-                            
-                            <p><time datetime="2016-04-06T06:52:16.000Z"><a href="/2016/04/06/效率利器-Synergy/">2016-04-06</a></time></p>
-                        </div>
-                    
-                </div>
-            </div>    
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-08-01T13:00:54.000Z" itemprop="datePublished">
+          2016-08-01
+      </time>
+    
+    
+    | 
+    <a href='/tags/SMTP/'>SMTP</a>,
+    
+    <a href='/tags/协议分析/'>协议分析</a>
+    
+    
+</span>
+                <h1>SMTP协议附件数据流抓取与还原</h1>
+            </div>
         </div>
-    </div>
-</section> 
+        <div class="col-md-8 col-md-offset-2">
+      		<p>SMTP作为一种广泛使用的文件传输协议，已经和POP等协议一同构成了电子邮件系统传输的基石，针对于协议的分析也有很多书籍和博文可以参考，但是在这当中，对于MIME附件的数据流还原能找到的参考不多，所以在这里记下实践心得。</p>
+<a id="more"></a>
+<h2 id="0x00-基础知识"><a href="#0x00-基础知识" class="headerlink" title="0x00 基础知识"></a>0x00 基础知识</h2><p>1.数据包的层级关系</p>
+<p>SMTP通过TCP协议进行传输，在这之前不得不再复习一下数据包的构成关系。</p>
+<p>一个典型的SMTP包将会由一下几部分构成：</p>
+<pre><code>Ethernet{首部，数据部（IP{首部，数据部（TCP{首部，数据部}）}）}
+</code></pre><p>从上面的结构可以看出数据链路层、网络层、传输层上面的协议是嵌套关系，高层次的完整数据包作为底层次协议中的数据部。</p>
+<p>打个比方，如果我们要发送“Hello World！”的信息，正文信息将会在编码后加上TCP头成为TCP包，而TCP包会作为IP包的数据部，和IP头组成IP包，以此类推，以太网包就是首部加上IP包。</p>
+<p>不同的层次被赋予了不同的职责，我们要传送的实体信息是一切的基石，TCP头则负责告知收发双方的端口号并通过序号和校验保证数据的顺序和完整性；IP头负责告知收发双方的IP地址；eth头负责告知收发双发的MAC地址。</p>
+<p>2.SMTP协议</p>
+<p>SMTP协议的具体含义网上可以很轻易的得到。</p>
+<p>这里插一句，早期的SMTP实现过程是这样的，发送方写好一份邮件存在自己的硬盘上，通过TCP连接直接将邮件转到接收者的硬盘中，如果发送成功，发送者的硬盘就会删除邮件。否则，将会等待重发。</p>
+<p>很明显，上述实现过程在现代复杂网络中已经显得十分简陋，其他的先不说，这种机制首先必须要求收发方都要在线，这大大制约了电子邮件的发送。因此，邮件服务器就应运而生，二十四小时持续运转的邮件服务器可以使得邮件的发送不用在收到时间的限制。电子邮件系统雏形也就这样诞生了。</p>
+<p>由于需要与邮件服务器交流，便产生了相应的操作指令和状态码，详细的操作指令和状态码也可以很容易的从网络获得。今天，当我们发送邮件时，邮件客户端帮我们完成了SMTP指令的交互，我们只需要关系邮件实体的相关内容即可。</p>
+<p>3.MIME格式</p>
+<p>最初的邮件只能传输文本，这显然无法满足我们的交流需求。MIME的出现就是为了丰富邮件传输的类型，与此同时，我们可以在邮件附件中添加图片、动画、声音和程序。</p>
+<p>MIME主要由首部和正文组成，通过“Content-Type”确定发送富文本的类型，常用的类型有：</p>
+<pre><code>text/plain  纯文本
+mutipart/mixed  多部分组成
+application/octet-stream  二进制数据
+image/jpeg  jpeg图像
+video/mpeg  mpeg动画
+</code></pre><p>当声明为多部分组成时，通过“boundary”来进行分割。</p>
+<h2 id="0x01-邮件发送"><a href="#0x01-邮件发送" class="headerlink" title="0x01 邮件发送"></a>0x01 邮件发送</h2><p>为了便于我们进行分析，我们在本地的另一台Ubuntu主机上搭建SMTP服务器，通过Python程序在本机上发送邮件到Ubuntu主机上，这样就能实现一个可控的操作环境。</p>
+<p>在Ubuntu上安装Postfix和SMTP服务</p>
+<pre><code>apt-get install postfix
+apt-get install mailutils
+</code></pre><p>完成之后，我们可以在本机上使用</p>
+<pre><code>telnet Ubuntu的IP 25
+</code></pre><p>来验证是否搭建成功</p>
+<p>搭建完成后我们来编写一个可以传输MIME附件的Pyhton程序，关键代码如下：<br>需要的Python库</p>
+<pre><code>import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.header import Header
+</code></pre><p>先初始化发送邮箱，邮件服务器，邮箱认证账号密码</p>
+<pre><code>def init():  
+    sender = 
+    smtpserver = 
+    username = 
+    password = 
+    return sender, smtpserver, username, password
+</code></pre><p>发送部分调用</p>
+<pre><code>msg = MIMEMultipart(&apos;alternative&apos;)
+</code></pre><p>在msg中添加邮件来源、主题、正文内容。附件部分这样处理</p>
+<pre><code>att = MIMEText(open(&apos;1.jpg&apos;, &apos;rb&apos;).read(), &apos;base64&apos;, &apos;utf-8&apos;)
+att[&quot;Content-Type&quot;] = &apos;application/octet-stream&apos;
+att[&quot;Content-Disposition&quot;] = &apos;attachment;filename=&quot;1.jpg&quot;&apos;
+msg.attach(att)
+</code></pre><p>信息添加完整后，调用smtp来发送</p>
+<pre><code>smtp = smtplib.SMTP()
+smtp.connect(&apos;邮件服务器地址&apos;)
+smtp.login(username, password)
+smtp.sendmail(sender, receiver, msg.as_string())
+smtp.quit()
+</code></pre><p>整个实践的基础环境就可用了。</p>
+<h2 id="0x02-附件数据流抓取与解析"><a href="#0x02-附件数据流抓取与解析" class="headerlink" title="0x02 附件数据流抓取与解析"></a>0x02 附件数据流抓取与解析</h2><p>同样使用Python来编写（╮(╯▽╰)╭，Python用的熟），主要从网卡抓取到流量，先还原为完整的数据包，再做编码转换，将一个完整的邮件发送过程中的命令交互和邮件内容分别还原出来。</p>
+<p>程序监听网卡后，过滤出端口为25的tcp协议，过滤后的数据包大体结构如下所示：</p>
+<pre><code>Ethernet(dst=&apos;xxx&apos;, src=&apos;xxx&apos;, data=IP(len=78, id=44381, off=16384, p=6, sum=52034, src=&apos;xxx&apos;, dst=&apos;xxx&apos;, opts=&apos;&apos;, data=TCP(sport=25, dport=45675, seq=175475907, ack=2692538927L, flags=24, win=229, sum=40326, opts=&apos;&apos;, data=&apos;220 localhost ESMTP Postfix (Ubuntu)\r\n&apos;)))
+</code></pre><p>和我们在基础知识中提到的数据包结构一样，这里完整的获得了从Ethernet到TCP层的数据。这一条抓取到是Ubuntu邮件服务器发送给我们的欢迎信息。当然，大概了解了抓取到的包解构后，略过其他重要信息，我们直奔主题，去寻找数据包中附件的部分。</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160802213609.png" alt=""></p>
+<p>为了便于展示，这里使用Wireshark重复再抓取一次电子邮件的包，可以从图中看到，这些被分割成相同的1440bytes大小的数据包就是我们所传的图片附件，而在我们的程序中，它是接下来这个样子的，数据较长，这里截取一部分。</p>
+<pre><code>Content-Type: multipart/alternative; 
 
-<section id="statement">
-    <div class="container text-center wow fadeInUp" data-wow-delay="0.5s">
-        <div class="row">
-            <p>Free and Share。</p>
+boundary=&quot;===============0786123174==&quot;\r\n
+
+MIME-Version: 1.0\r\n
+
+From: \r\n
+
+Subject: \r\n\r\n
+--===============0786123174==\r\n
+Content-Type: text/plain; 
+charset=&quot;us-ascii&quot;\r\n
+MIME-Version: 1.0\r\n
+Content-Transfer-Encoding: 7bit\r\n\r\n123456\r\n
+--===============0786123174==\r\n
+Content-Type: image/png\r\n
+MIME-Version: 1.0\r\n
+Content-Transfer-Encoding: base64\r\n
+Content-ID: application/octet-stream\r\
+\niVBORw0KGgoAAAANSUhEUgAAAKoAAA
+FHCAYAAAAx29dqAAAgAElEQVR4nKy9d5T
+c2XXfeSt0d3XO\r\nOQNooLuR02ByYpjhcEi
+KSTYlS5S0+4dE7ZElK9iWLC+8Pmd3La20K1
+nBa3ltr5UlUiaXEidxhhPA\r\nmUEaAING6Eb
+onFN1d3VVdcW9n/v7vUIDA1IkjwqnUNW/
++oX37vvefN97gf/9f/2/89PT01JdXSWV\r\n
+lZWytLwsHR0dsh5dk83NTVldXZWmpiZpa
+GiQYDAonDs2NiadnZ2yrOc+9NBDcvvWL
+akor5BUKmXn\r\nXbly
+.............
+.............
+.............
+l7wVOj83I4AAAAASUVORK5CYII=\r\n
+--===============0786123174==--\r\n
+.\r\n
+</code></pre><p>简单分析一下，在这里，我们传递的真是多MIME的邮件，第一个分隔符以上说明是多部分合在一起，第一段内是邮件的发送者信息和标题，第二段是我们传递的邮件正文，第三段是附件。重点再看一下第三部分，第三部分首先声明了附件类型、编码方式,紧接着就是文件二进制的base64编码。</p>
+<p>通过上述分析，为了能够还原出附件，我们大致需要进行以下步骤：</p>
+<ol>
+<li>准确分离出附件的base64编码正文</li>
+<li>将base64解码为二进制文件</li>
+<li>获取当前文件类型，保存二进制文件为当前文件类型</li>
+</ol>
+<p>一次完整的发送过程包括若干次完整的包，我们需要保存下这一次发送中的若干个的包，这就需要我们在捕捉到的多次发送包中先匹配出邮件开始和结束的标志，从上面可以看到，邮件结束时都使用一个单行的“.”来标志。我们匹配出完整的邮件包后，</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
         </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2016/07/21/再探Docker-另类Docker安全/">
+        再探Docker-另类Docker安全 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/08/01/SMTP协议数据流附件抓取与还原/" data-title="SMTP协议附件数据流抓取与还原" data-url="http://phantom0301.coding.me/2016/08/01/SMTP协议数据流附件抓取与还原/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
     </div>
 </section>
+
+
       
 <!-- ============================ Footer =========================== -->
 
