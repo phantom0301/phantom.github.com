@@ -289,7 +289,9 @@
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x01-方法选择"><a href="#0x01-方法选择" class="headerlink" title="0x01 方法选择"></a>0x01 方法选择</h2><p>当我们的Docker部署完成后，为了能够掌握Docker的状态，除了使用logs、event、diff等实时运维命令查看外，我们还存在需要对Docker产生的日志进行收集整理分析的必要。</p>
+      		<p>一次Docker项目需求构架的尝试    </p>
+<a id="more"></a>
+<h2 id="0x01-方法选择"><a href="#0x01-方法选择" class="headerlink" title="0x01 方法选择"></a>0x01 方法选择</h2><p>当我们的Docker部署完成后，为了能够掌握Docker的状态，除了使用logs、event、diff等实时运维命令查看外，我们还存在需要对Docker产生的日志进行收集整理分析的必要。</p>
 <p>网上能找到的日志收集系统有很多，例如Flume、Fluentd、Logstash等等。经过一段时间的摸索搭建，个人最容易搭建成功的是Logstash，而且整个ELK体系也提供一套完整的日志收集、存储、查找、可视化流程，可以省去很多编写中间件的精力。</p>
 <h2 id="0x02-调试"><a href="#0x02-调试" class="headerlink" title="0x02 调试"></a>0x02 调试</h2><p>所以最终我的整体架构如下：</p>
 <pre><code>docker1\

@@ -291,7 +291,9 @@
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x01-别人说"><a href="#0x01-别人说" class="headerlink" title="0x01 别人说"></a>0x01 别人说</h2><p>Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。</p>
+      		<p>Docker怎么做才能在被别人拿到SHELL后将危害做到最小？</p>
+<a id="more"></a>
+<h2 id="0x01-别人说"><a href="#0x01-别人说" class="headerlink" title="0x01 别人说"></a>0x01 别人说</h2><p>Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。</p>
 <p>还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。</p>
 <p>我们可以在本地复现一下这个漏洞，首先我们关闭Docker daemon的本地sock，开启远程访问，并绑定端口。</p>
 <pre><code>service stop docker

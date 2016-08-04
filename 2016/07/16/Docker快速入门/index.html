@@ -289,9 +289,10 @@
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<h2 id="0x01-开场白"><a href="#0x01-开场白" class="headerlink" title="0x01 开场白"></a>0x01 开场白</h2><p>套用介绍Docker的话，Docker是一个开源的引擎，可以创建一个轻量级的虚拟系统。由于它可以更加轻量级的实现虚拟机的作用，而且它自带很多很方便的监控运行系统状态的特性，所以受到大家的青睐。</p>
+      		<p>套用介绍Docker的话，Docker是一个开源的引擎，可以创建一个轻量级的虚拟系统。由于它可以更加轻量级的实现虚拟机的作用，而且它自带很多很方便的监控运行系统状态的特性，所以受到大家的青睐。</p>
 <p>这篇博客旨在快速部署Docker，并不是对Docker进行深入研究，所以只会说说我在实际用Docker的过程中使用频次较高的实际指令，并不会详细介绍Docker基于Linux的底层实现原理和理论的东西，如果有错误请留言指正。</p>
-<p>这里我使用Ubuntu16.04进行测试。先说说Docker的安装，最简单的方法的直接使用Ubuntu的apt-get安装：</p>
+<a id="more"></a>
+<h2 id="0x01-基本部署"><a href="#0x01-基本部署" class="headerlink" title="0x01 基本部署"></a>0x01 基本部署</h2><p>这里我使用Ubuntu16.04进行测试。先说说Docker的安装，最简单的方法的直接使用Ubuntu的apt-get安装：</p>
 <pre><code>sudo apt-get update
 sudo apt-get install docker
 </code></pre><p>而我为了能够安装最新版的Docker，使用下面更加复杂的方法：</p>
@@ -376,7 +377,7 @@ docker run -d 镜像名或id
 <p>先入门基本指令，我以我的wordpress为例：</p>
 <blockquote>
 <p>FROM ubuntu:14.04</p>
-<p>MAINTAINER xxxx <a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#x78;&#x78;&#x78;&#x78;&#x40;&#120;&#120;&#x78;&#x78;">&#x78;&#x78;&#x78;&#x78;&#x40;&#120;&#120;&#x78;&#x78;</a></p>
+<p>MAINTAINER xxxx <a href="&#109;&#x61;&#105;&#108;&#x74;&#111;&#x3a;&#x78;&#x78;&#x78;&#120;&#x40;&#120;&#x78;&#x78;&#120;">&#x78;&#x78;&#x78;&#120;&#x40;&#120;&#x78;&#x78;&#120;</a></p>
 <p>ENV DEBIAN_FRONTEND noninteractive</p>
 <p>RUN apt-get update</p>
 <p>RUN apt-get -y upgrade</p>

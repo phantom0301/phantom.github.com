@@ -292,6 +292,7 @@
         </div>
         <div class="col-md-8 col-md-offset-2">
       		<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Socket，一种开销很小的实现程序之间通信的方式。不同的编程语言几乎都有自己实现Socket的库和方法，建立在Socket基础上的许多通信协议也都广泛运用于各种框架中，之前在博客分享的Hpfeeds协议实际上就是建立在Socket的基础上。</p>
+<a id="more"></a>
 <p>不同编程语言之间也经常使用Socket来传递消息，这样可以避免不同语言之间的嵌套调用。如题，这里我们需要在Python和Js之间实现一个消息传递。</p>
 <h2 id="0x01-实现"><a href="#0x01-实现" class="headerlink" title="0x01 实现"></a>0x01 实现</h2><p>最初查找资料的时候，许多博客中都提到了说，Js本身是不能够实现Socket的，而常用的方法实际上是利用Flash的Socket来进行通信，然后通过Js获得Flash的响应事件来传递数据。为此有一个专门的Js库叫Aflax。</p>
 <p>同时，另一种更新的方法是使用Html5协议中的WebSocket来实现浏览器和服务器的通信。</p>
