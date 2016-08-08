@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>Docker快速入门 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.useso.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.useso.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://fonts.useso.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(2)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-16T01:14:01.000Z" itemprop="datePublished">
+          2016-07-16
+      </time>
+    
+    
+    | 
+    <a href='/tags/Docker/'>Docker</a>,
+    
+    <a href='/tags/入门/'>入门</a>
+    
+    
+</span>
+                <h1>Docker快速入门</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>套用介绍Docker的话，Docker是一个开源的引擎，可以创建一个轻量级的虚拟系统。由于它可以更加轻量级的实现虚拟机的作用，而且它自带很多很方便的监控运行系统状态的特性，所以受到大家的青睐。</p>
+<p>这篇博客旨在快速部署Docker，并不是对Docker进行深入研究，所以只会说说我在实际用Docker的过程中使用频次较高的实际指令，并不会详细介绍Docker基于Linux的底层实现原理和理论的东西，如果有错误请留言指正。</p>
+<a id="more"></a>
+<h2 id="0x01-基本部署"><a href="#0x01-基本部署" class="headerlink" title="0x01 基本部署"></a>0x01 基本部署</h2><p>这里我使用Ubuntu16.04进行测试。先说说Docker的安装，最简单的方法的直接使用Ubuntu的apt-get安装：</p>
+<pre><code>sudo apt-get update
+sudo apt-get install docker
+</code></pre><p>而我为了能够安装最新版的Docker，使用下面更加复杂的方法：</p>
+<p>1.升级source列表，安装相应的ca证书</p>
+<pre><code>sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates
+</code></pre><p>2.增加密钥</p>
+<pre><code>sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+</code></pre><p>3.添加源列表文件</p>
+<pre><code>sudo vi /etc/apt/sources.list.d/docker.list
+</code></pre><p>4.按照系统版本增加entry</p>
+<pre><code>sudo deb https://apt.dockerproject.org/repo ubuntu-xenial main
+</code></pre><p>5.安装docker并测试</p>
+<pre><code>sudo apt-get update
+sudo apt-get install docker-engine
+sudo service docker start
+sudo docker run hello-world
+</code></pre><p>这个时候docker程序会先检查本地仓库是否有镜像，如果没有，就会从官方的仓库中拉取相应的镜像并运行它。而这个hello-world的程序还会打印出官方的一些帮助信息。</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker1.png" alt=""></p>
+<h2 id="0x02-常用命令"><a href="#0x02-常用命令" class="headerlink" title="0x02 常用命令"></a>0x02 常用命令</h2><p>接着上一节拉取到的镜像，我们就用这个镜像说明Docker会经常用到的一些指令。</p>
+<p>0.快速的搜寻镜像</p>
+<pre><code>docker search 镜像名或id
+</code></pre><p>这种方法可以快速的从官方仓库查找可用的镜像，相比起直接访问官网查询，这种方法不用太多的等待，不足之处在于，作为初心者，这种方式几乎看不到镜像的详细使用说明，对新手的使用并不够友好，而在官网上可以看到作者的详细使用说明和Dockerfile文件，更适合我们入门学习。</p>
+<p>1.安静的拉取镜像</p>
+<pre><code>docker pull 镜像名或id
+</code></pre><p>这个命令只会从官方仓库下载镜像到本地，并不会执行生成容器。 </p>
+<p>2.方便的掌握镜像</p>
+<pre><code>docker images
+</code></pre><p>查看本地仓库中的可用镜像</p>
+<p>3.常用的运行方式</p>
+<pre><code>docker run -it 镜像名或id /bin/bash
+docker run -d 镜像名或id
+</code></pre><p>以上两种是学习过程中经常能够看到的命令，前者适合对于生成的容器进行调试，而且即使没有前台进程（后面会说这个的关系），它也可以运行起来；后者多作为真正部署时使用。</p>
+<p>之所以会这样，当然是因为run后面不同的参数值了，i参数是为了保持stdin打开，t参数是为了维持一个为终端，而d参数测试在后台运行容器。</p>
+<p>当容器运行在后台时，它就有点像我们通常在Windows下执行可执行程序的逻辑，当没有循环或者其他逻辑维持它的前台进程时，容器就会自动结束。所以当使用d参数时，就需要有一个前台进程来保持容器的运行。</p>
+<p>run指令下还有一些常用的参数：</p>
+<pre><code>-a参数，负责进行连接附加，可以连接标准输入输出等
+-e参数，设置环境变量，例如一些数据库镜像的生成时的参数
+--name，重命名容器，方便进行管理，避免了你输入那些随机生成的科学家名或者ID
+-p参数，将容器内的端口映射到宿主机相应端口
+-v参数，挂载容器内的内容
+</code></pre><p>其他参数可以直接查阅手册，这里只列出了我常用到的参数。</p>
+<p>示例如下：</p>
+<p>我们运行一个由我自己编译的wordpress镜像，内置数据库</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker2.png" alt=""></p>
+<p>我们先用images查看可用的镜像</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/docker3.png" alt=""></p>
+<p>在使用下面这个指令来启动镜像，生成容器</p>
+<pre><code>docker -d --name wordpress -p 0.0.0.0：80：80 镜像名或id
+</code></pre><p>生成的同时，容器被赋予了一个唯一的ID</p>
+<p>4.常用的维护命令</p>
+<p>还是如上图</p>
+<pre><code>docker ps 
+</code></pre><p>可以查看正在运行的容器和基本信息，而-l参数则显示上一次运行过的容器</p>
+<pre><code>docker inspect 容器名或id
+</code></pre><p>可以查看容器的详细信息，这个指令的输出较多，就不截图了。不过这个指令结果里有几个重要参数值的我们注意：</p>
+<ol>
+<li>容器的宿主机存储路径，包括容器主机名、配置信息、日志等</li>
+<li>容器映射出的端口信息</li>
+<li>网络服务的配置信息，包括容器ip、DNS等</li>
+<li>运行环境的配置信息</li>
+</ol>
+<p><strong>……</strong></p>
+<p>这些信息可以帮助我们更好的去认识镜像、容器、宿主机之间的关系</p>
+<pre><code>docker exec -it 容器名 /bin/bash
+</code></pre><p>这条指令可以方便我们去访问后台运行状态的容器内部，进行修改添加应用，当然，也可以在一开始就给容器开一个ssh进行管理</p>
+<pre><code>docker events/logs/info
+</code></pre><p>这几条指令都是将容器当前运行的一些事件、日志信息输出到宿主机界面上，方便我们进行容器部署应用的观察和管理</p>
+<pre><code>docker commit 容器名 镜像名：标签
+</code></pre><p>提交一个你修改满意的容器到本地仓库生成相应的镜像</p>
+<p>5.常用的删除启动命令</p>
+<pre><code>docker start/stop/restart 容器名
+</code></pre><p>这个不用多解释了</p>
+<pre><code>docker rm 容器名
+</code></pre><p>永久删除当前容器，但是前提是先stop了这个容器</p>
+<pre><code>docker rmi 镜像名
+</code></pre><p>永久删除本地仓库中的镜像</p>
+<p>有了这几条命令，简单运行一个Docker就基本逻辑可以走顺了，当然，完整的命令请参照官方手册。</p>
+<p>还有几个关键命令会在下一节适合它们的地方登场。</p>
+<h2 id="0x03-DIY"><a href="#0x03-DIY" class="headerlink" title="0x03 DIY"></a>0x03 DIY</h2><p>官方仓库中经过认证和未认证的项目有上千例（未具体求证），基本满足我们的应用部署需要，但是，有时候我们的有一些特殊需求时，可能就需要我们自己去编译一个镜像。</p>
+<p>当然，在介绍这部分之前，不得不提一个Dockeric（不保证有这么个词）的观点，Docker实现的容器应该是模块化的，所以每一个单独的容器最好只运行一个单独的进程，复杂的逻辑关系应该通过容器间的连接（–link）实现。向我在之前作为例子实现的wordpress其实就是一个反例，因为我在一个容器中同时放入了wordpress进程和mysql进程。所以，在DIY编译镜像时，尽量不要想使用vmware那样放太多的东西进去，小心鸡蛋砸在一个Container里~~。</p>
+<p>先入门基本指令，我以我的wordpress为例：</p>
+<blockquote>
+<p>FROM ubuntu:14.04</p>
+<p>MAINTAINER xxxx <a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#120;&#120;&#120;&#x78;&#x40;&#120;&#120;&#120;&#x78;">&#120;&#120;&#120;&#x78;&#x40;&#120;&#120;&#120;&#x78;</a></p>
+<p>ENV DEBIAN_FRONTEND noninteractive</p>
+<p>RUN apt-get update</p>
+<p>RUN apt-get -y upgrade</p>
+</blockquote>
+<p>上手先W再E，FROM决定整个镜像的根基，你是打算用Ubuntu:14.04，Ubuntu:latset，CentOS还是什么其他的；MAINTAINER填写创建者信息；RUN是运行安装指令的基础；ENV设置环境变量</p>
+<blockquote>
+<p>RUN apt-get -y install mysql-server mysql-client nginx php5-fpm php5-mysql php-apc pwgen python-setuptools curl git unzip</p>
+<p>RUN sed -i -e”s/^bind-address\s<em>=\s</em>127.0.0.1/bind-address = 0.0.0.0/“ /etc/mysql/my.cnf<br>……</p>
+<p>ADD ./nginx-site.conf /etc/nginx/sites-available/default</p>
+<p>EXPOSE 3306</p>
+<p>EXPOSE 80</p>
+<p>VOLUME [“/var/lib/mysql”, “/usr/share/nginx/www”]</p>
+<p>CMD [“/bin/bash”, “/start.sh”]</p>
+</blockquote>
+<p>接着Q后面接R，ADD可以拷贝编译文件夹下的文件到镜像生成后的容器的相应文件夹下，EXPOSE则设置容器内部开启的端口，VOLUME负责挂载容器的文件，CMD是容器启动时执行的命令。而有多条CMD命令时，只执行最后的一行的CMD命令。</p>
+<p>当然这个文件只是说明，并不完整，完整的Dockerfile官网上有很多，我就不把我写的蹩脚file放到这里了。</p>
+<p>写好写指令后，保存为Dockerfile文件名，存在一个文件夹下，把相应的外部文件也都移到一起。</p>
+<p>在当前目录下执行</p>
+<pre><code>docker build -t 自己起的镜像名 .（这里还有一点，别看掉了）
+</code></pre><p>程序就会按照你指定的安装流程进行相应的安装了。</p>
+<h2 id="0x04-结语"><a href="#0x04-结语" class="headerlink" title="0x04 结语"></a>0x04 结语</h2><p>还是要说一下，这一篇是基于快速部署而写下的，内容肯定很浅薄，后面随着我对Docker学习的深入，应该还会有更进一步的经验总结和实际应用。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/07/19/NSSM/" style="float: left;">
+        ← 效率利器-NSSM
+    </a>
+    
+    
+    <a class="pull-right" href="/2016/07/04/whisper/">
+        碎碎念 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/07/16/Docker1/" data-title="Docker快速入门" data-url="http://phantom0301.coding.me/2016/07/16/Docker1/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+<a href="https://github.com/phantom0301"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/82b228a3648bf44fc1163ef44c62fcc60081495e/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+</body>
+</html>

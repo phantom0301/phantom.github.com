@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.useso.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.useso.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://fonts.useso.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(2)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-02-19T09:13:55.000Z" itemprop="datePublished">
+          2016-02-19
+      </time>
+    
+    
+    | 
+    <a href='/tags/MHN/'>MHN</a>,
+    
+    <a href='/tags/hpfeeds/'>hpfeeds</a>,
+    
+    <a href='/tags/蜜罐/'>蜜罐</a>
+    
+    
+</span>
+                <h1>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>Hpfeeds和蜜罐是一对好搭档，想要完全掌握一个分布式蜜罐的信息传递，就来了解Hpfeeds协议吧！<br><a id="more"></a></p>
+<h2 id="0x00-hpfeeds协议是什么？"><a href="#0x00-hpfeeds协议是什么？" class="headerlink" title="0x00 hpfeeds协议是什么？"></a>0x00 hpfeeds协议是什么？</h2><p>feeds，供稿，原始数据。</p>
+<p>hpfeeds是一个轻量级的验证发布-订阅协议(authenticated publish-subscribe protocol)。</p>
+<p>轻量级好理解，就是代码量相对较少，功能相对不复杂。那什么是发布-订阅协议呢？订阅发布协议定义了一种一对多的依赖关系，让多个订阅者对象同时监听某一个主题对象。这个主题对象在自身状态变化时，会通知所有订阅者对象，使它们能够自动更新自己的状态。它是为了解决这样一种情况的发生，一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变。我的理解，这就类似于发传单，目标发送通知，没有指定特定的对象，通知会自动传播，观察者自己决定是否需要看传单，发送者对于传单是否被看一无所知。</p>
+<p>详细的发布订阅者介绍可以戳这里：</p>
+<p><a href="https://msdn.microsoft.com/en-us/library/ff649664.aspx" target="_blank" rel="external">https://msdn.microsoft.com/en-us/library/ff649664.aspx</a></p>
+<p>线路协议组成如下：</p>
+<p>首先是消息头：有两个参数，消息总长和消息类型</p>
+<p>消息类型有以下几种：</p>
+<pre><code>error (0): errormessage
+info (1): server name, nonce
+auth (2): client id, sha1(nonce+authkey)
+publish (3): client id, channelname, payload
+subscribe (4): client id, channelname
+</code></pre><p>数字代表消息类型，而冒号后面的内容则代表后续的消息字段</p>
+<p>比如说当消息类型为3，publish时，后面的字段就会有四个：</p>
+<pre><code>client id的长度
+client id
+channelname的长度
+channelname
+payload
+</code></pre><p>一个完整的消息如下：</p>
+<pre><code>length | opcode | next | identifier | next | channelname|payload
+----------------------------------------------------------------
+85       3        9       b4aa2@hp1   9      mwcapture      137941a3d8589f6728924c08561070bceb5d72b8,http://1.2.3.4/calc.exe
+</code></pre><p>消息有了，整个消息的认证过程就是以下的几个步骤：</p>
+<ul>
+<li></li>
+<li>服务器为每一个连接生成一个标志</li>
+<li>客户端发送id 和 标志+authkey组成的sha1</li>
+<li>服务器检查id和sha1</li>
+<li>服务器检查数据类型，是要发布还是要订阅</li>
+</ul>
+<p>最终实现服务器、发布者、订阅者之间的解耦，彼此之间完全独立，互不干扰。</p>
+<h2 id="0x01-为什么要用hpfeeds协议"><a href="#0x01-为什么要用hpfeeds协议" class="headerlink" title="0x01 为什么要用hpfeeds协议"></a>0x01 为什么要用hpfeeds协议</h2><p>首先，正如以上所说的，整个协议实现了三方的功能独立。使用这种方式降低了应用与业务逻辑之间的耦合，统一一个对外的发布接口，只需要关心监听的类型，不关心监听的具体处理人。只管发，不管到不到。很方便的建立一种一对多的依赖关系。</p>
+<p>在当一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变时，就可以使用订阅发布模式。</p>
+<p>hpfeeds协议希望能够实现一个单一的连线形式，使得每一个人都可以在任何时间以任何语言去订阅发布数据，不同的数据以通道来划分，由通道的使用者来决定数据结构形式。而通道的验证通过authkey来完成，它由两部分组成，ident和secret，相当于身份和密码。密码在hash后和每一个临时连接标志一起发送给服务器，这样保证不会被窃听，所以它可以运行在SSL、TLS下。</p>
+<p>优点</p>
+<ul>
+<li>1.降低耦合。发布者对于接收者的数量，身份，接收的数据类型一无所知。</li>
+<li>2.安全性高。只有消息订阅者之间的单线信息交互，不存在其他程序的信息交换。</li>
+<li>3.测试方便。</li>
+</ul>
+<p>缺点</p>
+<p>性能降低，订阅要进行管理</p>
+<h2 id="0x02-如何操作"><a href="#0x02-如何操作" class="headerlink" title="0x02 如何操作"></a>0x02 如何操作</h2><p>正常安装使用hpfeeds的步骤如下：</p>
+<pre><code>git clone https://github.com/rep/hpfeeds/
+cd hpfeeds
+python setup.py build
+python setup.py install
+</code></pre><p>安装成功后，会出现下面几个文件夹。<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/1.jpg" alt=""></p>
+<ul>
+<li>appsuport：hpfeeds支持的一些蜜罐的应用程序</li>
+<li>broker：服务器功能程序集，包括增加用户，服务器运行，查看所有用户信息等</li>
+<li>build：一些编译环境</li>
+<li>cli：用户程序</li>
+<li>example：例程</li>
+<li>lib：支持库</li>
+</ul>
+<p>使用时先打开broker，运行其中的add_user.py添加用户信息：<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/2.jpg" alt=""></p>
+<p>根据提示信息，我们添加用户test，密码123456，拥有发布频道1，2，无订阅频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/3.jpg" alt=""></p>
+<p>再添加用户custom，密码123456，拥有订阅频道1，2，无发布频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/4.jpg" alt=""></p>
+<p>现在使用dump_users.py查看刚才创建的用户<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/5.jpg" alt=""></p>
+<p>如图所示，这里应经可以查看到刚才我们新建的用户了。</p>
+<p>接下来，我们打开服务器feedbroker.py<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/6.jpg" alt=""></p>
+<p>再开启一个新的进程运行cli文件夹里的用户程序hpfeeds-client</p>
+<p>先开启订阅者custom，使用1频道<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/7.jpg" alt=""></p>
+<p>此时，服务器端显示用户登录成功<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/8.jpg" alt=""></p>
+<p>我们再打开一个新的进程，以发布者test，使用1频道发布“helloworld”<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/9.jpg" alt=""></p>
+<p>我们可以看到发布者一旦发布完消息后，立即退出进程，并不确认消息是否收到</p>
+<p>这时，服务器显示test登录成功<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/10.jpg" alt=""></p>
+<p>于此同时，订阅者custom成功接收到消息<br><img src="http://7xr3oj.com1.z0.glb.clouddn.com/11.jpg" alt=""></p>
+<p>到此，一次完整的发送、接收消息的流程就走完了。</p>
+<p>通过这一过程，我们发现，频道与用户分离，发送和订阅者身份平等，只需订阅者实时监听，发送者可以即时发送即时撤出。</p>
+<p>这里是对于hpfeeds协议的简单介绍，下一部分我会从代码的角度进一步分析该协议，并适当对于协议功能进行添加。</p>
+<p>原创文章，转载请注明： 转载自零の杂货铺</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/02/20/Hexo/" style="float: left;">
+        ← HEXO+github搭建博客总结
+    </a>
+    
+    
+    <a class="pull-right" href="/2016/02/19/PyMongo/">
+        PyMongo官方文档翻译 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/02/19/Hpfeeds/" data-title="MHN开源蜜罐项目学习笔记（一）HPFEEDS协议" data-url="http://phantom0301.coding.me/2016/02/19/Hpfeeds/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+<a href="https://github.com/phantom0301"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/82b228a3648bf44fc1163ef44c62fcc60081495e/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+</body>
+</html>

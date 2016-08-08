@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.me/"/>
-  <updated>2016-08-04T07:51:15.196Z</updated>
+  <updated>2016-08-08T13:32:18.906Z</updated>
   <id>http://phantom0301.coding.me/</id>
   
   <author>
@@ -16,9 +16,64 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Ubuntu服务器下Remastersys系统打包</title>
+    <link href="http://phantom0301.coding.me/2016/08/08/Remastersys/"/>
+    <id>http://phantom0301.coding.me/2016/08/08/Remastersys/</id>
+    <published>2016-08-08T13:08:13.000Z</published>
+    <updated>2016-08-08T13:32:18.906Z</updated>
+    
+    <content type="html">&lt;p&gt;在不稳定的网络环境下，多次反复安装才组建完成的环境支持完美的Ubuntu系统，怎么能够让痛苦的安装过程轮回发生呢？使用Remastersys打包你的系统，进而分发给需要它的小伙伴吧。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-安装&quot;&gt;&lt;a href=&quot;#0x01-安装&quot; class=&quot;headerlink&quot; title=&quot;0x01 安装&quot;&gt;&lt;/a&gt;0x01 安装&lt;/h2&gt;&lt;p&gt;这里主要是对使用过程中收集到资料的总结。主要是经过了测试。&lt;/p&gt;
+&lt;p&gt;我的系统是官网下下来的Ubuntu server14.04。&lt;/p&gt;
+&lt;p&gt;首先，网上大多数的教程使用添加非官方源的方法自动安装，我在添加密钥时迷之失败了，所以使用下面这篇博客的方法成功率更高。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/chenkun1/p/5532977.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/chenkun1/p/5532977.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;访问&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.filewatcher.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.filewatcher.com  &lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;搜索&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;remastersys_3.0.4-2_all.deb
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;考虑若干年后有可能找不到资源，我会上传一份到我的github&lt;/p&gt;
+&lt;p&gt;下载安装包后，存放到合适的目录，在目录下执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get install plymouth-x11 
+sudo dpkg -i remastersys_3.0.4-2_all.deb
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时，就可以执行remastersys指令。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-使用&quot;&gt;&lt;a href=&quot;#0x02-使用&quot; class=&quot;headerlink&quot; title=&quot;0x02 使用&quot;&gt;&lt;/a&gt;0x02 使用&lt;/h2&gt;&lt;p&gt;具体指令的解释，网上有很多。大致我们会用到backup和dist两种方式，backup可以说是对整个系统完全打包，考虑到我们并不需要泄露自己的个人信息，大多数时候我们是使用dist方式做发行&lt;/p&gt;
+&lt;p&gt;参考这篇文章，不过文章里有指令打错了，请注意。&lt;br&gt;&lt;a href=&quot;http://www.cnblogs.com/kulin/archive/2012/07/27/Custom_UbuntuLiveCD_Remastersys.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/kulin/archive/2012/07/27/Custom_UbuntuLiveCD_Remastersys.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;简单说，我们顺序执行以下几条命令：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo remastersys dist cdfs
+sudo remastersys dist iso filename.iso
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;将iso移动到安全的地方后，执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo remastersys clean
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;清理掉生成iso时的辅助文件，当然，iso也会被删掉，所以请先将iso移动到安全的地方。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-问题&quot;&gt;&lt;a href=&quot;#0x03-问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 问题&quot;&gt;&lt;/a&gt;0x03 问题&lt;/h2&gt;&lt;p&gt;做为服务器版，我在执行 &lt;em&gt;remastersys dist cdfs&lt;/em&gt; 命令时报错，根据报错信息中提到的 &lt;em&gt;ubiquity&lt;/em&gt; 信息，我找到了如下的解决方法：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://blog.csdn.net/zgyrelax/article/details/18228629&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://blog.csdn.net/zgyrelax/article/details/18228629&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;简单粗暴点，你需要做的就是执行下面的这条命令&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;apt-get -y install ubiquity*
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时，系统会提示你安装相关环境，接着执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;apt-get -f install
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;等到一切安装结束后，再次执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo remastersys dist cdfs
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以及后面的步骤，就可以顺利打包系统。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在不稳定的网络环境下，多次反复安装才组建完成的环境支持完美的Ubuntu系统，怎么能够让痛苦的安装过程轮回发生呢？使用Remastersys打包你的系统，进而分发给需要它的小伙伴吧。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="ubuntu" scheme="http://phantom0301.coding.me/categories/ubuntu/"/>
+    
+    
+      <category term="iso" scheme="http://phantom0301.coding.me/tags/iso/"/>
+    
+      <category term="ubuntu" scheme="http://phantom0301.coding.me/tags/ubuntu/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SMTP协议附件数据流抓取与还原</title>
-    <link href="http://phantom0301.coding.me/2016/08/01/SMTP%E5%8D%8F%E8%AE%AE%E6%95%B0%E6%8D%AE%E6%B5%81%E9%99%84%E4%BB%B6%E6%8A%93%E5%8F%96%E4%B8%8E%E8%BF%98%E5%8E%9F/"/>
-    <id>http://phantom0301.coding.me/2016/08/01/SMTP协议数据流附件抓取与还原/</id>
+    <link href="http://phantom0301.coding.me/2016/08/01/SMTP/"/>
+    <id>http://phantom0301.coding.me/2016/08/01/SMTP/</id>
     <published>2016-08-01T13:00:54.000Z</published>
     <updated>2016-08-04T07:51:15.196Z</updated>
     
@@ -158,8 +213,8 @@ l7wVOj83I4AAAAASUVORK5CYII=\r\n
   
   <entry>
     <title>再探Docker-另类Docker安全</title>
-    <link href="http://phantom0301.coding.me/2016/07/21/%E5%86%8D%E6%8E%A2Docker-%E5%8F%A6%E7%B1%BBDocker%E5%AE%89%E5%85%A8/"/>
-    <id>http://phantom0301.coding.me/2016/07/21/再探Docker-另类Docker安全/</id>
+    <link href="http://phantom0301.coding.me/2016/07/21/Docker3/"/>
+    <id>http://phantom0301.coding.me/2016/07/21/Docker3/</id>
     <published>2016-07-21T05:53:06.000Z</published>
     <updated>2016-08-04T08:00:35.132Z</updated>
     
@@ -216,8 +271,8 @@ sudo iptables -I FORWARD -i docker0 -o ens33 -m state --state RELATED,ESTABLISHE
   
   <entry>
     <title>再探Docker-日志收集</title>
-    <link href="http://phantom0301.coding.me/2016/07/20/%E5%86%8D%E6%8E%A2Docker-%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/"/>
-    <id>http://phantom0301.coding.me/2016/07/20/再探Docker-日志收集/</id>
+    <link href="http://phantom0301.coding.me/2016/07/20/Docker2/"/>
+    <id>http://phantom0301.coding.me/2016/07/20/Docker2/</id>
     <published>2016-07-20T08:11:59.000Z</published>
     <updated>2016-08-04T08:01:46.972Z</updated>
     
@@ -276,8 +331,8 @@ output {
   
   <entry>
     <title>效率利器-NSSM</title>
-    <link href="http://phantom0301.coding.me/2016/07/19/%E6%95%88%E7%8E%87%E5%88%A9%E5%99%A8-NSSM/"/>
-    <id>http://phantom0301.coding.me/2016/07/19/效率利器-NSSM/</id>
+    <link href="http://phantom0301.coding.me/2016/07/19/NSSM/"/>
+    <id>http://phantom0301.coding.me/2016/07/19/NSSM/</id>
     <published>2016-07-19T13:20:30.000Z</published>
     <updated>2016-08-04T07:59:37.035Z</updated>
     
@@ -311,8 +366,8 @@ output {
   
   <entry>
     <title>Docker快速入门</title>
-    <link href="http://phantom0301.coding.me/2016/07/16/Docker%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"/>
-    <id>http://phantom0301.coding.me/2016/07/16/Docker快速入门/</id>
+    <link href="http://phantom0301.coding.me/2016/07/16/Docker1/"/>
+    <id>http://phantom0301.coding.me/2016/07/16/Docker1/</id>
     <published>2016-07-16T01:14:01.000Z</published>
     <updated>2016-08-04T07:55:36.795Z</updated>
     
@@ -404,7 +459,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#105;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&quot;&gt;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#105;&amp;#108;&amp;#116;&amp;#x6f;&amp;#x3a;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&quot;&gt;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -446,8 +501,8 @@ docker run -d 镜像名或id
   
   <entry>
     <title>碎碎念</title>
-    <link href="http://phantom0301.coding.me/2016/07/04/%E7%A2%8E%E7%A2%8E%E5%BF%B5/"/>
-    <id>http://phantom0301.coding.me/2016/07/04/碎碎念/</id>
+    <link href="http://phantom0301.coding.me/2016/07/04/whisper/"/>
+    <id>http://phantom0301.coding.me/2016/07/04/whisper/</id>
     <published>2016-07-04T10:49:17.000Z</published>
     <updated>2016-08-04T07:59:18.525Z</updated>
     
@@ -474,8 +529,8 @@ docker run -d 镜像名或id
   
   <entry>
     <title>闲谈-隐匿于网络中的入侵者</title>
-    <link href="http://phantom0301.coding.me/2016/05/18/%E9%97%B2%E8%B0%88-%E9%9A%90%E5%8C%BF%E4%BA%8E%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%85%A5%E4%BE%B5%E8%80%85/"/>
-    <id>http://phantom0301.coding.me/2016/05/18/闲谈-隐匿于网络中的入侵者/</id>
+    <link href="http://phantom0301.coding.me/2016/05/18/invader/"/>
+    <id>http://phantom0301.coding.me/2016/05/18/invader/</id>
     <published>2016-05-18T12:05:53.000Z</published>
     <updated>2016-08-04T07:59:30.350Z</updated>
     
@@ -514,8 +569,8 @@ docker run -d 镜像名或id
   
   <entry>
     <title>略读《通鉴》-汉纪-那些打破我们常规认识的宦官形象</title>
-    <link href="http://phantom0301.coding.me/2016/04/14/%E7%95%A5%E8%AF%BB%E3%80%8A%E9%80%9A%E9%89%B4%E3%80%8B-%E6%B1%89%E7%BA%AA/"/>
-    <id>http://phantom0301.coding.me/2016/04/14/略读《通鉴》-汉纪/</id>
+    <link href="http://phantom0301.coding.me/2016/04/14/Han/"/>
+    <id>http://phantom0301.coding.me/2016/04/14/Han/</id>
     <published>2016-04-14T09:53:27.000Z</published>
     <updated>2016-08-04T07:59:07.707Z</updated>
     
@@ -546,8 +601,8 @@ docker run -d 镜像名或id
   
   <entry>
     <title>Js-Python实现socket通信</title>
-    <link href="http://phantom0301.coding.me/2016/04/12/Js-Python%E5%AE%9E%E7%8E%B0socket%E9%80%9A%E4%BF%A1/"/>
-    <id>http://phantom0301.coding.me/2016/04/12/Js-Python实现socket通信/</id>
+    <link href="http://phantom0301.coding.me/2016/04/12/Websocket/"/>
+    <id>http://phantom0301.coding.me/2016/04/12/Websocket/</id>
     <published>2016-04-12T07:51:55.000Z</published>
     <updated>2016-08-04T07:56:07.868Z</updated>
     
@@ -695,8 +750,8 @@ if __name__ == &amp;quot;__main__&amp;quot;:
   
   <entry>
     <title>效率利器-Synergy</title>
-    <link href="http://phantom0301.coding.me/2016/04/06/%E6%95%88%E7%8E%87%E5%88%A9%E5%99%A8-Synergy/"/>
-    <id>http://phantom0301.coding.me/2016/04/06/效率利器-Synergy/</id>
+    <link href="http://phantom0301.coding.me/2016/04/06/Synergy/"/>
+    <id>http://phantom0301.coding.me/2016/04/06/Synergy/</id>
     <published>2016-04-06T06:52:16.000Z</published>
     <updated>2016-08-04T07:59:46.859Z</updated>
     
@@ -728,8 +783,8 @@ if __name__ == &amp;quot;__main__&amp;quot;:
   
   <entry>
     <title>爆破工具Bruter文档翻译</title>
-    <link href="http://phantom0301.coding.me/2016/03/25/%E7%88%86%E7%A0%B4%E5%B7%A5%E5%85%B7Bruter%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
-    <id>http://phantom0301.coding.me/2016/03/25/爆破工具Bruter文档翻译/</id>
+    <link href="http://phantom0301.coding.me/2016/03/25/Bruter/"/>
+    <id>http://phantom0301.coding.me/2016/03/25/Bruter/</id>
     <published>2016-03-25T01:54:43.000Z</published>
     <updated>2016-08-04T07:58:14.828Z</updated>
     
@@ -829,8 +884,8 @@ if __name__ == &amp;quot;__main__&amp;quot;:
   
   <entry>
     <title>反蜜罐技术学习</title>
-    <link href="http://phantom0301.coding.me/2016/03/23/%E5%8F%8D%E8%9C%9C%E7%BD%90%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0/"/>
-    <id>http://phantom0301.coding.me/2016/03/23/反蜜罐技术学习/</id>
+    <link href="http://phantom0301.coding.me/2016/03/23/Antihoneypot/"/>
+    <id>http://phantom0301.coding.me/2016/03/23/Antihoneypot/</id>
     <published>2016-03-23T04:08:28.000Z</published>
     <updated>2016-08-04T07:58:54.731Z</updated>
     
@@ -895,8 +950,8 @@ if __name__ == &amp;quot;__main__&amp;quot;:
   
   <entry>
     <title>MHN学习笔记（二）Dionaea蜜罐架构</title>
-    <link href="http://phantom0301.coding.me/2016/03/17/MHN%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Dionaea%E8%9C%9C%E7%BD%90%E6%9E%B6%E6%9E%84/"/>
-    <id>http://phantom0301.coding.me/2016/03/17/MHN学习笔记（二）Dionaea蜜罐架构/</id>
+    <link href="http://phantom0301.coding.me/2016/03/17/DIonaea/"/>
+    <id>http://phantom0301.coding.me/2016/03/17/DIonaea/</id>
     <published>2016-03-17T10:51:04.000Z</published>
     <updated>2016-08-04T07:57:36.108Z</updated>
     
@@ -951,8 +1006,8 @@ if __name__ == &amp;quot;__main__&amp;quot;:
   
   <entry>
     <title>nmap7完全指南</title>
-    <link href="http://phantom0301.coding.me/2016/03/11/nmap7%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/"/>
-    <id>http://phantom0301.coding.me/2016/03/11/nmap7完全指南/</id>
+    <link href="http://phantom0301.coding.me/2016/03/11/nmap7/"/>
+    <id>http://phantom0301.coding.me/2016/03/11/nmap7/</id>
     <published>2016-03-11T02:50:07.000Z</published>
     <updated>2016-08-04T07:57:52.428Z</updated>
     
@@ -1156,8 +1211,8 @@ vuln，漏洞-检测特定的已知漏洞
   
   <entry>
     <title>博客搬家</title>
-    <link href="http://phantom0301.coding.me/2016/03/02/%E5%8D%9A%E5%AE%A2%E6%90%AC%E5%AE%B6/"/>
-    <id>http://phantom0301.coding.me/2016/03/02/博客搬家/</id>
+    <link href="http://phantom0301.coding.me/2016/03/02/Home/"/>
+    <id>http://phantom0301.coding.me/2016/03/02/Home/</id>
     <published>2016-03-02T02:46:27.000Z</published>
     <updated>2016-08-04T07:58:31.920Z</updated>
     
@@ -1183,8 +1238,8 @@ vuln，漏洞-检测特定的已知漏洞
   
   <entry>
     <title>HEXO+github搭建博客总结</title>
-    <link href="http://phantom0301.coding.me/2016/02/20/HEXO+github%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%80%BB%E7%BB%93/"/>
-    <id>http://phantom0301.coding.me/2016/02/20/HEXO+github搭建博客总结/</id>
+    <link href="http://phantom0301.coding.me/2016/02/20/Hexo/"/>
+    <id>http://phantom0301.coding.me/2016/02/20/Hexo/</id>
     <published>2016-02-20T08:21:27.000Z</published>
     <updated>2016-08-04T07:55:55.691Z</updated>
     
@@ -1264,8 +1319,8 @@ hexo deploy 部署到远程服务器
   
   <entry>
     <title>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议</title>
-    <link href="http://phantom0301.coding.me/2016/02/19/MHN%E5%BC%80%E6%BA%90%E8%9C%9C%E7%BD%90%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89HPFEEDS%E5%8D%8F%E8%AE%AE/"/>
-    <id>http://phantom0301.coding.me/2016/02/19/MHN开源蜜罐项目学习笔记（一）HPFEEDS协议/</id>
+    <link href="http://phantom0301.coding.me/2016/02/19/Hpfeeds/"/>
+    <id>http://phantom0301.coding.me/2016/02/19/Hpfeeds/</id>
     <published>2016-02-19T09:13:55.000Z</published>
     <updated>2016-08-04T07:57:20.316Z</updated>
     
@@ -1366,8 +1421,8 @@ python setup.py install
   
   <entry>
     <title>PyMongo官方文档翻译</title>
-    <link href="http://phantom0301.coding.me/2016/02/19/PyMongo%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%BF%BB%E8%AF%91/"/>
-    <id>http://phantom0301.coding.me/2016/02/19/PyMongo官方文档翻译/</id>
+    <link href="http://phantom0301.coding.me/2016/02/19/PyMongo/"/>
+    <id>http://phantom0301.coding.me/2016/02/19/PyMongo/</id>
     <published>2016-02-19T09:00:36.000Z</published>
     <updated>2016-08-04T07:58:02.814Z</updated>
     
@@ -1511,8 +1566,8 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
   
   <entry>
     <title>博客纪元，写在前面</title>
-    <link href="http://phantom0301.coding.me/2016/02/19/%E5%8D%9A%E5%AE%A2%E7%BA%AA%E5%85%83%EF%BC%8C%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2/"/>
-    <id>http://phantom0301.coding.me/2016/02/19/博客纪元，写在前面/</id>
+    <link href="http://phantom0301.coding.me/2016/02/19/Head/"/>
+    <id>http://phantom0301.coding.me/2016/02/19/Head/</id>
     <published>2016-02-19T08:51:02.000Z</published>
     <updated>2016-08-04T07:58:39.276Z</updated>
     
