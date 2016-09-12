@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.me/"/>
-  <updated>2016-08-13T04:25:23.896Z</updated>
+  <updated>2016-09-12T12:47:56.292Z</updated>
   <id>http://phantom0301.coding.me/</id>
   
   <author>
@@ -14,6 +14,68 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>没能复现的学习——DECON-HTTP-Smuggling</title>
+    <link href="http://phantom0301.coding.me/2016/09/12/httpsmuggling/"/>
+    <id>http://phantom0301.coding.me/2016/09/12/httpsmuggling/</id>
+    <published>2016-09-12T12:44:03.000Z</published>
+    <updated>2016-09-12T12:47:56.292Z</updated>
+    
+    <content type="html">&lt;p&gt;这篇文章主体框架来自@regilero在DEFCON上的议题-HTTP smuggling is a thing we should know better and care about.&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x00-闲扯Host-header&quot;&gt;&lt;a href=&quot;#0x00-闲扯Host-header&quot; class=&quot;headerlink&quot; title=&quot;0x00 闲扯Host header&quot;&gt;&lt;/a&gt;0x00 闲扯Host header&lt;/h2&gt;&lt;p&gt;作为重度网络依赖人群，我们每天都使用程序将数百次网页请求抛送到无形的网络空间中去，我们告知网络服务器我们要访问的资源，接受何种格式、何种语言的回应，是否要和服务器维持一段时间的连接，是否需要保存一些状态以及告知服务器你的代理发送人（浏览器或其他）身份。但是我们了解我们发送的这些东西的真正含义吗？&lt;/p&gt;
+&lt;p&gt;其实作为一次网页请求，理论上我们只要告诉服务器我们要的资源url就可以。那么那些多余的键值大体起什么作用呢？&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Accept族，这里的一系列字段决定了客户端接收的类型、压缩方式、字符集、语言等。这一类字段似乎是为了客户体验而产生的，它允许客户对自己喜欢的语言、字符集进行选择，并且提供选择因子“q”来界定对不同资源的喜好程度，q值越大越喜爱。而压缩则提供了更小的带宽占用和更快的访问速度。&lt;/li&gt;
+&lt;li&gt;Cache-Control，缓存控制机制&lt;/li&gt;
+&lt;li&gt;Connection,通常的参数会使用Keep-Alive，这个字段实际上算是对HTTP基础的补充，通过这个字段来使客户端到服务端的连接持续有效。而这个字段就是下面所描述问题的基础之一&lt;/li&gt;
+&lt;li&gt;Cookie，用户体验与隐私、安全势不两立的存在，被广泛研究介绍，就不用多说了。&lt;/li&gt;
+&lt;li&gt;User-Agent，这也是一个有意思的参数，它的存在最早是为了允许服务端差异化的提供页面，根据不同的框架提供不同的页面来适配不同的浏览器。最初，UA还是很单纯的，当时某些浏览器拥有了很好的显示效果，于是服务端检测到它们的时候就提供更好的页面，过了一段时间其他浏览器也有了相似的特性，为了也能够得到同样的页面，就会告诉浏览器自己和别人身份其实差不多，请给我优秀的页面，久而久之，大家的身份相互混来混去，于是大家都叫Mozilla了，然后又like上Gecko……就这样，UA不在那么单纯，浏览器们都充满了套路。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160905203128.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-HTTP-Pipeline&quot;&gt;&lt;a href=&quot;#0x01-HTTP-Pipeline&quot; class=&quot;headerlink&quot; title=&quot;0x01 HTTP Pipeline&quot;&gt;&lt;/a&gt;0x01 HTTP Pipeline&lt;/h2&gt;&lt;p&gt;HTTP管线化是作者提到的又一个漏洞基础，管线化使得多个HTTP请求不需要等待应答即可发送，使用这一技术的初衷是提高页面的载入性能，通过一个数据包来发送多个HTTP请求，也可以减轻网络负载压力。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160907214856.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是在一次管线化测试中捕获的HTTP包，可以很清晰的看出在这一个TCP包中拥有三个HTTP包。作者把Pipelines称为大多数smuggling问题之源。在我们实际的使用过程中，实际上并没有真正用到这一技术，因为大多数的浏览器默认并不使用HTTP Pipeline。但是实际上根据文档说明，大多数的服务端都应该支持这一技术。&lt;/p&gt;
+&lt;p&gt;对于Pipeline技术而言，虽然同时发出多个HTTP请求，但实际上它们还是有先后顺序的，而回应顺序与发送的先后顺序一致。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-HTTP-Smuggling-协议层面攻击&quot;&gt;&lt;a href=&quot;#0x02-HTTP-Smuggling-协议层面攻击&quot; class=&quot;headerlink&quot; title=&quot;0x02 HTTP Smuggling 协议层面攻击&quot;&gt;&lt;/a&gt;0x02 HTTP Smuggling 协议层面攻击&lt;/h2&gt;&lt;p&gt;前面说到了HTTP Smuggling的两个基础是Header中的keep-alive和pipelining技术，而产生矛盾就产生于客户端与服务器通信经过中间代理这样的结构。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;client——&amp;gt;middleware——&amp;gt;server
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;当客户端和代理通信时会使用Pipeline，而代理和服务器通信会保持keep-alive但不会使用Pipeline，而服务端不会意识到这一点，这就会造成两次不一样的请求通过构造会被服务端认为是同一次请求。&lt;/p&gt;
+&lt;p&gt;所以进行smuggling的过程就是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;客户端发送一个Pipelining的包，里面包含一个有效包和若干无效的http包。&lt;/li&gt;
+&lt;li&gt;请求包顺利通过中间件&lt;/li&gt;
+&lt;li&gt;服务端解析分割了请求包&lt;/li&gt;
+&lt;li&gt;由于错误，请求被服务端部分回应后，服务端认为Keep-alive依然连接，并且使用了Pipelining，于是等待下面的包。&lt;/li&gt;
+&lt;li&gt;而下一个包就不一定是攻击者发送来的，但是作为服务端依然把这个包回应给了攻击者。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在这里，作者告诉我们其实早在2005年，就已经有人提到了这种利用手法，最终可以造成的效果包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一个forbidden回复&lt;/li&gt;
+&lt;li&gt;DOS掉一台过程中的机器&lt;/li&gt;
+&lt;li&gt;缓存投毒&lt;/li&gt;
+&lt;li&gt;劫持用户凭证&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;接下来的是作者的Demo展示，可惜作者在这里使用go语言和Nodejs来编写中间件和服务端，并没能在本地环境复现作者的手法，这个只能等到以后回顾的时候再来复现了。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-期待的工具-HTTPWookiee&quot;&gt;&lt;a href=&quot;#0x03-期待的工具-HTTPWookiee&quot; class=&quot;headerlink&quot; title=&quot;0x03 期待的工具 HTTPWookiee&quot;&gt;&lt;/a&gt;0x03 期待的工具 HTTPWookiee&lt;/h2&gt;&lt;p&gt;作者在最后还许了一个愿，他会在考虑安全因素的条件下在Github上放出一个相关漏洞代理的自动化测试工具，不过已经过去一个月了吧。&lt;/p&gt;
+&lt;p&gt;看作者的框图，这应该是一个通过发包、接受回应比对来判别代理漏洞利用的工具吧。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这篇文章主体框架来自@regilero在DEFCON上的议题-HTTP smuggling is a thing we should know better and care about.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="DEFCON" scheme="http://phantom0301.coding.me/tags/DEFCON/"/>
+    
+      <category term="Smuggling" scheme="http://phantom0301.coding.me/tags/Smuggling/"/>
+    
+      <category term="http" scheme="http://phantom0301.coding.me/tags/http/"/>
+    
+  </entry>
   
   <entry>
     <title>也说DNS反弹Shell</title>
@@ -585,7 +647,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#108;&amp;#116;&amp;#111;&amp;#58;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&amp;#64;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&quot;&gt;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&amp;#64;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#108;&amp;#x74;&amp;#x6f;&amp;#58;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&quot;&gt;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1542,151 +1604,6 @@ python setup.py install
       <category term="hpfeeds" scheme="http://phantom0301.coding.me/tags/hpfeeds/"/>
     
       <category term="蜜罐" scheme="http://phantom0301.coding.me/tags/%E8%9C%9C%E7%BD%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>PyMongo官方文档翻译</title>
-    <link href="http://phantom0301.coding.me/2016/02/19/PyMongo/"/>
-    <id>http://phantom0301.coding.me/2016/02/19/PyMongo/</id>
-    <published>2016-02-19T09:00:36.000Z</published>
-    <updated>2016-08-04T07:58:02.814Z</updated>
-    
-    <content type="html">&lt;p&gt;最近做的几个项目都用到了Python+MongoDB，好像更新一版的Mongo刚刚发布。既然是使用python，肯定是绕不过Pymongo库了，先从官方文档看起。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;想练习英语的戳这里~&lt;a href=&quot;http://api.mongodb.org/python/current/tutorial.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://api.mongodb.org/python/current/tutorial.html&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;教程&quot;&gt;&lt;a href=&quot;#教程&quot; class=&quot;headerlink&quot; title=&quot;教程&quot;&gt;&lt;/a&gt;教程&lt;/h2&gt;&lt;p&gt;本教程旨在介绍使用MongoDB和PyMongo&lt;/p&gt;
-&lt;h2 id=&quot;准备&quot;&gt;&lt;a href=&quot;#准备&quot; class=&quot;headerlink&quot; title=&quot;准备&quot;&gt;&lt;/a&gt;准备&lt;/h2&gt;&lt;p&gt;安装&lt;strong&gt;PyMongo&lt;/strong&gt;模块，&lt;strong&gt;MongoDB&lt;/strong&gt;数据库。&lt;br&gt;恩，在python的shell里，下面这句话没报错就算安装成功了（废话~）&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt;import pymongo
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;本教程还假设MongoDB实例运行在默认的主机（127.0.0.1）和端口（27017）。假设您已经下载并安装MongoDB,您可以启动它就像这样:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ mongod
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;使用MongoClient完成数据库连接&quot;&gt;&lt;a href=&quot;#使用MongoClient完成数据库连接&quot; class=&quot;headerlink&quot; title=&quot;使用MongoClient完成数据库连接&quot;&gt;&lt;/a&gt;使用MongoClient完成数据库连接&lt;/h2&gt;&lt;p&gt;第一步就是使用PyMongo中的MongoClient来完成程序和数据库之间的连接&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; from pymongo import MongoClient
-&amp;gt;&amp;gt;&amp;gt; client = MongoClient()
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上面的代码将在默认的主机和端口连接。我们也可以显式地指定主机和端口,如下:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; client = MongoClient(&amp;apos;localhost&amp;apos;, 27017)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;也可以使用另一种形式：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; client = MongoClient(&amp;apos;mongodb://localhost:27017/&amp;apos;)
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;获得数据库&quot;&gt;&lt;a href=&quot;#获得数据库&quot; class=&quot;headerlink&quot; title=&quot;获得数据库&quot;&gt;&lt;/a&gt;获得数据库&lt;/h2&gt;&lt;p&gt;MongoDB的单个实例可以支持多个独立的数据库。PyMongo支持使用属性的形式来获得数据库：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; db = client.test_database
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果上面的形式无法访问到数据库，可以采用另一种字典的形式来访问：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; db = client[&amp;apos;test-database&amp;apos;]
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;获得集合&quot;&gt;&lt;a href=&quot;#获得集合&quot; class=&quot;headerlink&quot; title=&quot;获得集合&quot;&gt;&lt;/a&gt;获得集合&lt;/h2&gt;&lt;p&gt;集合是MongoDB中存储的一组文档，可以类比为关系型数据库中的表，获得集合的方式与获得数据库方式相同&lt;/p&gt;
-&lt;p&gt;拥有两种方式：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; collection = db.test_collection
-&amp;gt;&amp;gt;&amp;gt; collection = db[&amp;apos;test-collection&amp;apos;]
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;值得注意的是，集合和库在MongoDB中的创建是松散的，以上命令实际上并没有在服务器端做任何操作。&lt;/p&gt;
-&lt;p&gt;当有文档（数据）插入到里面的时候，集合和库才被创建。&lt;/p&gt;
-&lt;h2 id=&quot;文档（数据）&quot;&gt;&lt;a href=&quot;#文档（数据）&quot; class=&quot;headerlink&quot; title=&quot;文档（数据）&quot;&gt;&lt;/a&gt;文档（数据）&lt;/h2&gt;&lt;p&gt;MongoDB中的数据使用（存储为）JSON格式文件。在PyMongo中使用字典来表示这种结构。&lt;/p&gt;
-&lt;p&gt;举个栗子,下面的字典可以用来代表一篇博文:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; import datetime
-&amp;gt;&amp;gt;&amp;gt; post = {&amp;quot;author&amp;quot;: &amp;quot;Mike&amp;quot;,
-... &amp;quot;text&amp;quot;: &amp;quot;My first blog post!&amp;quot;,
-... &amp;quot;tags&amp;quot;: [&amp;quot;mongodb&amp;quot;, &amp;quot;python&amp;quot;, &amp;quot;pymongo&amp;quot;],
-... &amp;quot;date&amp;quot;: datetime.datetime.utcnow()}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意,文档可以包含本地Python类型(如datetime.datetime实例),这些会自动转换为合适的BSON类型。&lt;/p&gt;
-&lt;h2 id=&quot;插入文件&quot;&gt;&lt;a href=&quot;#插入文件&quot; class=&quot;headerlink&quot; title=&quot;插入文件&quot;&gt;&lt;/a&gt;插入文件&lt;/h2&gt;&lt;p&gt;要插入一个文件到集合中，我们可以使用insert_one( )方法：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts = db.posts
-&amp;gt;&amp;gt;&amp;gt; post_id = posts.insert_one(post).inserted_id
-&amp;gt;&amp;gt;&amp;gt; post_id
-ObjectId(&amp;apos;...&amp;apos;)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果插入的文档没有“_id”这个键的话，系统会自动给它加上。“_id”键的值在整个集合中是唯一的（有点主键的意思）。insert _one( )返回一个InsertOneResult的实例。更多关于”_id“的信息，参阅 _id。&lt;/p&gt;
-&lt;p&gt;在插入第一个文档后，集合就真正在服务器上创建。通过列出库中所有的集合，我们可以验证这一点：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; db.collection_names(include_system_collections=False)
-[u&amp;apos;posts&amp;apos;]
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;通过find-one-获取单个文档&quot;&gt;&lt;a href=&quot;#通过find-one-获取单个文档&quot; class=&quot;headerlink&quot; title=&quot;通过find_one( )获取单个文档&quot;&gt;&lt;/a&gt;通过find_one( )获取单个文档&lt;/h2&gt;&lt;p&gt;最基本的可以执行的查询类型有find_one( )。这个方法根据查询返回一个匹配的文档。如果没有匹配就返回None。&lt;/p&gt;
-&lt;p&gt;对于只有单一匹配或者只对第一个匹配感兴趣的情况下，可以选用这种方法。下面是一个获取第一个文档的栗子~&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts.find_one()
-{u&amp;apos;date&amp;apos;: datetime.datetime(...), u&amp;apos;text&amp;apos;: u&amp;apos;My first blog post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;mongodb&amp;apos;, u&amp;apos;python&amp;apos;, u&amp;apos;pymongo&amp;apos;]}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;结果是我们之前插入的那个注意到返回结果中”_id”这个键是自动加入的。&lt;br&gt;find_one()也支持特定的结果匹配。比如我们用作者”Mike”来限制返回的查找结果&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts.find_one({&amp;quot;author&amp;quot;: &amp;quot;Mike&amp;quot;})
-{u&amp;apos;date&amp;apos;: datetime.datetime(...), u&amp;apos;text&amp;apos;: u&amp;apos;My first blog post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;mongodb&amp;apos;, u&amp;apos;python&amp;apos;, u&amp;apos;pymongo&amp;apos;]}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果我们用另一个文档中不存在的字典“Eliot”来查找，将得不到结果：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts.find_one({&amp;quot;author&amp;quot;: &amp;quot;Eliot&amp;quot;})
-&amp;gt;&amp;gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;通过对象ID查询&quot;&gt;&lt;a href=&quot;#通过对象ID查询&quot; class=&quot;headerlink&quot; title=&quot;通过对象ID查询&quot;&gt;&lt;/a&gt;通过对象ID查询&lt;/h2&gt;&lt;p&gt;我们也可以通过“_id”来查找&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; post_id
-ObjectId(...)
-&amp;gt;&amp;gt;&amp;gt; posts.find_one({&amp;quot;_id&amp;quot;: post_id})
-{u&amp;apos;date&amp;apos;: datetime.datetime(...), u&amp;apos;text&amp;apos;: u&amp;apos;My first blog post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;mongodb&amp;apos;, u&amp;apos;python&amp;apos;, u&amp;apos;pymongo&amp;apos;]}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意，对象ID不是一个字符串&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; post_id_as_str = str(post_id)
-&amp;gt;&amp;gt;&amp;gt; posts.find_one({&amp;quot;_id&amp;quot;: post_id_as_str}) # No result
-&amp;gt;&amp;gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;web应用程序中的一个常见任务是从URL得到对象ID,找到匹配的文档。&lt;br&gt;这种情况下，需要将对象ID从字符串类型转换到ObjectId(符合find_one格式的类型):&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;from bson.objectid import ObjectId
-# The web framework gets post_id from the URL and passes it as a string
-def get(post_id):
-# Convert from string to ObjectId:
-document = client.db.collection.find_one({&amp;apos;_id&amp;apos;: ObjectId(post_id)})
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;UNICODE字符串注意&quot;&gt;&lt;a href=&quot;#UNICODE字符串注意&quot; class=&quot;headerlink&quot; title=&quot;UNICODE字符串注意&quot;&gt;&lt;/a&gt;UNICODE字符串注意&lt;/h2&gt;&lt;p&gt;你可能注意到，服务器中得到的数据和常规的Python字符串不太一样（例如用u’Mike’来代替’Mike’）&lt;/p&gt;
-&lt;p&gt;这是因为我们的数据库以BSON的格式存储数据。这种格式采用UTF-8编码，所以PyMongo需要确保所有&lt;/p&gt;
-&lt;p&gt;存储的字符串包含唯一可用的UTF-8数据。基于此，PyMongo解码每一个BSON字符为Python的unicode字符，而不是常见的字符串。&lt;/p&gt;
-&lt;h2 id=&quot;批量插入&quot;&gt;&lt;a href=&quot;#批量插入&quot; class=&quot;headerlink&quot; title=&quot;批量插入&quot;&gt;&lt;/a&gt;批量插入&lt;/h2&gt;&lt;p&gt;为了使查询更加有趣,让我们插入更多的文档。&lt;/p&gt;
-&lt;p&gt;除了插入一个文档,我们也可以执行批量插入操作,&lt;br&gt;通过insert_many插入列表的方式，可以插入列表中的每一个文档，而只向服务器发送一次指令。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; new_posts = [{&amp;quot;author&amp;quot;: &amp;quot;Mike&amp;quot;,
-...   &amp;quot;text&amp;quot;: &amp;quot;Another post!&amp;quot;,
-...   &amp;quot;tags&amp;quot;: [&amp;quot;bulk&amp;quot;, &amp;quot;insert&amp;quot;],
-...   &amp;quot;date&amp;quot;: datetime.datetime(2009, 11, 12, 11, 14)},
-...  {&amp;quot;author&amp;quot;: &amp;quot;Eliot&amp;quot;,
-...   &amp;quot;title&amp;quot;: &amp;quot;MongoDB is fun&amp;quot;,
-...   &amp;quot;text&amp;quot;: &amp;quot;and pretty easy too!&amp;quot;,
-...   &amp;quot;date&amp;quot;: datetime.datetime(2009, 11, 10, 10, 45)}]
-&amp;gt;&amp;gt;&amp;gt; result = posts.insert_many(new_posts)
-&amp;gt;&amp;gt;&amp;gt; result.inserted_ids
-[ObjectId(&amp;apos;...&amp;apos;), ObjectId(&amp;apos;...&amp;apos;)]
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;对于这个栗子，需要多去咀嚼的地方：&lt;/p&gt;
-&lt;p&gt;结果返回了两个对象ID实例，就是我们批量插入地文档；&lt;/p&gt;
-&lt;p&gt;两个文档的键并不一样哦，一个是“tags”，另一个是“title”，这就是我们之前所说的MongoDB是模式自由的。&lt;/p&gt;
-&lt;h2 id=&quot;查询多个文档&quot;&gt;&lt;a href=&quot;#查询多个文档&quot; class=&quot;headerlink&quot; title=&quot;查询多个文档&quot;&gt;&lt;/a&gt;查询多个文档&lt;/h2&gt;&lt;p&gt;为了能够返回多个文档，我们可以使用find( )方法，返回一个游标实例，它允许我们遍历所有匹配的文档。&lt;/p&gt;
-&lt;p&gt;又一个栗子，我们可以遍历集合中所有的文档：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; for post in posts.find():
-...   post
-...
-{u&amp;apos;date&amp;apos;: datetime.datetime(...), u&amp;apos;text&amp;apos;: u&amp;apos;My first blog post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;mongodb&amp;apos;, u&amp;apos;python&amp;apos;, u&amp;apos;pymongo&amp;apos;]}
-{u&amp;apos;date&amp;apos;: datetime.datetime(2009, 11, 12, 11, 14), u&amp;apos;text&amp;apos;: u&amp;apos;Another post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;bulk&amp;apos;, u&amp;apos;insert&amp;apos;]}
-{u&amp;apos;date&amp;apos;: datetime.datetime(2009, 11, 10, 10, 45), u&amp;apos;text&amp;apos;: u&amp;apos;and pretty easy too!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Eliot&amp;apos;, u&amp;apos;title&amp;apos;: u&amp;apos;MongoDB is fun&amp;apos;}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;它也可以支持限制查找，我们可以限制作者为”Mike”：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; for post in posts.find({&amp;quot;author&amp;quot;: &amp;quot;Mike&amp;quot;}):
-...   post
-...
-{u&amp;apos;date&amp;apos;: datetime.datetime(...), u&amp;apos;text&amp;apos;: u&amp;apos;My first blog post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;mongodb&amp;apos;, u&amp;apos;python&amp;apos;, u&amp;apos;pymongo&amp;apos;]}
-{u&amp;apos;date&amp;apos;: datetime.datetime(2009, 11, 12, 11, 14), u&amp;apos;text&amp;apos;: u&amp;apos;Another post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;bulk&amp;apos;, u&amp;apos;insert&amp;apos;]}
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;计数&quot;&gt;&lt;a href=&quot;#计数&quot; class=&quot;headerlink&quot; title=&quot;计数&quot;&gt;&lt;/a&gt;计数&lt;/h2&gt;&lt;p&gt;如果我们只想知道文档数，可以用count()来实现：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts.count()
-3
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;你们懂得，这里也可以做限制查找&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; posts.find({&amp;quot;author&amp;quot;: &amp;quot;Mike&amp;quot;}).count()
-2
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;范围查询&quot;&gt;&lt;a href=&quot;#范围查询&quot; class=&quot;headerlink&quot; title=&quot;范围查询&quot;&gt;&lt;/a&gt;范围查询&lt;/h2&gt;&lt;p&gt;MongoDB支持许多不同类型的高级查询。&lt;/p&gt;
-&lt;p&gt;栗子~栗子~,可以执行一个查询,我们限制结果为一个特定日期,同时按照作者排序:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; d=datetime.datetime(2009,11,12,12)&amp;gt;&amp;gt;&amp;gt; forpostinposts.find({&amp;quot;date&amp;quot;:{&amp;quot;$lt&amp;quot;:d}}).sort(&amp;quot;author&amp;quot;):... printpost...{u&amp;apos;date&amp;apos;: datetime.datetime(2009, 11, 10, 10, 45), u&amp;apos;text&amp;apos;: u&amp;apos;and pretty easy too!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Eliot&amp;apos;, u&amp;apos;title&amp;apos;: u&amp;apos;MongoDB is fun&amp;apos;}{u&amp;apos;date&amp;apos;: datetime.datetime(2009, 11, 12, 11, 14), u&amp;apos;text&amp;apos;: u&amp;apos;Another post!&amp;apos;, u&amp;apos;_id&amp;apos;: ObjectId(&amp;apos;...&amp;apos;), u&amp;apos;author&amp;apos;: u&amp;apos;Mike&amp;apos;, u&amp;apos;tags&amp;apos;: [u&amp;apos;bulk&amp;apos;, u&amp;apos;insert&amp;apos;]}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里我们用特殊的操作符”$lt”来做范围查询，同时用sort()做作者排序。&lt;/p&gt;
-&lt;h2 id=&quot;索引&quot;&gt;&lt;a href=&quot;#索引&quot; class=&quot;headerlink&quot; title=&quot;索引&quot;&gt;&lt;/a&gt;索引&lt;/h2&gt;&lt;p&gt;添加索引可以加快某些查询，也可以增加一些额外的查询和存储文档功能。&lt;/p&gt;
-&lt;p&gt;在这个例子中,我们将演示如何创建一个惟一的键索引来拒绝那些已经在索引中存在的键对应的值的文档。&lt;br&gt;首先，创建一个索引&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; result=db.profiles.create_index([(&amp;apos;user_id&amp;apos;,pymongo.ASCENDING)],... unique=True)&amp;gt;&amp;gt;&amp;gt; list(db.profiles.index_information())[u&amp;apos;user_id_1&amp;apos;, u&amp;apos;_id_&amp;apos;]
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意，我们现在有两个索引，一个是数据库自动创建的“_id”，另一个是我们刚创建的“user_id”。&lt;br&gt;现在让我们设置一些用户配置文件&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; user_profiles = [
-... {&amp;apos;user_id&amp;apos;: 211, &amp;apos;name&amp;apos;: &amp;apos;Luke&amp;apos;},
-... {&amp;apos;user_id&amp;apos;: 212, &amp;apos;name&amp;apos;: &amp;apos;Ziltoid&amp;apos;}]
-&amp;gt;&amp;gt;&amp;gt; result = db.profiles.insert_many(user_profiles)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;索引可以防止插入时user_id重复：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; new_profile={&amp;apos;user_id&amp;apos;:213,&amp;apos;name&amp;apos;:&amp;apos;Drew&amp;apos;}&amp;gt;&amp;gt;&amp;gt; duplicate_profile={&amp;apos;user_id&amp;apos;:212,&amp;apos;name&amp;apos;:&amp;apos;Tommy&amp;apos;}&amp;gt;&amp;gt;&amp;gt; result=db.profiles.insert_one(new_profile)# This is fine.&amp;gt;&amp;gt;&amp;gt; result=db.profiles.insert_one(duplicate_profile)Traceback (most recent call last):pymongo.errors.DuplicateKeyError:E11000 duplicate key error index: test_database.profiles.$user_id_1 dup key: { : 212 }
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;最近做的几个项目都用到了Python+MongoDB，好像更新一版的Mongo刚刚发布。既然是使用python，肯定是绕不过Pymongo库了，先从官方文档看起。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="python" scheme="http://phantom0301.coding.me/categories/python/"/>
-    
-    
-      <category term="pymongo" scheme="http://phantom0301.coding.me/tags/pymongo/"/>
-    
-      <category term="python" scheme="http://phantom0301.coding.me/tags/python/"/>
     
   </entry>
   
