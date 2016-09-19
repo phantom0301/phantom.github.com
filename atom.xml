@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-09-12T12:47:56.292Z</updated>
+  <updated>2016-09-19T13:27:33.228Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>没能复现的学习——DECON-HTTP-Smuggling</title>
+    <title>没能复现的学习——DEFCON-HTTP-Smuggling</title>
     <link href="http://phantom0301.github.io/2016/09/12/httpsmuggling/"/>
     <id>http://phantom0301.github.io/2016/09/12/httpsmuggling/</id>
     <published>2016-09-12T12:44:03.000Z</published>
-    <updated>2016-09-12T12:47:56.292Z</updated>
+    <updated>2016-09-19T13:27:33.228Z</updated>
     
     <content type="html">&lt;p&gt;这篇文章主体框架来自@regilero在DEFCON上的议题-HTTP smuggling is a thing we should know better and care about.&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&quot;0x00-闲扯Host-header&quot;&gt;&lt;a href=&quot;#0x00-闲扯Host-header&quot; class=&quot;headerlink&quot; title=&quot;0x00 闲扯Host header&quot;&gt;&lt;/a&gt;0x00 闲扯Host header&lt;/h2&gt;&lt;p&gt;作为重度网络依赖人群，我们每天都使用程序将数百次网页请求抛送到无形的网络空间中去，我们告知网络服务器我们要访问的资源，接受何种格式、何种语言的回应，是否要和服务器维持一段时间的连接，是否需要保存一些状态以及告知服务器你的代理发送人（浏览器或其他）身份。但是我们了解我们发送的这些东西的真正含义吗？&lt;/p&gt;
@@ -647,7 +647,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#x69;&amp;#x6c;&amp;#x74;&amp;#111;&amp;#x3a;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&quot;&gt;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#x6c;&amp;#x74;&amp;#111;&amp;#x3a;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&quot;&gt;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
