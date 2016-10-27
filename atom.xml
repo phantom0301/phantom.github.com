@@ -4,9 +4,9 @@
   <subtitle>Free and Share</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://phantom0301.github.io/"/>
-  <updated>2016-09-19T13:27:33.228Z</updated>
-  <id>http://phantom0301.github.io/</id>
+  <link href="http://phantom0301.coding.me/"/>
+  <updated>2016-10-27T03:46:16.621Z</updated>
+  <id>http://phantom0301.coding.me/</id>
   
   <author>
     <name>Phantom</name>
@@ -16,9 +16,190 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>域名变动 phantom0301.cc</title>
+    <link href="http://phantom0301.coding.me/2016/10/27/%E5%9F%9F%E5%90%8D%E5%8F%98%E5%8A%A8/"/>
+    <id>http://phantom0301.coding.me/2016/10/27/域名变动/</id>
+    <published>2016-10-27T03:43:41.000Z</published>
+    <updated>2016-10-27T03:46:16.621Z</updated>
+    
+    <content type="html">&lt;hr&gt;
+&lt;h1 id=&quot;域名变动：买了新的服务器和域名，以后都会使用&quot;&gt;&lt;a href=&quot;#域名变动：买了新的服务器和域名，以后都会使用&quot; class=&quot;headerlink&quot; title=&quot;域名变动：买了新的服务器和域名，以后都会使用&quot;&gt;&lt;/a&gt;域名变动：买了新的服务器和域名，以后都会使用&lt;/h1&gt;&lt;p&gt;#&lt;a href=&quot;http://phantom0301.cc&quot; title=&quot;http://phantom0301.cc&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://phantom0301.cc&lt;/a&gt; #&lt;/p&gt;
+&lt;p&gt;#这个域名了哈~~ #&lt;/p&gt;
+&lt;hr&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;hr&gt;
+&lt;h1 id=&quot;域名变动：买了新的服务器和域名，以后都会使用&quot;&gt;&lt;a href=&quot;#域名变动：买了新的服务器和域名，以后都会使用&quot; class=&quot;headerlink&quot; title=&quot;域名变动：买了新的服务器和域名，以后都会使用&quot;&gt;&lt;/a&gt;域名变动：买了新的服务器和域名
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Zmap论文简读</title>
+    <link href="http://phantom0301.coding.me/2016/10/27/Zmapread/"/>
+    <id>http://phantom0301.coding.me/2016/10/27/Zmapread/</id>
+    <published>2016-10-27T03:00:29.000Z</published>
+    <updated>2016-10-27T03:36:19.940Z</updated>
+    
+    <content type="html">&lt;p&gt;很早之前就读到过其他大大使用Zmap做测试的文章，自己也玩了一下这个快速的扫描工具，但是一直对于它的认识处在黑盒的状态，所以这次浏览了一遍Zmap的论文，对于论文里面提到的点进行记录。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-诞生&quot;&gt;&lt;a href=&quot;#0x01-诞生&quot; class=&quot;headerlink&quot; title=&quot;0x01 诞生&quot;&gt;&lt;/a&gt;0x01 诞生&lt;/h2&gt;&lt;p&gt;一直以来，丈量日渐庞大的互联网就是研究者们的探索方向之一，和攻击者使用的探测手法，比如僵尸网络或者蠕虫相比，研究者能够利用的方法十分有限，于是，Zmap诞生了。&lt;/p&gt;
+&lt;p&gt;在此之前，除了每一位致力于此的研究者自己编写的程序外，最有效的工具应该是Nmap，这已经是十分优秀的探测工具，但是它还是不够快，如果打算利用Nmap去扫描整个网络空间，花费的时间单位将以天计。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-性能&quot;&gt;&lt;a href=&quot;#0x02-性能&quot; class=&quot;headerlink&quot; title=&quot;0x02 性能&quot;&gt;&lt;/a&gt;0x02 性能&lt;/h2&gt;&lt;p&gt;官方给出的性能版本是：单台入门级服务器在千兆以太网速度下扫描整个IPv4空间需要45分钟。&lt;/p&gt;
+&lt;p&gt;在同等准确度的限制下，它是使用agressive default策略的Nmap扫描速度的1300倍。&lt;/p&gt;
+&lt;p&gt;Zmap能够将当前带宽的利用率提升到97%&lt;/p&gt;
+&lt;h2 id=&quot;0x03-优化&quot;&gt;&lt;a href=&quot;#0x03-优化&quot; class=&quot;headerlink&quot; title=&quot;0x03 优化&quot;&gt;&lt;/a&gt;0x03 优化&lt;/h2&gt;&lt;p&gt;为了提高扫描速度，Zmap采用以下策略进行扫描探测优化：&lt;/p&gt;
+&lt;p&gt;首先，Zmap跳过TCP/IP堆栈，直接在链路层使用以太网帧；&lt;br&gt;其次，对于目标列表的选取使用随机抽样，这样避免顺序扫描导致的对方网络负载过大。通过采用乘法循环群随机序列来保证生成稠密且唯一的随机数；&lt;br&gt;使用类似SYN cookies的方式来避免存储包交互时的序列状态确认；&lt;br&gt;使用根树，一种处理范围和使用频率的路由表来排除特殊的地址空间；&lt;br&gt;最后，在扫描过程中，允许丢失少量的扫描数据。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-验证&quot;&gt;&lt;a href=&quot;#0x04-验证&quot; class=&quot;headerlink&quot; title=&quot;0x04 验证&quot;&gt;&lt;/a&gt;0x04 验证&lt;/h2&gt;&lt;p&gt;通过实验对比，Zmap的命中率与扫描速度无关，同时对于探测的覆盖率和扫描时刻的影响进行的比较。&lt;/p&gt;
+&lt;p&gt;在和Nmap的比较中我们可以看出，Nmap更适合单目标多端口的探测，而Zmap则侧重于多目标单端口的扫描环境。&lt;/p&gt;
+&lt;h2 id=&quot;0x05-实际部署&quot;&gt;&lt;a href=&quot;#0x05-实际部署&quot; class=&quot;headerlink&quot; title=&quot;0x05 实际部署&quot;&gt;&lt;/a&gt;0x05 实际部署&lt;/h2&gt;&lt;p&gt;如果你是出于善意的角度使用Zmap去测量网络空间，在使用工具时，应该注意以下几点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;保持与网络管理员的联系，注意Zmap对当前的网络带宽环境带来的影响。&lt;/li&gt;
+&lt;li&gt;在机器的源地址上放一个简单的网页声明，对于扫描源IP进行DNS解析，方便其他机构辨识。&lt;/li&gt;
+&lt;li&gt;适当减缓扫描速度，使用灵活的扫描策略，降低可能的影响。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;0x06-发展&quot;&gt;&lt;a href=&quot;#0x06-发展&quot; class=&quot;headerlink&quot; title=&quot;0x06 发展&quot;&gt;&lt;/a&gt;0x06 发展&lt;/h2&gt;&lt;p&gt;这是论文里提到的未来Zmap的发展之路，不过这篇论文已经是3年前的了，其中提到的一些设想说不定已经实现。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;IPv6空间扫描&lt;/li&gt;
+&lt;li&gt;单IP多域名多证书扫描&lt;/li&gt;
+&lt;li&gt;类似robot的扫描圈君子协定&lt;/li&gt;
+&lt;li&gt;更快的速度，甚至于实现建立某一时刻的网络地址空间快照&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;很早之前就读到过其他大大使用Zmap做测试的文章，自己也玩了一下这个快速的扫描工具，但是一直对于它的认识处在黑盒的状态，所以这次浏览了一遍Zmap的论文，对于论文里面提到的点进行记录。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="工具" scheme="http://phantom0301.coding.me/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+      <category term="Zmap" scheme="http://phantom0301.coding.me/tags/Zmap/"/>
+    
+      <category term="scanner" scheme="http://phantom0301.coding.me/tags/scanner/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>数论基础-原根与指标</title>
+    <link href="http://phantom0301.coding.me/2016/10/15/primitiveroot/"/>
+    <id>http://phantom0301.coding.me/2016/10/15/primitiveroot/</id>
+    <published>2016-10-15T09:48:34.000Z</published>
+    <updated>2016-10-15T09:57:09.658Z</updated>
+    
+    <content type="html">&lt;p&gt;数论基础部分有关于原根和指标的学习脑图。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;br&gt;思维导图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/pic/ac1c3f15dcf2f7dc.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;三位数内的原根求解程序，如果验证有错，欢迎指出~~：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;#! /usr/bin/env python
+# -*- coding=UTF-8 -*-
+
+def gcd(a, b):  # 求最大公约数
+    while b != 0:
+        (a,b) = (b, a%b)
+    return a
+
+def factorize(n, wheel=3):  # 因数分解
+    if n &amp;lt; 2:
+        return []
+    primes = (2, 3, 5, 7, 11)
+    if wheel &amp;lt; 2 or wheel &amp;gt; len(primes):
+        wheel = 3
+    primes = primes[:wheel]
+    q = []
+    for p in primes:
+        if n % p != 0:
+            continue
+        e = 1
+        n //= p
+        while n % p == 0:
+            n //= p
+               e += 1
+        q.append((p, e))
+    if n &amp;gt; 1:
+        m = reduce(lambda x, y:x*y, primes, 1)
+        offs = [x for x in xrange(2, m + 1) if gcd(m, x) == 1] + [m + 1]
+        k, done = 0, False
+        while n &amp;gt; 1:
+            for offset in offs:
+                p = k + offset
+                if p ** 2 &amp;gt; n:
+                    done = True
+                    break
+                if n % p != 0:
+                    continue
+                e = 1
+                n //= p
+                while n % p == 0:
+                    n //= p
+                    e += 1
+                q.append((p, e))
+            if done:
+                break
+            k += m
+        if n &amp;gt; 1:
+            q.append((n, 1))
+    return q
+
+def Euler(n, wheel=3):  # 求欧拉函数
+    &amp;apos;&amp;apos;&amp;apos; Euler Totient Function of n using a prime wheel criterion.
+        It&amp;apos;s almost as fast as the phi(n, p) function &amp;apos;&amp;apos;&amp;apos;
+    if n &amp;lt; 2:
+        return n
+    q = factorize(n, wheel)
+    r = 1
+    for (p, e) in q:
+        r *= (p - 1) * (p ** (e - 1))
+    return r
+
+def primitive_root(mod):  # 求原根
+    simple = []
+    root = []
+    phi_m = Euler(mod)
+    for i in range(1,mod):
+        if gcd(i, mod) == 1:
+            simple.append(i)
+    for a in simple:
+        for j in range(1,phi_m+1):
+            if a ** j % mod == 1:
+                if j == phi_m:
+                    root.append(a)
+                else:
+                    break
+
+    return root
+
+if __name__ == &amp;apos;__main__&amp;apos;:
+    mod = raw_input(&amp;apos;Please input mod:&amp;apos;)
+    print primitive_root(int(mod))`
+&lt;/code&gt;&lt;/pre&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;数论基础部分有关于原根和指标的学习脑图。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="原根" scheme="http://phantom0301.coding.me/tags/%E5%8E%9F%E6%A0%B9/"/>
+    
+      <category term="指标" scheme="http://phantom0301.coding.me/tags/%E6%8C%87%E6%A0%87/"/>
+    
+      <category term="数论" scheme="http://phantom0301.coding.me/tags/%E6%95%B0%E8%AE%BA/"/>
+    
+  </entry>
+  
+  <entry>
     <title>没能复现的学习——DEFCON-HTTP-Smuggling</title>
-    <link href="http://phantom0301.github.io/2016/09/12/httpsmuggling/"/>
-    <id>http://phantom0301.github.io/2016/09/12/httpsmuggling/</id>
+    <link href="http://phantom0301.coding.me/2016/09/12/httpsmuggling/"/>
+    <id>http://phantom0301.coding.me/2016/09/12/httpsmuggling/</id>
     <published>2016-09-12T12:44:03.000Z</published>
     <updated>2016-09-19T13:27:33.228Z</updated>
     
@@ -66,21 +247,21 @@
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="DEFCON" scheme="http://phantom0301.github.io/tags/DEFCON/"/>
+      <category term="DEFCON" scheme="http://phantom0301.coding.me/tags/DEFCON/"/>
     
-      <category term="Smuggling" scheme="http://phantom0301.github.io/tags/Smuggling/"/>
+      <category term="Smuggling" scheme="http://phantom0301.coding.me/tags/Smuggling/"/>
     
-      <category term="http" scheme="http://phantom0301.github.io/tags/http/"/>
+      <category term="http" scheme="http://phantom0301.coding.me/tags/http/"/>
     
   </entry>
   
   <entry>
     <title>也说DNS反弹Shell</title>
-    <link href="http://phantom0301.github.io/2016/08/11/DNSshell/"/>
-    <id>http://phantom0301.github.io/2016/08/11/DNSshell/</id>
+    <link href="http://phantom0301.coding.me/2016/08/11/DNSshell/"/>
+    <id>http://phantom0301.coding.me/2016/08/11/DNSshell/</id>
     <published>2016-08-11T12:03:39.000Z</published>
     <updated>2016-08-13T04:25:23.896Z</updated>
     
@@ -194,19 +375,19 @@ def runCmd(cmd)
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="DNS" scheme="http://phantom0301.github.io/tags/DNS/"/>
+      <category term="DNS" scheme="http://phantom0301.coding.me/tags/DNS/"/>
     
-      <category term="协议分析" scheme="http://phantom0301.github.io/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
+      <category term="协议分析" scheme="http://phantom0301.coding.me/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>Ubuntu服务器下Remastersys系统打包</title>
-    <link href="http://phantom0301.github.io/2016/08/08/Remastersys/"/>
-    <id>http://phantom0301.github.io/2016/08/08/Remastersys/</id>
+    <link href="http://phantom0301.coding.me/2016/08/08/Remastersys/"/>
+    <id>http://phantom0301.coding.me/2016/08/08/Remastersys/</id>
     <published>2016-08-08T13:08:13.000Z</published>
     <updated>2016-08-08T13:32:18.906Z</updated>
     
@@ -249,19 +430,19 @@ sudo remastersys dist iso filename.iso
     
     </summary>
     
-      <category term="ubuntu" scheme="http://phantom0301.github.io/categories/ubuntu/"/>
+      <category term="ubuntu" scheme="http://phantom0301.coding.me/categories/ubuntu/"/>
     
     
-      <category term="iso" scheme="http://phantom0301.github.io/tags/iso/"/>
+      <category term="iso" scheme="http://phantom0301.coding.me/tags/iso/"/>
     
-      <category term="ubuntu" scheme="http://phantom0301.github.io/tags/ubuntu/"/>
+      <category term="ubuntu" scheme="http://phantom0301.coding.me/tags/ubuntu/"/>
     
   </entry>
   
   <entry>
     <title>SMTP协议附件数据流抓取与还原</title>
-    <link href="http://phantom0301.github.io/2016/08/01/SMTP/"/>
-    <id>http://phantom0301.github.io/2016/08/01/SMTP/</id>
+    <link href="http://phantom0301.coding.me/2016/08/01/SMTP/"/>
+    <id>http://phantom0301.coding.me/2016/08/01/SMTP/</id>
     <published>2016-08-01T13:00:54.000Z</published>
     <updated>2016-08-04T07:51:15.196Z</updated>
     
@@ -390,19 +571,19 @@ l7wVOj83I4AAAAASUVORK5CYII=\r\n
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="SMTP" scheme="http://phantom0301.github.io/tags/SMTP/"/>
+      <category term="SMTP" scheme="http://phantom0301.coding.me/tags/SMTP/"/>
     
-      <category term="协议分析" scheme="http://phantom0301.github.io/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
+      <category term="协议分析" scheme="http://phantom0301.coding.me/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>再探Docker-另类Docker安全</title>
-    <link href="http://phantom0301.github.io/2016/07/21/Docker3/"/>
-    <id>http://phantom0301.github.io/2016/07/21/Docker3/</id>
+    <link href="http://phantom0301.coding.me/2016/07/21/Docker3/"/>
+    <id>http://phantom0301.coding.me/2016/07/21/Docker3/</id>
     <published>2016-07-21T05:53:06.000Z</published>
     <updated>2016-08-04T08:00:35.132Z</updated>
     
@@ -446,21 +627,21 @@ sudo iptables -I FORWARD -i docker0 -o ens33 -m state --state RELATED,ESTABLISHE
     
     </summary>
     
-      <category term="Docker" scheme="http://phantom0301.github.io/categories/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
     
     
-      <category term="Docker" scheme="http://phantom0301.github.io/tags/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
     
-      <category term="信息安全" scheme="http://phantom0301.github.io/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
+      <category term="信息安全" scheme="http://phantom0301.coding.me/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
     
-      <category term="入门" scheme="http://phantom0301.github.io/tags/%E5%85%A5%E9%97%A8/"/>
+      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
     
   </entry>
   
   <entry>
     <title>再探Docker-日志收集</title>
-    <link href="http://phantom0301.github.io/2016/07/20/Docker2/"/>
-    <id>http://phantom0301.github.io/2016/07/20/Docker2/</id>
+    <link href="http://phantom0301.coding.me/2016/07/20/Docker2/"/>
+    <id>http://phantom0301.coding.me/2016/07/20/Docker2/</id>
     <published>2016-07-20T08:11:59.000Z</published>
     <updated>2016-08-04T08:01:46.972Z</updated>
     
@@ -508,19 +689,19 @@ output {
     
     </summary>
     
-      <category term="Docker" scheme="http://phantom0301.github.io/categories/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
     
     
-      <category term="Docker" scheme="http://phantom0301.github.io/tags/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
     
-      <category term="入门" scheme="http://phantom0301.github.io/tags/%E5%85%A5%E9%97%A8/"/>
+      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
     
   </entry>
   
   <entry>
     <title>效率利器-NSSM</title>
-    <link href="http://phantom0301.github.io/2016/07/19/NSSM/"/>
-    <id>http://phantom0301.github.io/2016/07/19/NSSM/</id>
+    <link href="http://phantom0301.coding.me/2016/07/19/NSSM/"/>
+    <id>http://phantom0301.coding.me/2016/07/19/NSSM/</id>
     <published>2016-07-19T13:20:30.000Z</published>
     <updated>2016-08-04T07:59:37.035Z</updated>
     
@@ -548,14 +729,14 @@ output {
     </summary>
     
     
-      <category term="工具" scheme="http://phantom0301.github.io/tags/%E5%B7%A5%E5%85%B7/"/>
+      <category term="工具" scheme="http://phantom0301.coding.me/tags/%E5%B7%A5%E5%85%B7/"/>
     
   </entry>
   
   <entry>
     <title>Docker快速入门</title>
-    <link href="http://phantom0301.github.io/2016/07/16/Docker1/"/>
-    <id>http://phantom0301.github.io/2016/07/16/Docker1/</id>
+    <link href="http://phantom0301.coding.me/2016/07/16/Docker1/"/>
+    <id>http://phantom0301.coding.me/2016/07/16/Docker1/</id>
     <published>2016-07-16T01:14:01.000Z</published>
     <updated>2016-08-04T07:55:36.795Z</updated>
     
@@ -647,7 +828,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#108;&amp;#116;&amp;#111;&amp;#x3a;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&quot;&gt;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#97;&amp;#x69;&amp;#108;&amp;#x74;&amp;#111;&amp;#58;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&amp;#64;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&quot;&gt;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&amp;#64;&amp;#120;&amp;#120;&amp;#x78;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -678,19 +859,19 @@ docker run -d 镜像名或id
     
     </summary>
     
-      <category term="Docker" scheme="http://phantom0301.github.io/categories/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
     
     
-      <category term="Docker" scheme="http://phantom0301.github.io/tags/Docker/"/>
+      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
     
-      <category term="入门" scheme="http://phantom0301.github.io/tags/%E5%85%A5%E9%97%A8/"/>
+      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
     
   </entry>
   
   <entry>
     <title>碎碎念</title>
-    <link href="http://phantom0301.github.io/2016/07/04/whisper/"/>
-    <id>http://phantom0301.github.io/2016/07/04/whisper/</id>
+    <link href="http://phantom0301.coding.me/2016/07/04/whisper/"/>
+    <id>http://phantom0301.coding.me/2016/07/04/whisper/</id>
     <published>2016-07-04T10:49:17.000Z</published>
     <updated>2016-08-04T07:59:18.525Z</updated>
     
@@ -708,17 +889,17 @@ docker run -d 镜像名或id
     
     </summary>
     
-      <category term="感悟" scheme="http://phantom0301.github.io/categories/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.me/categories/%E6%84%9F%E6%82%9F/"/>
     
     
-      <category term="感悟" scheme="http://phantom0301.github.io/tags/%E6%84%9F%E6%82%9F/"/>
+      <category term="感悟" scheme="http://phantom0301.coding.me/tags/%E6%84%9F%E6%82%9F/"/>
     
   </entry>
   
   <entry>
     <title>闲谈-隐匿于网络中的入侵者</title>
-    <link href="http://phantom0301.github.io/2016/05/18/invader/"/>
-    <id>http://phantom0301.github.io/2016/05/18/invader/</id>
+    <link href="http://phantom0301.coding.me/2016/05/18/invader/"/>
+    <id>http://phantom0301.coding.me/2016/05/18/invader/</id>
     <published>2016-05-18T12:05:53.000Z</published>
     <updated>2016-08-04T07:59:30.350Z</updated>
     
@@ -746,19 +927,19 @@ docker run -d 镜像名或id
     
     </summary>
     
-      <category term="读书笔记" scheme="http://phantom0301.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://phantom0301.coding.me/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-      <category term="信息安全" scheme="http://phantom0301.github.io/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
+      <category term="信息安全" scheme="http://phantom0301.coding.me/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
     
-      <category term="闲谈" scheme="http://phantom0301.github.io/tags/%E9%97%B2%E8%B0%88/"/>
+      <category term="闲谈" scheme="http://phantom0301.coding.me/tags/%E9%97%B2%E8%B0%88/"/>
     
   </entry>
   
   <entry>
     <title>略读《通鉴》-汉纪-那些打破我们常规认识的宦官形象</title>
-    <link href="http://phantom0301.github.io/2016/04/14/Han/"/>
-    <id>http://phantom0301.github.io/2016/04/14/Han/</id>
+    <link href="http://phantom0301.coding.me/2016/04/14/Han/"/>
+    <id>http://phantom0301.coding.me/2016/04/14/Han/</id>
     <published>2016-04-14T09:53:27.000Z</published>
     <updated>2016-08-04T07:59:07.707Z</updated>
     
@@ -778,19 +959,19 @@ docker run -d 镜像名或id
     
     </summary>
     
-      <category term="读书笔记" scheme="http://phantom0301.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://phantom0301.coding.me/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-      <category term="宦官" scheme="http://phantom0301.github.io/tags/%E5%AE%A6%E5%AE%98/"/>
+      <category term="宦官" scheme="http://phantom0301.coding.me/tags/%E5%AE%A6%E5%AE%98/"/>
     
-      <category term="资治通鉴" scheme="http://phantom0301.github.io/tags/%E8%B5%84%E6%B2%BB%E9%80%9A%E9%89%B4/"/>
+      <category term="资治通鉴" scheme="http://phantom0301.coding.me/tags/%E8%B5%84%E6%B2%BB%E9%80%9A%E9%89%B4/"/>
     
   </entry>
   
   <entry>
     <title>Js-Python实现socket通信</title>
-    <link href="http://phantom0301.github.io/2016/04/12/Websocket/"/>
-    <id>http://phantom0301.github.io/2016/04/12/Websocket/</id>
+    <link href="http://phantom0301.coding.me/2016/04/12/Websocket/"/>
+    <id>http://phantom0301.coding.me/2016/04/12/Websocket/</id>
     <published>2016-04-12T07:51:55.000Z</published>
     <updated>2016-08-04T07:56:07.868Z</updated>
     
@@ -925,21 +1106,21 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     </summary>
     
-      <category term="python" scheme="http://phantom0301.github.io/categories/python/"/>
+      <category term="python" scheme="http://phantom0301.coding.me/categories/python/"/>
     
     
-      <category term="JS" scheme="http://phantom0301.github.io/tags/JS/"/>
+      <category term="JS" scheme="http://phantom0301.coding.me/tags/JS/"/>
     
-      <category term="Python" scheme="http://phantom0301.github.io/tags/Python/"/>
+      <category term="Python" scheme="http://phantom0301.coding.me/tags/Python/"/>
     
-      <category term="Socket" scheme="http://phantom0301.github.io/tags/Socket/"/>
+      <category term="Socket" scheme="http://phantom0301.coding.me/tags/Socket/"/>
     
   </entry>
   
   <entry>
     <title>效率利器-Synergy</title>
-    <link href="http://phantom0301.github.io/2016/04/06/Synergy/"/>
-    <id>http://phantom0301.github.io/2016/04/06/Synergy/</id>
+    <link href="http://phantom0301.coding.me/2016/04/06/Synergy/"/>
+    <id>http://phantom0301.coding.me/2016/04/06/Synergy/</id>
     <published>2016-04-06T06:52:16.000Z</published>
     <updated>2016-08-04T07:59:46.859Z</updated>
     
@@ -965,14 +1146,14 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     </summary>
     
     
-      <category term="工具" scheme="http://phantom0301.github.io/tags/%E5%B7%A5%E5%85%B7/"/>
+      <category term="工具" scheme="http://phantom0301.coding.me/tags/%E5%B7%A5%E5%85%B7/"/>
     
   </entry>
   
   <entry>
     <title>爆破工具Bruter文档翻译</title>
-    <link href="http://phantom0301.github.io/2016/03/25/Bruter/"/>
-    <id>http://phantom0301.github.io/2016/03/25/Bruter/</id>
+    <link href="http://phantom0301.coding.me/2016/03/25/Bruter/"/>
+    <id>http://phantom0301.coding.me/2016/03/25/Bruter/</id>
     <published>2016-03-25T01:54:43.000Z</published>
     <updated>2016-08-04T07:58:14.828Z</updated>
     
@@ -1061,19 +1242,19 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     </summary>
     
-      <category term="安全工具" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
+      <category term="安全工具" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
     
     
-      <category term="bruter" scheme="http://phantom0301.github.io/tags/bruter/"/>
+      <category term="bruter" scheme="http://phantom0301.coding.me/tags/bruter/"/>
     
-      <category term="爆破" scheme="http://phantom0301.github.io/tags/%E7%88%86%E7%A0%B4/"/>
+      <category term="爆破" scheme="http://phantom0301.coding.me/tags/%E7%88%86%E7%A0%B4/"/>
     
   </entry>
   
   <entry>
     <title>反蜜罐技术学习</title>
-    <link href="http://phantom0301.github.io/2016/03/23/Antihoneypot/"/>
-    <id>http://phantom0301.github.io/2016/03/23/Antihoneypot/</id>
+    <link href="http://phantom0301.coding.me/2016/03/23/Antihoneypot/"/>
+    <id>http://phantom0301.coding.me/2016/03/23/Antihoneypot/</id>
     <published>2016-03-23T04:08:28.000Z</published>
     <updated>2016-08-04T07:58:54.731Z</updated>
     
@@ -1129,17 +1310,17 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     </summary>
     
-      <category term="蜜罐" scheme="http://phantom0301.github.io/categories/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.me/categories/%E8%9C%9C%E7%BD%90/"/>
     
     
-      <category term="蜜罐" scheme="http://phantom0301.github.io/tags/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.me/tags/%E8%9C%9C%E7%BD%90/"/>
     
   </entry>
   
   <entry>
     <title>MHN学习笔记（二）Dionaea蜜罐架构</title>
-    <link href="http://phantom0301.github.io/2016/03/17/DIonaea/"/>
-    <id>http://phantom0301.github.io/2016/03/17/DIonaea/</id>
+    <link href="http://phantom0301.coding.me/2016/03/17/DIonaea/"/>
+    <id>http://phantom0301.coding.me/2016/03/17/DIonaea/</id>
     <published>2016-03-17T10:51:04.000Z</published>
     <updated>2016-08-04T07:57:36.108Z</updated>
     
@@ -1185,17 +1366,17 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     </summary>
     
-      <category term="蜜罐" scheme="http://phantom0301.github.io/categories/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.me/categories/%E8%9C%9C%E7%BD%90/"/>
     
     
-      <category term="蜜罐" scheme="http://phantom0301.github.io/tags/%E8%9C%9C%E7%BD%90/"/>
+      <category term="蜜罐" scheme="http://phantom0301.coding.me/tags/%E8%9C%9C%E7%BD%90/"/>
     
   </entry>
   
   <entry>
     <title>nmap7完全指南</title>
-    <link href="http://phantom0301.github.io/2016/03/11/nmap7/"/>
-    <id>http://phantom0301.github.io/2016/03/11/nmap7/</id>
+    <link href="http://phantom0301.coding.me/2016/03/11/nmap7/"/>
+    <id>http://phantom0301.coding.me/2016/03/11/nmap7/</id>
     <published>2016-03-11T02:50:07.000Z</published>
     <updated>2016-08-04T07:57:52.428Z</updated>
     
@@ -1390,220 +1571,10 @@ vuln，漏洞-检测特定的已知漏洞
     
     </summary>
     
-      <category term="安全工具" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
+      <category term="安全工具" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
     
     
-      <category term="namp" scheme="http://phantom0301.github.io/tags/namp/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>博客搬家</title>
-    <link href="http://phantom0301.github.io/2016/03/02/Home/"/>
-    <id>http://phantom0301.github.io/2016/03/02/Home/</id>
-    <published>2016-03-02T02:46:27.000Z</published>
-    <updated>2016-08-04T07:58:31.920Z</updated>
-    
-    <content type="html">&lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;br&gt;之前把博客部署在gitcafe和github上，不过最近得到了通知，gitcafe和coding合作了，原来在gitcafe上的服务到今年的5月份就停了。&lt;/p&gt;
-&lt;p&gt;所以只能把原来部署在cafe上的博客移交到coding了&lt;/p&gt;
-&lt;p&gt;现在有两个稳定可访问的域名：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://phantom0301.github.io&quot; title=&quot;phantom0301.github.io&quot;&gt;phantom0301.github.io&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://phantom0301.coding.io&quot; title=&quot;phantom0301.coding.me&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;phantom0301.coding.me&lt;/a&gt;&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;gitcafe博客&lt;strong&gt;搬家&lt;/strong&gt;了~~&lt;br&gt;
-    
-    </summary>
-    
-      <category term="感悟" scheme="http://phantom0301.github.io/categories/%E6%84%9F%E6%82%9F/"/>
-    
-    
-      <category term="感悟" scheme="http://phantom0301.github.io/tags/%E6%84%9F%E6%82%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HEXO+github搭建博客总结</title>
-    <link href="http://phantom0301.github.io/2016/02/20/Hexo/"/>
-    <id>http://phantom0301.github.io/2016/02/20/Hexo/</id>
-    <published>2016-02-20T08:21:27.000Z</published>
-    <updated>2016-08-04T07:55:55.691Z</updated>
-    
-    <content type="html">&lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下。&lt;/p&gt;
-&lt;p&gt;另外，有许多资料都是针对hexo2.x版本的，我现在的版本是3.1.1。查找资料的时候一定要注意。这里只是列出问题查找的方向，根据这个方向更便于在网上找到解决的方法。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-准备&quot;&gt;&lt;a href=&quot;#0x01-准备&quot; class=&quot;headerlink&quot; title=&quot;0x01 准备&quot;&gt;&lt;/a&gt;0x01 准备&lt;/h2&gt;&lt;p&gt;1.github账号：安装git，申请github账号，设置好ssh。再新建一个项目，然后在项目的setting中设置为个人页面。&lt;/p&gt;
-&lt;p&gt;2.安装node.js，使用npm命令安装hexo，后面还会大量的用到npm来安装。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;npm install -g hexo
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x02-搭建基本框架&quot;&gt;&lt;a href=&quot;#0x02-搭建基本框架&quot; class=&quot;headerlink&quot; title=&quot;0x02 搭建基本框架&quot;&gt;&lt;/a&gt;0x02 搭建基本框架&lt;/h2&gt;&lt;p&gt;在本地电脑新建一个文件夹a，在a里使用git bash初始化一个hexo项目。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo init
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时会生成许多文件夹，在输入&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;npm install
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;安装一些必要包。&lt;/p&gt;
-&lt;p&gt;执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo generate
-hexo server -p 8080
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时候应该可以在本地用&lt;a href=&quot;http://localhost:8080打开原始框架页面了&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost:8080打开原始框架页面了&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;注意：&lt;/p&gt;
-&lt;p&gt;-p后面的端口要根据自己的情况来写，网上大多使用默认的4000，可是我的4000端口已经用了，这样就会导致网页打不开。&lt;/p&gt;
-&lt;p&gt;在本地打开成功后，就可以开始上传到github上了。&lt;/p&gt;
-&lt;p&gt;打开a里的_config.yml,推荐使用sublime，如果使用其他工具，请注意要保存时格式应为&lt;strong&gt;utf-8&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;找到deploy一栏，修改如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;deploy:
-  type: git
-  repository: https://github.com/你的github名/你的github名.github.io.git
-  branch: master
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;注意，这里作为个人页面的github项目一定要和用户名相同。&lt;/p&gt;
-&lt;p&gt;然后在git bash中输入&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo deploy
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里注意有两种deploy的方式，&lt;a href=&quot;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://的方式会要求你输入github的账号密码；ssh的方式只要事先设置好密钥就不再需要多余的操作了。&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;这时，就可以用&lt;strong&gt;你的github名.github.io&lt;/strong&gt;来访问&lt;/p&gt;
-&lt;h2 id=&quot;0x03-打磨博客&quot;&gt;&lt;a href=&quot;#0x03-打磨博客&quot; class=&quot;headerlink&quot; title=&quot;0x03 打磨博客&quot;&gt;&lt;/a&gt;0x03 打磨博客&lt;/h2&gt;&lt;p&gt;1.发表博文&lt;br&gt;使用&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo new “文章名”
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;新建博文，这时会在a/source/_post下生成相应的.md文件，打开编辑。&lt;br&gt;在——下面就可以使用markdown语法写博文。&lt;/p&gt;
-&lt;p&gt;写好后，保存，执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo generate
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;就可以在a/public中相应的位置生成博文。&lt;/p&gt;
-&lt;p&gt;那么以后的程式化操作就是&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;hexo new “  ” 写博文
-hexo clean 清除public
-hexo generate 编译
-hexo server -p 8080 本地测试
-hexo deploy 部署到远程服务器
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.装饰博客&lt;br&gt;基本框架布置好，装饰的事大家就各显神通了。&lt;/p&gt;
-&lt;p&gt;通常会在以下几个点进行修改&lt;/p&gt;
-&lt;p&gt;a/_config.yml&lt;/p&gt;
-&lt;p&gt;这里修改博客主页的名字，源信息，子页面url格式等&lt;/p&gt;
-&lt;p&gt;最重要的是主题的选用，插件的使用都在这里编辑完成。&lt;br&gt;如果你要使用rss、sitemap、更改deploy的对象就需要在这里修改&lt;/p&gt;
-&lt;p&gt;a/themes/&lt;br&gt;存放你找来的各种主题b、c、d……&lt;/p&gt;
-&lt;p&gt;a/themes/b/_config.yml&lt;br&gt;负责单个主题的框架修改，&lt;br&gt;包括网页的logo图片选择、框架中主菜单显示的文本及连接&lt;/p&gt;
-&lt;p&gt;a/public&lt;br&gt;静态生成的网页，也就是会上传到github上的文件。&lt;/p&gt;
-&lt;p&gt;网上有很多教程，而且如果前面都部署成功了，后面就可以自己慢慢geek了&lt;/p&gt;
-&lt;h2 id=&quot;0x04-其他的一些坑&quot;&gt;&lt;a href=&quot;#0x04-其他的一些坑&quot; class=&quot;headerlink&quot; title=&quot;0x04 其他的一些坑&quot;&gt;&lt;/a&gt;0x04 其他的一些坑&lt;/h2&gt;&lt;p&gt;github的博客可以被google站长收录，但是baidu被禁止爬去github，所以，如果想让baidu也能搜得到你，就部署在gitcafe上。&lt;/p&gt;
-&lt;p&gt;如果hexo generate报错，多半是两个地方的_config.yml更改的有问题，所以一是要备份yml文件或者从git上拉取之前部署成功的文件，二是要边改边generate在本地查看，一点点琢磨不同位置的属性。&lt;/p&gt;
-&lt;p&gt;a/_config.yml中的url设置如果没有购买域名的话，看似没有作用，但会影响生成的sitemap中的路径，所以在多个平台（github、gitcafe）部署的时候，不仅要修改deploy，还要根据需要修改url。&lt;/p&gt;
-&lt;p&gt;否则，即便sitemap能被百度站长工具访问到，也会提示说 &lt;strong&gt;主域验证错误&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;因为是事后总结，暂时想到的就这么多，其他还有什么安装过程中的问题可以直接博客留言，&lt;strong&gt;见即回 &lt;/strong&gt;  ：）&lt;/p&gt;
-&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;用hexo+github搭建个人博客，有许多坑值得去填，这里就把从各个博客学到的填坑方式在这里说一下。&lt;/p&gt;
-&lt;p&gt;另外，有许多资料都是针对hexo2.x版本的，我现在的版本是3.1.1。查找资料的时候一定要注意。这里只是列出问题查找的方向，根据这个方向更便于在网上找到解决的方法。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="HEXO" scheme="http://phantom0301.github.io/categories/HEXO/"/>
-    
-    
-      <category term="HEXO" scheme="http://phantom0301.github.io/tags/HEXO/"/>
-    
-      <category term="个人博客" scheme="http://phantom0301.github.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MHN开源蜜罐项目学习笔记（一）HPFEEDS协议</title>
-    <link href="http://phantom0301.github.io/2016/02/19/Hpfeeds/"/>
-    <id>http://phantom0301.github.io/2016/02/19/Hpfeeds/</id>
-    <published>2016-02-19T09:13:55.000Z</published>
-    <updated>2016-08-04T07:57:20.316Z</updated>
-    
-    <content type="html">&lt;p&gt;Hpfeeds和蜜罐是一对好搭档，想要完全掌握一个分布式蜜罐的信息传递，就来了解Hpfeeds协议吧！&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x00-hpfeeds协议是什么？&quot;&gt;&lt;a href=&quot;#0x00-hpfeeds协议是什么？&quot; class=&quot;headerlink&quot; title=&quot;0x00 hpfeeds协议是什么？&quot;&gt;&lt;/a&gt;0x00 hpfeeds协议是什么？&lt;/h2&gt;&lt;p&gt;feeds，供稿，原始数据。&lt;/p&gt;
-&lt;p&gt;hpfeeds是一个轻量级的验证发布-订阅协议(authenticated publish-subscribe protocol)。&lt;/p&gt;
-&lt;p&gt;轻量级好理解，就是代码量相对较少，功能相对不复杂。那什么是发布-订阅协议呢？订阅发布协议定义了一种一对多的依赖关系，让多个订阅者对象同时监听某一个主题对象。这个主题对象在自身状态变化时，会通知所有订阅者对象，使它们能够自动更新自己的状态。它是为了解决这样一种情况的发生，一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变。我的理解，这就类似于发传单，目标发送通知，没有指定特定的对象，通知会自动传播，观察者自己决定是否需要看传单，发送者对于传单是否被看一无所知。&lt;/p&gt;
-&lt;p&gt;详细的发布订阅者介绍可以戳这里：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://msdn.microsoft.com/en-us/library/ff649664.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://msdn.microsoft.com/en-us/library/ff649664.aspx&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;线路协议组成如下：&lt;/p&gt;
-&lt;p&gt;首先是消息头：有两个参数，消息总长和消息类型&lt;/p&gt;
-&lt;p&gt;消息类型有以下几种：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;error (0): errormessage
-info (1): server name, nonce
-auth (2): client id, sha1(nonce+authkey)
-publish (3): client id, channelname, payload
-subscribe (4): client id, channelname
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;数字代表消息类型，而冒号后面的内容则代表后续的消息字段&lt;/p&gt;
-&lt;p&gt;比如说当消息类型为3，publish时，后面的字段就会有四个：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;client id的长度
-client id
-channelname的长度
-channelname
-payload
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一个完整的消息如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;length | opcode | next | identifier | next | channelname|payload
-----------------------------------------------------------------
-85       3        9       b4aa2@hp1   9      mwcapture      137941a3d8589f6728924c08561070bceb5d72b8,http://1.2.3.4/calc.exe
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;消息有了，整个消息的认证过程就是以下的几个步骤：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;/li&gt;
-&lt;li&gt;服务器为每一个连接生成一个标志&lt;/li&gt;
-&lt;li&gt;客户端发送id 和 标志+authkey组成的sha1&lt;/li&gt;
-&lt;li&gt;服务器检查id和sha1&lt;/li&gt;
-&lt;li&gt;服务器检查数据类型，是要发布还是要订阅&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;最终实现服务器、发布者、订阅者之间的解耦，彼此之间完全独立，互不干扰。&lt;/p&gt;
-&lt;h2 id=&quot;0x01-为什么要用hpfeeds协议&quot;&gt;&lt;a href=&quot;#0x01-为什么要用hpfeeds协议&quot; class=&quot;headerlink&quot; title=&quot;0x01 为什么要用hpfeeds协议&quot;&gt;&lt;/a&gt;0x01 为什么要用hpfeeds协议&lt;/h2&gt;&lt;p&gt;首先，正如以上所说的，整个协议实现了三方的功能独立。使用这种方式降低了应用与业务逻辑之间的耦合，统一一个对外的发布接口，只需要关心监听的类型，不关心监听的具体处理人。只管发，不管到不到。很方便的建立一种一对多的依赖关系。&lt;/p&gt;
-&lt;p&gt;在当一个对象的改变需要同时改变其他对象，而且它不知道具体有多少对象需要改变时，就可以使用订阅发布模式。&lt;/p&gt;
-&lt;p&gt;hpfeeds协议希望能够实现一个单一的连线形式，使得每一个人都可以在任何时间以任何语言去订阅发布数据，不同的数据以通道来划分，由通道的使用者来决定数据结构形式。而通道的验证通过authkey来完成，它由两部分组成，ident和secret，相当于身份和密码。密码在hash后和每一个临时连接标志一起发送给服务器，这样保证不会被窃听，所以它可以运行在SSL、TLS下。&lt;/p&gt;
-&lt;p&gt;优点&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.降低耦合。发布者对于接收者的数量，身份，接收的数据类型一无所知。&lt;/li&gt;
-&lt;li&gt;2.安全性高。只有消息订阅者之间的单线信息交互，不存在其他程序的信息交换。&lt;/li&gt;
-&lt;li&gt;3.测试方便。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;缺点&lt;/p&gt;
-&lt;p&gt;性能降低，订阅要进行管理&lt;/p&gt;
-&lt;h2 id=&quot;0x02-如何操作&quot;&gt;&lt;a href=&quot;#0x02-如何操作&quot; class=&quot;headerlink&quot; title=&quot;0x02 如何操作&quot;&gt;&lt;/a&gt;0x02 如何操作&lt;/h2&gt;&lt;p&gt;正常安装使用hpfeeds的步骤如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;git clone https://github.com/rep/hpfeeds/
-cd hpfeeds
-python setup.py build
-python setup.py install
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;安装成功后，会出现下面几个文件夹。&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/1.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;appsuport：hpfeeds支持的一些蜜罐的应用程序&lt;/li&gt;
-&lt;li&gt;broker：服务器功能程序集，包括增加用户，服务器运行，查看所有用户信息等&lt;/li&gt;
-&lt;li&gt;build：一些编译环境&lt;/li&gt;
-&lt;li&gt;cli：用户程序&lt;/li&gt;
-&lt;li&gt;example：例程&lt;/li&gt;
-&lt;li&gt;lib：支持库&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;使用时先打开broker，运行其中的add_user.py添加用户信息：&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/2.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;根据提示信息，我们添加用户test，密码123456，拥有发布频道1，2，无订阅频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/3.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;再添加用户custom，密码123456，拥有订阅频道1，2，无发布频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/4.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;现在使用dump_users.py查看刚才创建的用户&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/5.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;如图所示，这里应经可以查看到刚才我们新建的用户了。&lt;/p&gt;
-&lt;p&gt;接下来，我们打开服务器feedbroker.py&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/6.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;再开启一个新的进程运行cli文件夹里的用户程序hpfeeds-client&lt;/p&gt;
-&lt;p&gt;先开启订阅者custom，使用1频道&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/7.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;此时，服务器端显示用户登录成功&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/8.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;我们再打开一个新的进程，以发布者test，使用1频道发布“helloworld”&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/9.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;我们可以看到发布者一旦发布完消息后，立即退出进程，并不确认消息是否收到&lt;/p&gt;
-&lt;p&gt;这时，服务器显示test登录成功&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/10.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;于此同时，订阅者custom成功接收到消息&lt;br&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/11.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;到此，一次完整的发送、接收消息的流程就走完了。&lt;/p&gt;
-&lt;p&gt;通过这一过程，我们发现，频道与用户分离，发送和订阅者身份平等，只需订阅者实时监听，发送者可以即时发送即时撤出。&lt;/p&gt;
-&lt;p&gt;这里是对于hpfeeds协议的简单介绍，下一部分我会从代码的角度进一步分析该协议，并适当对于协议功能进行添加。&lt;/p&gt;
-&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Hpfeeds和蜜罐是一对好搭档，想要完全掌握一个分布式蜜罐的信息传递，就来了解Hpfeeds协议吧！&lt;br&gt;
-    
-    </summary>
-    
-      <category term="蜜罐" scheme="http://phantom0301.github.io/categories/%E8%9C%9C%E7%BD%90/"/>
-    
-    
-      <category term="MHN" scheme="http://phantom0301.github.io/tags/MHN/"/>
-    
-      <category term="hpfeeds" scheme="http://phantom0301.github.io/tags/hpfeeds/"/>
-    
-      <category term="蜜罐" scheme="http://phantom0301.github.io/tags/%E8%9C%9C%E7%BD%90/"/>
+      <category term="namp" scheme="http://phantom0301.coding.me/tags/namp/"/>
     
   </entry>
   
