@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-12-08T06:12:06.851Z</updated>
+  <updated>2016-12-08T13:16:33.943Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -14,6 +14,98 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>前端用户身份识别实践</title>
+    <link href="http://phantom0301.github.io/2016/12/08/jsuser/"/>
+    <id>http://phantom0301.github.io/2016/12/08/jsuser/</id>
+    <published>2016-12-08T11:47:31.000Z</published>
+    <updated>2016-12-08T13:16:33.943Z</updated>
+    
+    <content type="html">&lt;p&gt;声明：郑重声明我不会在自己的博客页面里嵌入这里提到的任何代码。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-突破与困境&quot;&gt;&lt;a href=&quot;#0x01-突破与困境&quot; class=&quot;headerlink&quot; title=&quot;0x01 突破与困境&quot;&gt;&lt;/a&gt;0x01 突破与困境&lt;/h2&gt;&lt;p&gt;在之前的博客里提到，曾经的那个网页和浏览器都很单纯的年代，网站服务端们靠着bling、bling的五颜六色的文字吸引着浏览器们的眼球，一切都是那么的相安无事，岁月静好。&lt;/p&gt;
+&lt;p&gt;可是，蜜月不长，浏览器们就学会了提交一些不正常的数据给服务端，来让服务端出错。&lt;/p&gt;
+&lt;p&gt;又过了一段时间，浏览器们需要服务端不断地视觉刺激，于是服务端们在原本单一的HTML排版中加入了动态语言来实现更多的逻辑，然而这远远满足不了上帝的口味，接下来，CSS/JS/HTML5等提供更强大视觉效果和交互功能的体系被用在前端的展示中。&lt;/p&gt;
+&lt;p&gt;能力越大，责任越大，功能强劲的函数被编写支持，它的能力所带来的反噬效果也就越强大。原本用来突破性能瓶颈，优化用户体验的功能恰恰也带来了前端安全的困境。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-体验与隐私&quot;&gt;&lt;a href=&quot;#0x02-体验与隐私&quot; class=&quot;headerlink&quot; title=&quot;0x02 体验与隐私&quot;&gt;&lt;/a&gt;0x02 体验与隐私&lt;/h2&gt;&lt;p&gt;想要更好的体验吗？用你的隐私来交换吧~&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1.ActiveXObject对象，被禁断的危险。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;ActiveX 是一套广泛用于提供视频、动画内容的控件。它是微软的一个扩展，由于显而易见的危险，它只在IE中被支持，并且默认都是关闭的。即便你强行打开它的效果，现在的windows也会一直提醒你“赶快关上，没什么好用的”。总之，它是已经被封印了的及其危险的家伙，让我们一窥它的效果。&lt;br&gt;逻辑代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;var locator = new ActiveXObject (&amp;quot;WbemScripting.SWbemLocator&amp;quot;); 
+var service = locator.ConnectServer(&amp;quot;.&amp;quot;); 
+var properties = service.ExecQuery(&amp;quot;SELECT * FROM Win32_Processor&amp;quot;);  
+info+=&amp;quot;&amp;lt;tr  bgcolor=&amp;apos;#CDEDED&amp;apos; style=&amp;apos;font-weight: bold;&amp;apos; &amp;gt;&amp;lt;td width=&amp;apos;450&amp;apos; &amp;gt;CPU 信息&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+for (;!e.atEnd();e.moveNext ()) {   
+    var p = e.item ();   
+    info+=&amp;quot;&amp;lt;tr style=&amp;apos;color: red&amp;apos;&amp;gt;&amp;lt;td &amp;gt;CPU序列号:&amp;quot; + p.ProcessorID + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;&amp;quot;+p.Caption+&amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU编号：&amp;quot;+p.DeviceID+&amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU型号：&amp;quot; + p.Name + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU状态：&amp;quot; + p.CpuStatus + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU可用性：&amp;quot; + p.Availability + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CUP Level：&amp;quot; + p.Level + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;主机名称：&amp;quot; + p.SystemName + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
+    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;Processor Type：&amp;quot; + p.ProcessorType + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;; 
+}
+return info;
+}
+fnShowPrcName(&amp;quot;Win32_StartupCommand&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161208204109.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如上所示，这种方式可以获取系统级的信息&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2.navigator组函数，技能各异的兄弟。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Navigator对象包含了有关浏览器的信息，不同浏览器对它的支持各不相同，那么首先通过调用函数的回显就可以判断不同的浏览器了，主要在Firefox下对这一对象的方法进行了测试，以下函数都可以作为用户身份的一个分析维度。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;appCodeName，浏览器代码名————“Mozilla”&lt;/p&gt;
+&lt;p&gt;appName，浏览器名————“Netscape”&lt;/p&gt;
+&lt;p&gt;appVersion，浏览器版本————“5.0 (Windows)”&lt;/p&gt;
+&lt;p&gt;languages，浏览器语言————[“zh-CN”, “zh”, “en-US”, “en”]&lt;/p&gt;
+&lt;p&gt;oscpu，系统CPU————“Windows NT 10.0; WOW64”&lt;/p&gt;
+&lt;p&gt;userAgent，不用多说&lt;/p&gt;
+&lt;p&gt;plugins[]，浏览器安装插件&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这里首先要说一下这一个参数，通过获取浏览器安装的插件，其实我们就可以判断出一部分用户所安装过的应用，尤其是杀毒软件、社交软件、支付软件等往往会安装相应的浏览器插件，那么通过这些信息的获取，就可以作为用户异度的另一个参数。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;getBattery()，当前电池参数&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这是我想说的另一个点，我们知道如果使用移动设备访问网站，那么一方面不同用户访问时的电池状态会存在差异性，另一方面在短时间内，同一用户的电池状态存在一定稳定性，甚至是一个连贯的变化过程，那么通过获取电池状态信息就可以辅助我们判断用户身份。&lt;/p&gt;
+&lt;p&gt;一个简单的脑洞就是，构建相应的电池信息三元组，通过计算欧几里得距离来构建相关性图景。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;geolocation，地理位置获取&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这个需要用户在浏览器同意定位，在没有一个完整的IP地理库时，这也是一种画像手段。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;more&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;除了以上列举出的部分函数外，一些基于移动设备的调用在某些特殊应用场合也可以来对用户身份进行识别。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3.Canvas,你的个性绘图函数。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cookie追踪手段是众所周知的用户画像手法，而另一种被广泛提到且有效的手段就是Canvas绘图指纹。&lt;/p&gt;
+&lt;p&gt;Canvas作为HTML5中重要的绘图手段，被证实在绘制图形时，不同机器的不同浏览器对函数的实现都有略微的差别，而这种差异就可以很好的作为用户标记的手段。&lt;/p&gt;
+&lt;p&gt;具体来龙去脉这篇文章讲的很清楚，而且已经有现成的JS实现，这里就不在多说。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/miyeah/p/3967494.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/miyeah/p/3967494.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x03-小DEMO&quot;&gt;&lt;a href=&quot;#0x03-小DEMO&quot; class=&quot;headerlink&quot; title=&quot;0x03 小DEMO&quot;&gt;&lt;/a&gt;0x03 小DEMO&lt;/h2&gt;&lt;p&gt;如果希望测试我上面提到的各种好玩的信息获取，可以访问以下地址：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://123.207.68.169/test.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;A little demo&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;不过，请注意，访问之前请充分考虑您对于隐私的顾虑，我能够做的保证是：&lt;/p&gt;
+&lt;p&gt;一、不在我博客的网页中使用相应代码；&lt;/p&gt;
+&lt;p&gt;二、demo中只是把信息回显到您的浏览器，不做任何信息收集保留；&lt;/p&gt;
+&lt;p&gt;三、为了不被他人利用，DEMO中的代码经过了混淆。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;声明：郑重声明我不会在自己的博客页面里嵌入这里提到的任何代码。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Javascript" scheme="http://phantom0301.github.io/categories/Javascript/"/>
+    
+    
+      <category term="html5" scheme="http://phantom0301.github.io/tags/html5/"/>
+    
+      <category term="javascript" scheme="http://phantom0301.github.io/tags/javascript/"/>
+    
+      <category term="身份识别" scheme="http://phantom0301.github.io/tags/%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB/"/>
+    
+  </entry>
   
   <entry>
     <title>Python实现网页解析翻译</title>
@@ -893,7 +985,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#108;&amp;#x74;&amp;#x6f;&amp;#x3a;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&quot;&gt;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#x78;&quot;&gt;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&amp;#x40;&amp;#x78;&amp;#x78;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1435,211 +1527,6 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     
       <category term="蜜罐" scheme="http://phantom0301.github.io/tags/%E8%9C%9C%E7%BD%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>nmap7完全指南</title>
-    <link href="http://phantom0301.github.io/2016/03/11/nmap7/"/>
-    <id>http://phantom0301.github.io/2016/03/11/nmap7/</id>
-    <published>2016-03-11T02:50:07.000Z</published>
-    <updated>2016-08-04T07:57:52.428Z</updated>
-    
-    <content type="html">&lt;h2 id=&quot;0x00-基本介绍&quot;&gt;&lt;a href=&quot;#0x00-基本介绍&quot; class=&quot;headerlink&quot; title=&quot;0x00 基本介绍&quot;&gt;&lt;/a&gt;0x00 基本介绍&lt;/h2&gt;&lt;p&gt;整合了官网和网上的一些资料，本来是有配图的，但是一想到可能会暴露一些敏感信息，就不摆在这了，不足之处，欢迎交流。&lt;/p&gt;
-&lt;p&gt;Nmap现在最新的版本是Nmap 7。主要是增加了IPV6和ssl方面的支持。&lt;/p&gt;
-&lt;p&gt;Nmap，全称Network Mapper，开源网络探测与审计框架。使用构造异常IP包的方式来探测主机服务。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;完整的Namp套件包括界面图形化的Zenmap，数据传输、重定向与调试工具Ncat，扫描结果比较器Ndiff以及数据包生成与响应工具Nping。&lt;/p&gt;
-&lt;p&gt;最常规的Nmap组成指令为&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;nmap [扫描类型] [选项] [目标]
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x02-参数-【目标】&quot;&gt;&lt;a href=&quot;#0x02-参数-【目标】&quot; class=&quot;headerlink&quot; title=&quot;0x02 参数-【目标】&quot;&gt;&lt;/a&gt;0x02 参数-【目标】&lt;/h2&gt;&lt;p&gt;目标参数可以输入域名、IP、网络等&lt;br&gt;例如：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;www.baidu.com
-microsoft.com/24
-192.168.0.1
-10.0.0-255.1-254
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;另外还有如下参数可选：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;-iL &amp;lt;文件名&amp;gt;，从表单中读取扫描目标。&lt;/li&gt;
-&lt;li&gt;-iR &amp;lt;主机数量&amp;gt;，选取随机扫描目标，私有段ip、多播ip、未分配使用的ip会被自动跳过，&lt;0&gt;可以指定一个无休止的扫描，如果在一个雨天的午后，你十分无聊的时候，可以运行。&lt;br&gt;&lt;code&gt;nmap -Pn -sS -p 80 -iR 0 --open&lt;/code&gt;&lt;/0&gt;&lt;/li&gt;
-&lt;li&gt;–exclude &amp;lt;主机1&amp;gt;，&amp;lt;主机2&amp;gt;，跳过部分目标。&lt;/li&gt;
-&lt;li&gt;–exclude &amp;lt;文件名&amp;gt;，从表单中读取跳过目标。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&quot;0x03-参数-【主机发现】&quot;&gt;&lt;a href=&quot;#0x03-参数-【主机发现】&quot; class=&quot;headerlink&quot; title=&quot;0x03 参数-【主机发现】&quot;&gt;&lt;/a&gt;0x03 参数-【主机发现】&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;-sL，列表扫描，通过访问DNS的方式得到目标主机的ip。&lt;/li&gt;
-&lt;li&gt;-sn，不进行端口扫描，ping scan。&lt;/li&gt;
-&lt;li&gt;-Pn，不进行ping，强行扫描。&lt;/li&gt;
-&lt;li&gt;-PS &amp;lt;端口列表&amp;gt;，TCP SYN Ping扫描端口&lt;/li&gt;
-&lt;li&gt;-PA &amp;lt;端口列表&amp;gt;，TCP ACK Ping扫描端口&lt;/li&gt;
-&lt;li&gt;-PU &amp;lt;端口列表&amp;gt;，UDP Ping&lt;/li&gt;
-&lt;li&gt;-PY &amp;lt;端口列表&amp;gt;，SCTP INIT Ping&lt;/li&gt;
-&lt;li&gt;-PE;-PP;-PM，ICMP Ping Types&lt;/li&gt;
-&lt;li&gt;-PO &amp;lt;协议号&amp;gt;，IP Protocol Ping&lt;/li&gt;
-&lt;li&gt;-PR，ARP Ping&lt;/li&gt;
-&lt;li&gt;–disable-arp-pin 不使用ARP ping&lt;/li&gt;
-&lt;li&gt;–traceroute 探测到达主机的Trace路径&lt;/li&gt;
-&lt;li&gt;-n 不使用DNS结果&lt;/li&gt;
-&lt;li&gt;-R 始终使用DNS结果&lt;/li&gt;
-&lt;li&gt;–system-dns 使用系统的DNS解析，不请求域名服务器&lt;/li&gt;
-&lt;li&gt;–dns-servers &amp;lt;服务1&amp;gt;,&amp;lt;服务2&amp;gt; 查询的DNS服务器队列&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers&quot; title=&quot;protocol_list&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x04-参数-【端口扫描】&quot;&gt;&lt;a href=&quot;#0x04-参数-【端口扫描】&quot; class=&quot;headerlink&quot; title=&quot;0x04 参数-【端口扫描】&quot;&gt;&lt;/a&gt;0x04 参数-【端口扫描】&lt;/h2&gt;&lt;p&gt;使用六种状态描述端口状态：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;open，端口积极接收数据&lt;/li&gt;
-&lt;li&gt;closed，无应用程序监听此端口&lt;/li&gt;
-&lt;li&gt;filtered，端口难以抵达，无法准确判断&lt;/li&gt;
-&lt;li&gt;unfiltered，端口可以抵达，无法准确判断&lt;/li&gt;
-&lt;li&gt;open|filtered，两种状态不确定&lt;/li&gt;
-&lt;li&gt;closed|filtered，两种状态不确定&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;ol&gt;
-&lt;li&gt;-sS，TCP SYN scan，默认状态下的扫描模式，半开扫描，扫描快速，动静小。&lt;/li&gt;
-&lt;li&gt;-sT，TCP connect scan，当没有原始数据包特权时使用，容易被发现。&lt;/li&gt;
-&lt;li&gt;-sU，UDP scans，扫描UDP服务端口，DNS/SNMP/DHCP&lt;/li&gt;
-&lt;li&gt;-sY，SCTP INIT scan，SCTP是一种较新的用来替代TCP和UDP的协议，类似于1&lt;/li&gt;
-&lt;li&gt;-sN;-sF;-sX，TCP NULL, FIN, and Xmas scans，利用RFC 793的一些漏洞来判断端口状态。改变一些特殊标志的比特值。更加隐蔽，可以逃过一些防火墙，但是系统协议必须严格遵守RFC 793。&lt;/li&gt;
-&lt;li&gt;-sA，TCP ACK scan，不用来判断端口是否打开，用来探测防火墙过滤规则&lt;/li&gt;
-&lt;li&gt;-sW，TCP Window scan，类似ACK scan，增加不同系统的细节，但是结果不一定可信，甚至有可能正好相反。&lt;/li&gt;
-&lt;li&gt;-sM，TCP Maimon scan，Uriel Maimon发现的一些BSD的系统在端口打开时会简单的终止包&lt;/li&gt;
-&lt;li&gt;–scanflags，Custom TCP scan，自己通过TCP标志的设置构造自己的扫描，可以使用：&lt;/li&gt;
-&lt;/ol&gt;
-&lt;pre&gt;&lt;code&gt;*URG，紧急指针有效*
-
-*ACK，确认序号有效*
-
-*PSH，接收方应该尽快将这个报文段交给应用层*
-
-*RST，重建连接*
-
-*SYN，同步序号用来发起一个连接*
-
-*FIN，发送端完成发送任务*
-&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
-&lt;li&gt;-sZ，SCTP COOKIE ECHO scan&lt;/li&gt;
-&lt;li&gt;-sI &lt;zombie host=&quot;&quot;&gt;:&lt;probeport&gt;，idle scan，实现真正的盲扫，不会从你的真实IP发送包。使用边信道攻击实现僵尸机攻击。隐蔽性很好。&lt;/probeport&gt;&lt;/zombie&gt;&lt;/li&gt;
-&lt;li&gt;-sO，IP protocol scan，ip协议扫描。&lt;/li&gt;
-&lt;li&gt;-b，&amp;lt;主机&amp;gt;，FTP bounce scan，使用FTP代理扫描。因为使用FTP更容易绕过防火墙。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;blockquote&gt;
-&lt;p&gt;SCTP（Stream Control Transmission Protocol，流控制传输协议）&lt;/p&gt;
-&lt;p&gt;BSD (Berkeley Software Distribution，伯克利软件套件)是Unix的衍生系统&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;0x05-参数-【端口号】&quot;&gt;&lt;a href=&quot;#0x05-参数-【端口号】&quot; class=&quot;headerlink&quot; title=&quot;0x05 参数-【端口号】&quot;&gt;&lt;/a&gt;0x05 参数-【端口号】&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;-p &amp;lt;端口范围&amp;gt;&lt;/li&gt;
-&lt;li&gt;–exclude-ports &amp;lt;端口范围&amp;gt;&lt;/li&gt;
-&lt;li&gt;-F，快速扫描常用端口，比默认的端口更少&lt;/li&gt;
-&lt;li&gt;-r，按顺序扫描，默认情况下Nmap是随机扫描所指定的端口号的&lt;/li&gt;
-&lt;li&gt;–port-ratio &amp;lt;比例&amp;gt;0-1之间，大于给的比例扫描servuces文件中的端口。&lt;/li&gt;
-&lt;li&gt;–top-ports &amp;lt;数量&amp;gt;扫描指定数量的熟知端口&lt;h2 id=&quot;0x06-参数-【服务和版本检测】&quot;&gt;&lt;a href=&quot;#0x06-参数-【服务和版本检测】&quot; class=&quot;headerlink&quot; title=&quot;0x06 参数-【服务和版本检测】&quot;&gt;&lt;/a&gt;0x06 参数-【服务和版本检测】&lt;/h2&gt;&lt;/li&gt;
-&lt;li&gt;-sV，服务版本检测&lt;/li&gt;
-&lt;li&gt;–allports，版本检测不跳过任何端口，默认情况下会跳过TCP端口9100，因为一些打印机会打印传送到该端口的任何信息。&lt;/li&gt;
-&lt;li&gt;–version-intensity &amp;lt;强度&amp;gt; 0-9，修改版本扫描检测强度。&lt;/li&gt;
-&lt;li&gt;–version-light，强度2&lt;/li&gt;
-&lt;li&gt;–version-all，强度9&lt;/li&gt;
-&lt;li&gt;–version-trace，显示Nmap的版本识别过程&lt;h2 id=&quot;0x07-参数-【系统检测】&quot;&gt;&lt;a href=&quot;#0x07-参数-【系统检测】&quot; class=&quot;headerlink&quot; title=&quot;0x07 参数-【系统检测】&quot;&gt;&lt;/a&gt;0x07 参数-【系统检测】&lt;/h2&gt;&lt;/li&gt;
-&lt;li&gt;-O 开启系统检测&lt;/li&gt;
-&lt;li&gt;–osscan-limit，只检查一定条件的系统，有一个检测到的端口&lt;/li&gt;
-&lt;li&gt;–osscan-guess，百分比显示可能的系统选项&lt;/li&gt;
-&lt;li&gt;–max-os-tries，在未能匹配系统时，Nmap会重复检测5次，这个次数可以设置&lt;h2 id=&quot;0x08-参数-【NSE】&quot;&gt;&lt;a href=&quot;#0x08-参数-【NSE】&quot; class=&quot;headerlink&quot; title=&quot;0x08 参数-【NSE】&quot;&gt;&lt;/a&gt;0x08 参数-【NSE】&lt;/h2&gt;NSE,Nmap脚本引擎，Nmap里最强大最灵活的特性，允许用户编写LUA语言脚本实现各种测试任务。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;目前的脚本类别目录有：&lt;/p&gt;
-&lt;hr&gt;
-&lt;pre&gt;&lt;code&gt;auth，认证-目标系统身份验证
-broadcast，广播-广播发现目标
-brute，爆破-爆破身份验证
-default，缺省-默认调用
-discovery，发现-积极发现更多公共注册服务
-dos，拒绝服务-DOS攻击
-exploit，利用-利用一些漏洞
-external，外部-会将数据发送给第三方
-fuzzer，模糊测试-随机字段发送包，可以发现一些未被发现的漏洞
-intrusive，侵入-风险过高的脚本
-malware，恶意程序-测试目标是否被恶意程序感染
-safe，安全-风险很低的脚本
-version，版本-扩展版本检测功能，不能显式调用
-vuln，漏洞-检测特定的已知漏洞
-&lt;/code&gt;&lt;/pre&gt;&lt;hr&gt;
-&lt;ol&gt;
-&lt;li&gt;-sC，缺省脚本执行&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;–script &amp;lt;文件名&amp;gt;|&amp;lt;类别&amp;gt;|&amp;lt;目录&amp;gt;|&amp;lt;表达式&amp;gt;…，可以使用+来强制脚本运行，也可以用 &lt;em&gt;all&lt;/em&gt; 来遍历所有脚本，这两个选项要慎重使用&lt;/p&gt;
-&lt;p&gt; nmap –script “http-*” 加载所有http前缀的脚本&lt;/p&gt;
-&lt;p&gt; nmap –script “not intrusive”&lt;/p&gt;
-&lt;p&gt; nmap –script “default or safe”&lt;/p&gt;
-&lt;p&gt; nmap –script “default and safe”&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;–script-args &amp;lt;脚本&amp;gt;=&amp;lt;参数&amp;gt;,给脚本提供参数&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;–script-args-file &amp;lt;文件名&amp;gt;，从文件提供参数&lt;/li&gt;
-&lt;li&gt;–script-help &amp;lt;脚本名&amp;gt;，帮助&lt;/li&gt;
-&lt;li&gt;–script-trace 打印脚本执行过程&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;–script-updatedb，升级脚本库&lt;/p&gt;
-&lt;h2 id=&quot;0x09-参数-【时间与性能】&quot;&gt;&lt;a href=&quot;#0x09-参数-【时间与性能】&quot; class=&quot;headerlink&quot; title=&quot;0x09 参数-【时间与性能】&quot;&gt;&lt;/a&gt;0x09 参数-【时间与性能】&lt;/h2&gt;&lt;p&gt;时间单位：ms s m h&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;–min(max)-hostgroup &amp;lt;主机数&amp;gt;，调整并行扫描组主机数。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;–min(max)-parallelism &amp;lt;探针数&amp;gt;，调整并行探针数。&lt;/li&gt;
-&lt;li&gt;–min(max，initial)-rtt-timeout &amp;lt;时间&amp;gt;，调整探针超时时间&lt;/li&gt;
-&lt;li&gt;–max-retries &amp;lt;数量&amp;gt;，指定端口扫描探针最大值，最大重试次数&lt;/li&gt;
-&lt;li&gt;–host-timeout &amp;lt;时间&amp;gt;，放弃超时主机目标&lt;/li&gt;
-&lt;li&gt;–scan-delay &amp;lt;时间&amp;gt;，调整探针之间的延迟时间&lt;/li&gt;
-&lt;li&gt;–min(max)-rate &amp;lt;数字&amp;gt;，调整扫描速率，每秒发送的包数&lt;/li&gt;
-&lt;li&gt;-T &lt;0-5&gt;时间模板，越大越快&lt;h2 id=&quot;0x10-参数-【防火墙IDS逃逸】&quot;&gt;&lt;a href=&quot;#0x10-参数-【防火墙IDS逃逸】&quot; class=&quot;headerlink&quot; title=&quot;0x10 参数-【防火墙IDS逃逸】&quot;&gt;&lt;/a&gt;0x10 参数-【防火墙IDS逃逸】&lt;/h2&gt;&lt;/0-5&gt;&lt;/li&gt;
-&lt;li&gt;-f，分隔包碎片&lt;/li&gt;
-&lt;li&gt;-mtu，指定偏移量分隔包碎片&lt;/li&gt;
-&lt;li&gt;-D &amp;lt;诱饵&amp;gt;&amp;lt;,ME&amp;gt;，使用诱饵掩盖IP&lt;/li&gt;
-&lt;li&gt;-S &amp;lt; IP &amp;gt;，伪造源地址IP&lt;/li&gt;
-&lt;li&gt;-e &amp;lt; interface &amp;gt;，使用特定接口发送接收包&lt;/li&gt;
-&lt;li&gt;–source-port &amp;lt; portnum &amp;gt;，伪造源端口号&lt;/li&gt;
-&lt;li&gt;–data &amp;lt; hex string &amp;gt;，添加自定义二进制数据到发送包&lt;/li&gt;
-&lt;li&gt;–data &amp;lt; string &amp;gt;，添加自定义字符串到发送包&lt;/li&gt;
-&lt;li&gt;–data-length &amp;lt; num &amp;gt;，添加随机数据到发送包&lt;/li&gt;
-&lt;li&gt;–ip-option &amp;lt; hex string &amp;gt;，用指定的IP选项发送数据包&lt;/li&gt;
-&lt;li&gt;–ttl &amp;lt; value &amp;gt;，设置存活时间&lt;/li&gt;
-&lt;li&gt;–randomize-hosts，随机主机目标顺序&lt;/li&gt;
-&lt;li&gt;–spoof-mac &amp;lt; MAC,prefix,… &amp;gt;伪造MAC地址&lt;/li&gt;
-&lt;li&gt;–proxies &amp;lt; URL &amp;gt;，通过代理链中继TCP连接&lt;/li&gt;
-&lt;li&gt;–badsum，发送虚假校验和&lt;/li&gt;
-&lt;li&gt;–adler32，使用另一种校验和代替CRC32C&lt;h2 id=&quot;0x11-参数-【输出】&quot;&gt;&lt;a href=&quot;#0x11-参数-【输出】&quot; class=&quot;headerlink&quot; title=&quot;0x11 参数-【输出】&quot;&gt;&lt;/a&gt;0x11 参数-【输出】&lt;/h2&gt;&lt;/li&gt;
-&lt;li&gt;-oN &amp;lt; file &amp;gt;，正常输出&lt;/li&gt;
-&lt;li&gt;-oX，XML输出&lt;/li&gt;
-&lt;li&gt;-oS，脚本输出&lt;/li&gt;
-&lt;li&gt;-oG，已弃用&lt;/li&gt;
-&lt;li&gt;-oA，全格式&lt;/li&gt;
-&lt;li&gt;-v &amp;lt; level &amp;gt;，增加Nmap输出普通信息水平&lt;/li&gt;
-&lt;li&gt;-d &amp;lt; level &amp;gt;，增加调试信息输出水平&lt;/li&gt;
-&lt;li&gt;–reason，给出原因&lt;/li&gt;
-&lt;li&gt;–stats-every &amp;lt; time &amp;gt;，每过固定时间打印一次数据&lt;/li&gt;
-&lt;li&gt;–packet-trace，数据包路径&lt;/li&gt;
-&lt;li&gt;–open，显示打开的端口&lt;/li&gt;
-&lt;li&gt;–iflist，列表接口和路径&lt;/li&gt;
-&lt;li&gt;–append-output，结果添加到输出&lt;/li&gt;
-&lt;li&gt;–resume &lt;filename&gt;，恢复终止的扫描&lt;h2 id=&quot;0x12-参数-【混合选项】&quot;&gt;&lt;a href=&quot;#0x12-参数-【混合选项】&quot; class=&quot;headerlink&quot; title=&quot;0x12 参数-【混合选项】&quot;&gt;&lt;/a&gt;0x12 参数-【混合选项】&lt;/h2&gt;&lt;/filename&gt;&lt;/li&gt;
-&lt;li&gt;-6，开启IPv6扫描&lt;/li&gt;
-&lt;li&gt;-A，积极扫描策略（-O，-sV，-sC，–traceroute）&lt;/li&gt;
-&lt;li&gt;–datadir &amp;lt; directoryname &amp;gt; 指定Nmap数据文件&lt;/li&gt;
-&lt;li&gt;–servicedb &amp;lt; services file &amp;gt;，指定Nmap服务库&lt;/li&gt;
-&lt;li&gt;–versiondb &amp;lt; service probes file &amp;gt;，指定版本库&lt;/li&gt;
-&lt;li&gt;–release-memory，推出前释放内存&lt;/li&gt;
-&lt;li&gt;-V，显示版本号&lt;br&gt;参考：&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;a href=&quot;http://nmap.org&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://nmap.org&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.91ri.org/4105.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;实战高级用法&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.91ri.org/3870.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;绕过防火墙与脚本使用&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;0x00-基本介绍&quot;&gt;&lt;a href=&quot;#0x00-基本介绍&quot; class=&quot;headerlink&quot; title=&quot;0x00 基本介绍&quot;&gt;&lt;/a&gt;0x00 基本介绍&lt;/h2&gt;&lt;p&gt;整合了官网和网上的一些资料，本来是有配图的，但是一想到可能会暴露一些敏感信息，就不摆在这了，不足之处，欢迎交流。&lt;/p&gt;
-&lt;p&gt;Nmap现在最新的版本是Nmap 7。主要是增加了IPV6和ssl方面的支持。&lt;/p&gt;
-&lt;p&gt;Nmap，全称Network Mapper，开源网络探测与审计框架。使用构造异常IP包的方式来探测主机服务。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="安全工具" scheme="http://phantom0301.github.io/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
-    
-    
-      <category term="namp" scheme="http://phantom0301.github.io/tags/namp/"/>
     
   </entry>
   
