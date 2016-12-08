@@ -44,19 +44,20 @@
     <![endif]-->
 
     <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
-    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
 
     <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
     <!--[if IE]>
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
     <![endif]-->
 
     <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
     <script src="/js/jquery-1.11.1.min.js"></script>
+    <script src="/js/echarts.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
 
     <!-- Load these in the <head> for quicker IE8+ load times -->
@@ -285,6 +286,90 @@
 <p>曾经，学习过C、C++和单片机，在无线能量传输与开关电源方面有深入实践。</p>
 <p>现在，正在研究蜜罐和Mongo数据库，主要的技术栈集中在Python、信息安全方面。</p>
 <p>如果想联系我，可以发邮件phantom0309@sina.com</p>
+    <div id="main" style="width: 600px;height: 400px;"></div>
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+    title: {
+        text: ''
+    },
+    legend: {
+        data: ['']
+    },
+    radar: [{
+        name: {
+            formatter: '【{value}】',
+            textStyle: {
+                color: '#72ACD1'
+            }
+        },
+        splitArea: {
+            areaStyle: {
+                color: ['rgba(114, 172, 209, 0.2)',
+                    'rgba(114, 172, 209, 0.4)', 'rgba(114, 172, 209, 0.6)',
+                    'rgba(114, 172, 209, 0.8)', 'rgba(114, 172, 209, 1)'
+                ],
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 10
+            }
+        },
+        axisLine: {
+            lineStyle: {
+                color: 'rgba(255, 255, 255, 0.5)'
+            }
+        },
+        splitLine: {
+            lineStyle: {
+                color: 'rgba(255, 255, 255, 0.5)'
+            }
+        }
+    }, {
+        indicator: [{
+            text: 'Python',
+            max: 100
+        }, {
+            text: 'Pentest',
+            max: 100
+        }, {
+            text: 'Php',
+            max: 100
+        }, {
+            text: 'Mysql/mongoDB',
+            max: 100
+        }, {
+            text: 'C/C++',
+            max: 100
+        }, {
+            text: 'other',
+            max: 100
+        }],
+        center: ['50%', '50%'],
+        radius: 120
+    }],
+    series: [{
+        name: '成绩单',
+        type: 'radar',
+        radarIndex: 1,
+        data: [{
+            value: [90, 70, 40, 50, 40, 80],
+            name: '技能',
+            areaStyle: {
+                normal: {
+                    opacity: 0.9,
+                    color: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [{
+                        color: '#B8D3E4',
+                        offset: 0
+                    }, {
+                        color: '#72ACD1',
+                        offset: 1
+                    }])
+                }
+            }
+        }]
+    }]
+};
+myChart.setOption(option);
+    </script>
 
             <div class="clearfix"></div>
         </div>

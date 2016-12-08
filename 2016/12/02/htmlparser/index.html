@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>Python实现网页解析翻译 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(4)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(2)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-12-02T10:32:34.000Z" itemprop="datePublished">
+          2016-12-02
+      </time>
+    
+    
+    | 
+    <a href='/tags/htmlparser/'>htmlparser</a>,
+    
+    <a href='/tags/python/'>python</a>
+    
+    
+</span>
+                <h1>Python实现网页解析翻译</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>先不说主流的几款提供翻译接口的产品在翻译的水准上如何，就HTML标签识别来说，度娘恐怕没有谷歌和必应做的好。</p>
+<a id="more"></a>
+<h2 id="0x01-需求"><a href="#0x01-需求" class="headerlink" title="0x01 需求"></a>0x01 需求</h2><p>最近需要写程序翻译一批英文网页，要求翻译后的网页排版样式基本不变。经过前期测试发现，Google和Bing的在线翻译可以直接识别出HTML的标签：</p>
+<p>类似这样，看起来很舒心~~：</p>
+<p><img src="http://phantom0301.cc/achiveimg/qweasdwfdeqw20161202201213.jpg" alt=""></p>
+<p>换做度娘，Oh~：</p>
+<p><img src="http://phantom0301.cc/achiveimg/rhsrthser20161202201502.jpg" alt=""></p>
+<p>本以为是因为度娘没有做网页翻译插件的打算，所以没这个功能，但是查证后发现——其实百度是支持网页翻译的——也就是理论上应该可以识别网页标签，也许是我的姿势不对  (O.O)_?  求证大家的操作心得。</p>
+<p>总之，在正常的百度翻译API调用下无法实现很好的解析翻译网页，而能够实现这一功能的另两位也有客观上的难度，Google就不用说了，如果要调用就需要在程序上挂一个代理；那么，Bing这厮呢？要申请它的API过程太繁琐，一是大陆这边好像这项服务选项为空，另外通过其他手段拿到的好像也是试用key。最终，决定自己写个中间件，处理标签后送入百度，拿到翻译结果再重组标签。</p>
+<h2 id="0x02-框架"><a href="#0x02-框架" class="headerlink" title="0x02 框架"></a>0x02 框架</h2><p>决定自己写处理程序后面临两种选择，一种是一个网页每对闭合标签调用一次API，另一种是一个网页一次性全部翻译后再分割。</p>
+<p>两种方法的不同之处在于，前者实现简单，但是每个网页多次调用API增加时间开销且浪费API调用次数，所以使用第二种方式实现。</p>
+<p>预期结构如下：</p>
+<pre><code>读取网页 ——&gt; 剔除标签，生成文本&amp;标签数组 ——&gt; 数组文本翻译
+                                             |
+                                            \ /
+翻译完成  &lt;—— 标签数组，文本数组组合  &lt;—— 结果重分割数组
+</code></pre><ol>
+<li>剔除标签，生成文本标签数组。</li>
+</ol>
+<p>Python下有很多好用的HTML解析包，例如BS4，lxml，xpath等等，但是它们的封装都很高级，这里我只需要最简单的识别出标签和文本，所以使用代码更简单的HTMLParser来实现。</p>
+<p>HTMLParser是一个基于正则匹配的解析包，它写好了HTML的正则规则，提供了一个类给使用者继承，个人觉得包本身的核心是它的 <em>goahead</em> 函数，利用这种步步识别的方法来解析HTML。</p>
+<p>继承的类中，重写了如下方法：</p>
+<pre><code>def handle_starttag(self, tag, attrs):
+    attr = &apos;&apos;
+    for i in attrs:
+        attr = i[0]+&apos;=&apos;+i[1]  # 恢复标签属性值
+    if attr == &apos;&apos;:
+        self.parser_dic.append(&apos;&lt;&apos;+tag+&apos;&gt;&apos;)
+    else:
+        self.parser_dic.append(&apos;&lt;&apos;+tag+&apos; &apos;+attr+&apos;&gt;&apos;)
+def handle_endtag(self, tag):
+    self.parser_dic.append(&apos;&lt;/&apos;+tag+&apos;&gt;&apos;)
+def handle_startendtag(self, tag, attrs):
+    attr = &apos;&apos;
+    for i in attrs:
+        attr = i[0]+&apos;=&apos;+&apos;&quot;&apos;+i[1]+&apos;&quot;&apos;
+    if attr == &apos;&apos;:
+        self.parser_dic.append(&apos;&lt;&apos;+tag+&apos;&gt;&apos;)
+    else:
+        self.parser_dic.append(&apos;&lt;&apos;+tag+&apos; &apos;+attr+&apos;&gt;&apos;)
+def handle_data(self, data):
+    self.parser_dic.append(data)
+def handle_comment(self, data):
+    self.parser_dic.append(&apos;&lt;!-- --&gt;&apos;)
+def handle_entityref(self, name):
+    self.parser_dic.append(&apos;&amp;&apos;+name+&apos;;&apos;)
+def handle_charref(self, name):
+    self.parser_dic.append(&apos;&amp;#&apos;+name+&apos;;&apos;)
+def output(self):
+    return self.parser_dic
+</code></pre><p>通过调用父类中的 <em>feed</em> 方法来解析网页，解析结果输出成为一个按照顺序排列的标签和文本混合的数组。</p>
+<p>遍历数组，提取文本数组，遍历文本数组，添加分割符，组合成一个含有分隔符的文本。</p>
+<p>混合数组如下：</p>
+<p><img src="http://phantom0301.cc/achiveimg/dhdjdtj20161202211106.jpg" alt=""></p>
+<p>添加分割符如下：<br><img src="http://phantom0301.cc/achiveimg/20161202212045.jpg" alt=""></p>
+<p>2.数组翻译</p>
+<p>直接将含有分隔符的文本按照百度API调用规则发送，这个不需要多说。</p>
+<p>3.结果重分割</p>
+<p>使用文本自带的 <em>split</em> 或者正则的对应函数分割之前的分隔符，形成文本数组</p>
+<p>4.标签重组</p>
+<p>这一部分就是重新遍历之前的标签文本混合数组，遇见非标签的内容，就用翻译后的文本数组替换，这样依次替换完成就可以实现保留标签的文本翻译。</p>
+<h2 id="0x03-问题"><a href="#0x03-问题" class="headerlink" title="0x03 问题"></a>0x03 问题</h2><p>实际操作绝大多数情况下是可行的。</p>
+<p>但是也有些问题，一是百度API一次翻译的字数有限，这就意味着，还需要做文本分割，而分割时又要考虑标签的完整性。二是分割符的选择，分隔符有时候也会引起翻译结果的混乱，初步测试使用“|”相对效果较好，后期可能使用多个分割符来防止分割符和文本本身符号混淆。</p>
+<p>最后放一张整个完成后的翻译效果图<br><img src="http://phantom0301.cc/achiveimg/20161202213133.jpg" alt=""></p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2016/10/27/Zmapread/">
+        Zmap论文简读 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2016/12/02/htmlparser/" data-title="Python实现网页解析翻译" data-url="http://phantom0301.github.io/2016/12/02/htmlparser/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+<a href="https://github.com/phantom0301"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/82b228a3648bf44fc1163ef44c62fcc60081495e/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+</body>
+</html>
