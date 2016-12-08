@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.github.io/"/>
-  <updated>2016-12-02T13:33:02.436Z</updated>
+  <updated>2016-12-08T06:12:06.851Z</updated>
   <id>http://phantom0301.github.io/</id>
   
   <author>
@@ -20,15 +20,15 @@
     <link href="http://phantom0301.github.io/2016/12/02/htmlparser/"/>
     <id>http://phantom0301.github.io/2016/12/02/htmlparser/</id>
     <published>2016-12-02T10:32:34.000Z</published>
-    <updated>2016-12-02T13:33:02.436Z</updated>
+    <updated>2016-12-08T06:12:06.851Z</updated>
     
     <content type="html">&lt;p&gt;先不说主流的几款提供翻译接口的产品在翻译的水准上如何，就HTML标签识别来说，度娘恐怕没有谷歌和必应做的好。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;0x01-需求&quot;&gt;&lt;a href=&quot;#0x01-需求&quot; class=&quot;headerlink&quot; title=&quot;0x01 需求&quot;&gt;&lt;/a&gt;0x01 需求&lt;/h2&gt;&lt;p&gt;最近需要写程序翻译一批英文网页，要求翻译后的网页排版样式基本不变。经过前期测试发现，Google和Bing的在线翻译可以直接识别出HTML的标签：&lt;/p&gt;
 &lt;p&gt;类似这样，看起来很舒心~~：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/qweasdwfdeqw20161202201213.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/qweasdwfdeqw20161202201213.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;换做度娘，Oh~：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/rhsrthser20161202201502.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/rhsrthser20161202201502.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;本以为是因为度娘没有做网页翻译插件的打算，所以没这个功能，但是查证后发现——其实百度是支持网页翻译的——也就是理论上应该可以识别网页标签，也许是我的姿势不对  (O.O)_?  求证大家的操作心得。&lt;/p&gt;
 &lt;p&gt;总之，在正常的百度翻译API调用下无法实现很好的解析翻译网页，而能够实现这一功能的另两位也有客观上的难度，Google就不用说了，如果要调用就需要在程序上挂一个代理；那么，Bing这厮呢？要申请它的API过程太繁琐，一是大陆这边好像这项服务选项为空，另外通过其他手段拿到的好像也是试用key。最终，决定自己写个中间件，处理标签后送入百度，拿到翻译结果再重组标签。&lt;/p&gt;
 &lt;h2 id=&quot;0x02-框架&quot;&gt;&lt;a href=&quot;#0x02-框架&quot; class=&quot;headerlink&quot; title=&quot;0x02 框架&quot;&gt;&lt;/a&gt;0x02 框架&lt;/h2&gt;&lt;p&gt;决定自己写处理程序后面临两种选择，一种是一个网页每对闭合标签调用一次API，另一种是一个网页一次性全部翻译后再分割。&lt;/p&gt;
@@ -75,8 +75,8 @@ def output(self):
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;通过调用父类中的 &lt;em&gt;feed&lt;/em&gt; 方法来解析网页，解析结果输出成为一个按照顺序排列的标签和文本混合的数组。&lt;/p&gt;
 &lt;p&gt;遍历数组，提取文本数组，遍历文本数组，添加分割符，组合成一个含有分隔符的文本。&lt;/p&gt;
 &lt;p&gt;混合数组如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/dhdjdtj20161202211106.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;添加分割符如下：&lt;br&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20161202212045.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/dhdjdtj20161202211106.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;添加分割符如下：&lt;br&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161202212045.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;2.数组翻译&lt;/p&gt;
 &lt;p&gt;直接将含有分隔符的文本按照百度API调用规则发送，这个不需要多说。&lt;/p&gt;
 &lt;p&gt;3.结果重分割&lt;/p&gt;
@@ -85,7 +85,7 @@ def output(self):
 &lt;p&gt;这一部分就是重新遍历之前的标签文本混合数组，遇见非标签的内容，就用翻译后的文本数组替换，这样依次替换完成就可以实现保留标签的文本翻译。&lt;/p&gt;
 &lt;h2 id=&quot;0x03-问题&quot;&gt;&lt;a href=&quot;#0x03-问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 问题&quot;&gt;&lt;/a&gt;0x03 问题&lt;/h2&gt;&lt;p&gt;实际操作绝大多数情况下是可行的。&lt;/p&gt;
 &lt;p&gt;但是也有些问题，一是百度API一次翻译的字数有限，这就意味着，还需要做文本分割，而分割时又要考虑标签的完整性。二是分割符的选择，分隔符有时候也会引起翻译结果的混乱，初步测试使用“|”相对效果较好，后期可能使用多个分割符来防止分割符和文本本身符号混淆。&lt;/p&gt;
-&lt;p&gt;最后放一张整个完成后的翻译效果图&lt;br&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20161202213133.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;最后放一张整个完成后的翻译效果图&lt;br&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161202213133.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 </content>
     
     <summary type="html">
@@ -893,7 +893,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#105;&amp;#108;&amp;#x74;&amp;#111;&amp;#58;&amp;#120;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&quot;&gt;&amp;#120;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#120;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#x69;&amp;#108;&amp;#116;&amp;#x6f;&amp;#58;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#120;&quot;&gt;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&amp;#x40;&amp;#120;&amp;#120;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
