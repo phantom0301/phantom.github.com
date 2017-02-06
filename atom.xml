@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.me/"/>
-  <updated>2016-12-09T01:58:25.813Z</updated>
+  <updated>2017-02-06T03:41:14.262Z</updated>
   <id>http://phantom0301.coding.me/</id>
   
   <author>
@@ -14,6 +14,57 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Swf文件利用姿势学习-CVE-2017-5494</title>
+    <link href="http://phantom0301.coding.me/2017/02/06/cveswf/"/>
+    <id>http://phantom0301.coding.me/2017/02/06/cveswf/</id>
+    <published>2017-02-06T01:04:43.000Z</published>
+    <updated>2017-02-06T03:41:14.262Z</updated>
+    
+    <content type="html">&lt;p&gt;年前学习审计的时候找到的一个CMS的小漏洞，漏洞的发现过程没有什么值得特别介绍的，不过flash的swf文件利用方法之前没有了解过，借此机会学习一下。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-漏洞简介&quot;&gt;&lt;a href=&quot;#0x01-漏洞简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 漏洞简介&quot;&gt;&lt;/a&gt;0x01 漏洞简介&lt;/h2&gt;&lt;p&gt;CVE列表戳这里：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5494&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;CVE-2017-5494&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;B2evolution是一个功能丰富的blog管理系统，可以建立多权限的社区管理平台。事实上，它的官网就是用自己的系统搭建的。而在它的6.8.4版本中，允许普通用户在设置头像或者评论博客时上传Swf文件，这就使得我们至少可以使用Swf文件来实现跨站脚本。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170206093315.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;上图是它在更新版本中的漏洞修复，将swf文件的上传权限设为admin。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-姿势利用&quot;&gt;&lt;a href=&quot;#0x02-姿势利用&quot; class=&quot;headerlink&quot; title=&quot;0x02 姿势利用&quot;&gt;&lt;/a&gt;0x02 姿势利用&lt;/h2&gt;&lt;p&gt;原理性的东西可以参考这一篇文章&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.secpulse.com/archives/44299.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://www.secpulse.com/archives/44299.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;B2evolution使用flowplayer来加载swf文件。&lt;br&gt;当然这和传统的flash SWF漏洞不太一样，传统的SWF漏洞是通过阅读服务器上的SWF源码，通过SWF执行时的一些输入参数来实现漏洞利用，而在这里，我们是可以任意上传一个SWF文件，也就是说，漏洞点什么的完全可以由我们构造，这样理解的话，我觉得CVE-2017-5494其实不单单是XSS这一种玩法，这其实更像是一个命令执行点。&lt;/p&gt;
+&lt;p&gt;通过查阅资料，大致的payload可以有这两种构造方式：&lt;br&gt;一种是将SWF文件反编译后，直接在其中增加恶意代码&lt;br&gt;一种是反编译后，通过flash动画制作软件以动作-帧的方式添加脚本，没错，就是古老的网上一搜一大把的flash马的入门玩法。&lt;/p&gt;
+&lt;p&gt;作为漏洞发掘，我使用第二种方式来快速构造执行文件。&lt;/p&gt;
+&lt;p&gt;首先从网上下载一段正常的swf视频，反编译导出为fla格式，反编译工具有很多，《Web前端黑客技术揭秘》里提到过SWFScan和swfdump，当然其实不追求HACK仪式感的话，闪客精灵也能很好的完成这部分需求。&lt;/p&gt;
+&lt;p&gt;反编译后，可以使用Macromedia Flash来制作，如图，可以直接使用软件带的函数快速插入功能，与浏览器及网络有关的函数主要说这两个：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;fscommand（） 可以直接执行命令的函数，不过只在本地有效。&lt;/li&gt;
+&lt;li&gt;getURL（） 我用这个函数来实现与Javascript通信，当然，在AS3中它有新函数来代替，但它依然可用。利用这个函数，我们至少可以实现xss和网页跳转两个功能。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170206111214.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在打开的fla文件中添加如下动作，&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;getURL(&amp;quot;javascript:alert(1)&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后重新导出当前文件为swf影片，即可上传使用。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-本地实战&quot;&gt;&lt;a href=&quot;#0x03-本地实战&quot; class=&quot;headerlink&quot; title=&quot;0x03 本地实战&quot;&gt;&lt;/a&gt;0x03 本地实战&lt;/h2&gt;&lt;p&gt;下载B2evolution的6.8.4版，按照提示安装完成后，注册任意普通用户，并在数据库中强制完成邮箱认证&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170206113347.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;任意点击一篇文章，使用评论中的上传功能，上传构造好的swf文件，然后预览相应的文件。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170206113332.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;即可成功执行相应命令。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-写在后面&quot;&gt;&lt;a href=&quot;#0x04-写在后面&quot; class=&quot;headerlink&quot; title=&quot;0x04 写在后面&quot;&gt;&lt;/a&gt;0x04 写在后面&lt;/h2&gt;&lt;p&gt;毫无疑问的是，利用上述方法实现的漏洞利用还很有限，如果熟悉ActionScript的话就可以直接敲代码来实现更复杂的逻辑，进而实现更强大的功能，而且这种利用方式如果结合软件本身自带的一些JS插件（比如有一个上传的JS脚本，但是应用本身的实现是无法利用的，那么我们或许可以自己写一个swf来加载js上传文件？），说不定有意想不到的效果。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;年前学习审计的时候找到的一个CMS的小漏洞，漏洞的发现过程没有什么值得特别介绍的，不过flash的swf文件利用方法之前没有了解过，借此机会学习一下。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="审计" scheme="http://phantom0301.coding.me/categories/%E5%AE%A1%E8%AE%A1/"/>
+    
+    
+      <category term="CVE" scheme="http://phantom0301.coding.me/tags/CVE/"/>
+    
+      <category term="swf" scheme="http://phantom0301.coding.me/tags/swf/"/>
+    
+  </entry>
   
   <entry>
     <title>前端用户指纹识别实践</title>
@@ -985,7 +1036,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#x6c;&amp;#x74;&amp;#111;&amp;#x3a;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&quot;&gt;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#x69;&amp;#108;&amp;#116;&amp;#111;&amp;#58;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#120;&amp;#x78;&amp;#120;&quot;&gt;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#x40;&amp;#x78;&amp;#120;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1464,62 +1515,6 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     <summary type="html">
     
       &lt;p&gt;之前都在卖盾了，这次讲讲卖矛的故事。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="蜜罐" scheme="http://phantom0301.coding.me/categories/%E8%9C%9C%E7%BD%90/"/>
-    
-    
-      <category term="蜜罐" scheme="http://phantom0301.coding.me/tags/%E8%9C%9C%E7%BD%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MHN学习笔记（二）Dionaea蜜罐架构</title>
-    <link href="http://phantom0301.coding.me/2016/03/17/DIonaea/"/>
-    <id>http://phantom0301.coding.me/2016/03/17/DIonaea/</id>
-    <published>2016-03-17T10:51:04.000Z</published>
-    <updated>2016-08-04T07:57:36.108Z</updated>
-    
-    <content type="html">&lt;p&gt;上次记录了学习hpfeeds协议的一些收获，这次将介绍开源项目中的一款模拟功能丰富的蜜罐——dionaea。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-前言&quot;&gt;&lt;a href=&quot;#0x01-前言&quot; class=&quot;headerlink&quot; title=&quot;0x01 前言&quot;&gt;&lt;/a&gt;0x01 前言&lt;/h2&gt;&lt;p&gt;百度、google、github一下dionaea，就能看到很多关于这个蜜罐的简介、使用情况以及对蜜罐捕获数据的分析。&lt;/p&gt;
-&lt;p&gt;其实dionaea项目现在可以分成两种，一种是原生的dioanea蜜罐，另一种是经过MHN改造后的dionaea，两者的服务模拟、捕获数据构成等略有不同。不过，这两种dionaea蜜罐我都尝试搭建并成功运行。所以，这次我打算从代码构成的角度讲讲dionaea蜜罐。&lt;/p&gt;
-&lt;p&gt;按照你能成功的方式安装好dionaea蜜罐后，dionaea文件夹下会有如下的几个文件。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;dioanea
-|-bin
-|-etc
-|-include
-|-lib
-|-share
-|-var
-&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;
-&lt;li&gt;bin：运行的主要程序的可执行文件&lt;/li&gt;
-&lt;li&gt;etc：dionaea的配置文件&lt;/li&gt;
-&lt;li&gt;include：各种系统的环境需求&lt;/li&gt;
-&lt;li&gt;lib：库文件以及服务模拟文件存储文件夹&lt;/li&gt;
-&lt;li&gt;var：蜜罐系统日志以及捕获数据的存储文件夹&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;这里，我会详细介绍配置文件和捕获数据文件&lt;/p&gt;
-&lt;h2 id=&quot;0x02-配置文件&quot;&gt;&lt;a href=&quot;#0x02-配置文件&quot; class=&quot;headerlink&quot; title=&quot;0x02 配置文件&quot;&gt;&lt;/a&gt;0x02 配置文件&lt;/h2&gt;&lt;pre&gt;&lt;code&gt;etc
-|-dionaea
-    |-dionaea.conf
-    |-dionaea.conf.dist
-    |-dionaea.conf.org
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;作为蜜罐的配置文件，这里对于蜜罐运行时加载的协议、文件存储的位置、监听的端口等做了详细的描述。&lt;/p&gt;
-&lt;p&gt;第一个参数是logging，负责存储蜜罐运行过程中的默认日志和出错日志的路径和日志等级设定&lt;/p&gt;
-&lt;p&gt;第二个参数是processors，负责加载几个对于捕获数据进行过滤的程序，包括二进制流、会话等&lt;/p&gt;
-&lt;p&gt;第三个参数是download，负责恶意程序的下载路径&lt;/p&gt;
-&lt;p&gt;第四个参数是bistreams，负责二进制流下载路径&lt;/p&gt;
-&lt;p&gt;第五个参数submit，负责第三方数据提交&lt;/p&gt;
-&lt;p&gt;第六个参数是listen，负责蜜罐监听ip的设置，有三种模式。getifaddrs模式监听所有ip，包括自己的127.0.0.1。manual模式允许用户设置不进行监听的ip。nl模式加载一个列表监听。&lt;/p&gt;
-&lt;p&gt;第七个参数是modules，加载用到的模块，lib中服务模拟的python程序就会在这里加载，捕获数据入库也在这里进行设置&lt;/p&gt;
-&lt;p&gt;从配置文件中，可以看出dionaea的许多功能都处于开发阶段，还有一部分功能被注释掉了，喜欢探索的高级玩家可以解开注释的封印，去试试dionaea的洪荒之力~~ 中二ing~~&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;上次记录了学习hpfeeds协议的一些收获，这次将介绍开源项目中的一款模拟功能丰富的蜜罐——dionaea。&lt;/p&gt;
     
     </summary>
     
