@@ -335,8 +335,16 @@ begin：
         if fitness(c) &gt; threshold:大于临界值
             add_to_population(c)将该基因加入种群
     remove(fittest)移除父代
-</code></pre><p>变异函数如下：<br>    Input：<br>        c 基因组内基因<br>    Output：<br>        c’ 变异基因<br>    begin：<br>        r = random()<br>        if r &gt; pm(变异可能性):<br>            mutate(c)</p>
-<p>生成一个随机数，如果它大于变异率，即变异发生。</p>
+</code></pre><p>变异函数如下：</p>
+<pre><code>Input：
+    c 基因组内基因
+Output：
+    c&apos; 变异基因
+begin：
+    r = random()
+    if r &gt; pm(变异可能性):
+        mutate(c)
+</code></pre><p>生成一个随机数，如果它大于变异率，即变异发生。</p>
 <p>当然，这里还有两个问题，杂交和变异到底如何表示，遗传学里的孟德尔的豌豆实验对于两组特征AaBb的豌豆杂交，产生多种基因组合的子代就是杂交，而变异就是一个子代本来是aabb，但是当变异发生，可能会成为Aabb。</p>
 <p>上面是生物学的描述方法，那么在计算机中我们就可以用编码来描述基因，比如一个特征1的编码可以是0001,2编码为0010.那么每两个二进制的数位代表一个基因，1和2杂交可以产生出0000,0001，0010三种子代，当然如果等概率假设的话实际数目应该是4个子代，三种基因。那么，这时，如果产生变异，0010就有可能成为0011，以此类推。</p>
 <p>而在这里，最后的基因组就是异常行为的特征值组。</p>
@@ -344,7 +352,9 @@ begin：
 <p>这里还有几点疑惑，首先，遗传算法重要的一个研究点就是如何定义基因，或者说是编码，而论文中并没有提出这种编码机制。其次，如果没理解错的话，文中的payload仅使用目标地址和目标端口，这种选取是否合适。另外，就是文中的伪代码描述也不是很清晰。</p>
 <p>当然，这篇文章有可能是建立在其他GA-IDS文章的基础上所以省略了上述说明。</p>
 <p>句式：</p>
+<blockquote>
 <p>In our system we use a two point crossover scheme where the two parents crossover at two different points producing a total of eight off springs out of which two are replicas of the parents itself which are discarded.</p>
+</blockquote>
 <p>好长的一段话，大意就是说这个两点杂交会产生8个子代，而和父代完全一样的两个子代会被丢弃。主句是we use a two point crossover scheme。where修饰前句，the two parents crossover producing a total of……，然后out of which two指代前面的offsprings，再下一个which修饰two。</p>
 
             <div class="clearfix"></div>
