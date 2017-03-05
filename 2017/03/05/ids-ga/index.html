@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>英文文献阅读-使用遗传算法的异常入侵检测 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(5)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(3)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-03-05T06:14:15.000Z" itemprop="datePublished">
+          2017-03-05
+      </time>
+    
+    
+    | 
+    <a href='/tags/GA/'>GA</a>,
+    
+    <a href='/tags/IDS/'>IDS</a>
+    
+    
+</span>
+                <h1>英文文献阅读-使用遗传算法的异常入侵检测</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>基于遗传算法进行入侵检测</p>
+<a id="more"></a>
+<h2 id="0x01-算法基础"><a href="#0x01-算法基础" class="headerlink" title="0x01 算法基础"></a>0x01 算法基础</h2><p>阅读的文献是CCSIT 2012的一篇论文</p>
+<p><em>Srinivasa K G. Application of Genetic Algorithms for Detecting Anomaly in Network Intrusion Detection Systems</em></p>
+<p>论文的核心部分是在GA算法本身的描述上，遗传算法主要是为了解决优化问题，正如它的名字，它模仿了自然界的生物遗传特性，首先提取个体的特征，也就是基因，进行杂交获取不同于父辈的基因，然后使用某种标度去计算子代是否是最优解，如果不是就再一次杂交迭代。</p>
+<h2 id="0x02-算法实现"><a href="#0x02-算法实现" class="headerlink" title="0x02 算法实现"></a>0x02 算法实现</h2><p>在入侵检测方面，文章利用GA算法来产生特征组，GA算法的伪代码如下：</p>
+<pre><code>Input:
+    x[i],代表i时刻的payload
+Output:
+    fittest,适当的基因
+begin:
+    for i in [0,G]:
+        min_dist = INFINITY
+        fittest = 0
+        for c in Chromosome:
+            dist = manhattan_dis(c,x[i])
+            if dist &lt;= min_dist:
+                fittest = i
+                min_dist = dist
+        crossover(fittest,x[i])
+        for c in Chromosome:
+            mutation(c)
+</code></pre><p>其中G是子代迭代次数，Chromosome是测试后适合加入种群的基因c的基因组，测量的标度是c和x的曼哈顿距离。</p>
+<p>另外还有两个函数，杂交函数crossover和变异函数mutation。</p>
+<p>如伪代码所表示的，在一次次的子代繁殖中，确定出当前的测量值dist，然后将子代与这一代的基因进行杂交，杂交后会产生新的基因组种群，为了快速探索到整个特征空间，引入变异函数来加快这一探索过程。</p>
+<p>杂交函数伪代码如下：</p>
+<pre><code>Input:
+    x[i]
+    fittest 合适的基因
+Output：
+    子代及子代基因，如果满足条件，加入基因组
+begin：
+    Children[6] = Cross(fittest,x[i])
+    杂交后产生的除去2个与父代相同的子代后剩下的6个子代（很拗口的一句话，总之就是2个父代——8个子代——减去2个子代=6个子代）
+    for c in Children:
+        if fitness(c) &gt; threshold:大于临界值
+            add_to_population(c)将该基因加入种群
+    remove(fittest)移除父代
+</code></pre><p>变异函数如下：<br>    Input：<br>        c 基因组内基因<br>    Output：<br>        c’ 变异基因<br>    begin：<br>        r = random()<br>        if r &gt; pm(变异可能性):<br>            mutate(c)</p>
+<p>生成一个随机数，如果它大于变异率，即变异发生。</p>
+<p>当然，这里还有两个问题，杂交和变异到底如何表示，遗传学里的孟德尔的豌豆实验对于两组特征AaBb的豌豆杂交，产生多种基因组合的子代就是杂交，而变异就是一个子代本来是aabb，但是当变异发生，可能会成为Aabb。</p>
+<p>上面是生物学的描述方法，那么在计算机中我们就可以用编码来描述基因，比如一个特征1的编码可以是0001,2编码为0010.那么每两个二进制的数位代表一个基因，1和2杂交可以产生出0000,0001，0010三种子代，当然如果等概率假设的话实际数目应该是4个子代，三种基因。那么，这时，如果产生变异，0010就有可能成为0011，以此类推。</p>
+<p>而在这里，最后的基因组就是异常行为的特征值组。</p>
+<h2 id="0x03-疑惑"><a href="#0x03-疑惑" class="headerlink" title="0x03 疑惑"></a>0x03 疑惑</h2><p>整个论文的核心其实就是上述的一整套算法，接着论文利用这套算法与另一篇论文中的PAYL进行对比，并最终得到结论，论文的算法拥有更高的检出率和更低的误报率，并且训练速度较快。</p>
+<p>这里还有几点疑惑，首先，遗传算法重要的一个研究点就是如何定义基因，或者说是编码，而论文中并没有提出这种编码机制。其次，如果没理解错的话，文中的payload仅使用目标地址和目标端口，这种选取是否合适。另外，就是文中的伪代码描述也不是很清晰。</p>
+<p>当然，这篇文章有可能是建立在其他GA-IDS文章的基础上所以省略了上述说明。</p>
+<p>句式：</p>
+<p>In our system we use a two point crossover scheme where the two parents crossover at two different points producing a total of eight off springs out of which two are replicas of the parents itself which are discarded.</p>
+<p>好长的一段话，大意就是说这个两点杂交会产生8个子代，而和父代完全一样的两个子代会被丢弃。主句是we use a two point crossover scheme。where修饰前句，the two parents crossover producing a total of……，然后out of which two指代前面的offsprings，再下一个which修饰two。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2017/02/08/harborpass/">
+        Harbor中的用户密码加密机制探究 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2017/03/05/ids-ga/" data-title="英文文献阅读-使用遗传算法的异常入侵检测" data-url="http://phantom0301.coding.me/2017/03/05/ids-ga/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+</html>

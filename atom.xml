@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.me/"/>
-  <updated>2017-02-09T02:09:20.530Z</updated>
+  <updated>2017-03-05T07:32:09.353Z</updated>
   <id>http://phantom0301.coding.me/</id>
   
   <author>
@@ -14,6 +14,79 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>英文文献阅读-使用遗传算法的异常入侵检测</title>
+    <link href="http://phantom0301.coding.me/2017/03/05/ids-ga/"/>
+    <id>http://phantom0301.coding.me/2017/03/05/ids-ga/</id>
+    <published>2017-03-05T06:14:15.000Z</published>
+    <updated>2017-03-05T07:32:09.353Z</updated>
+    
+    <content type="html">&lt;p&gt;基于遗传算法进行入侵检测&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-算法基础&quot;&gt;&lt;a href=&quot;#0x01-算法基础&quot; class=&quot;headerlink&quot; title=&quot;0x01 算法基础&quot;&gt;&lt;/a&gt;0x01 算法基础&lt;/h2&gt;&lt;p&gt;阅读的文献是CCSIT 2012的一篇论文&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Srinivasa K G. Application of Genetic Algorithms for Detecting Anomaly in Network Intrusion Detection Systems&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;论文的核心部分是在GA算法本身的描述上，遗传算法主要是为了解决优化问题，正如它的名字，它模仿了自然界的生物遗传特性，首先提取个体的特征，也就是基因，进行杂交获取不同于父辈的基因，然后使用某种标度去计算子代是否是最优解，如果不是就再一次杂交迭代。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-算法实现&quot;&gt;&lt;a href=&quot;#0x02-算法实现&quot; class=&quot;headerlink&quot; title=&quot;0x02 算法实现&quot;&gt;&lt;/a&gt;0x02 算法实现&lt;/h2&gt;&lt;p&gt;在入侵检测方面，文章利用GA算法来产生特征组，GA算法的伪代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Input:
+    x[i],代表i时刻的payload
+Output:
+    fittest,适当的基因
+begin:
+    for i in [0,G]:
+        min_dist = INFINITY
+        fittest = 0
+        for c in Chromosome:
+            dist = manhattan_dis(c,x[i])
+            if dist &amp;lt;= min_dist:
+                fittest = i
+                min_dist = dist
+        crossover(fittest,x[i])
+        for c in Chromosome:
+            mutation(c)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;其中G是子代迭代次数，Chromosome是测试后适合加入种群的基因c的基因组，测量的标度是c和x的曼哈顿距离。&lt;/p&gt;
+&lt;p&gt;另外还有两个函数，杂交函数crossover和变异函数mutation。&lt;/p&gt;
+&lt;p&gt;如伪代码所表示的，在一次次的子代繁殖中，确定出当前的测量值dist，然后将子代与这一代的基因进行杂交，杂交后会产生新的基因组种群，为了快速探索到整个特征空间，引入变异函数来加快这一探索过程。&lt;/p&gt;
+&lt;p&gt;杂交函数伪代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Input:
+    x[i]
+    fittest 合适的基因
+Output：
+    子代及子代基因，如果满足条件，加入基因组
+begin：
+    Children[6] = Cross(fittest,x[i])
+    杂交后产生的除去2个与父代相同的子代后剩下的6个子代（很拗口的一句话，总之就是2个父代——8个子代——减去2个子代=6个子代）
+    for c in Children:
+        if fitness(c) &amp;gt; threshold:大于临界值
+            add_to_population(c)将该基因加入种群
+    remove(fittest)移除父代
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;变异函数如下：&lt;br&gt;    Input：&lt;br&gt;        c 基因组内基因&lt;br&gt;    Output：&lt;br&gt;        c’ 变异基因&lt;br&gt;    begin：&lt;br&gt;        r = random()&lt;br&gt;        if r &amp;gt; pm(变异可能性):&lt;br&gt;            mutate(c)&lt;/p&gt;
+&lt;p&gt;生成一个随机数，如果它大于变异率，即变异发生。&lt;/p&gt;
+&lt;p&gt;当然，这里还有两个问题，杂交和变异到底如何表示，遗传学里的孟德尔的豌豆实验对于两组特征AaBb的豌豆杂交，产生多种基因组合的子代就是杂交，而变异就是一个子代本来是aabb，但是当变异发生，可能会成为Aabb。&lt;/p&gt;
+&lt;p&gt;上面是生物学的描述方法，那么在计算机中我们就可以用编码来描述基因，比如一个特征1的编码可以是0001,2编码为0010.那么每两个二进制的数位代表一个基因，1和2杂交可以产生出0000,0001，0010三种子代，当然如果等概率假设的话实际数目应该是4个子代，三种基因。那么，这时，如果产生变异，0010就有可能成为0011，以此类推。&lt;/p&gt;
+&lt;p&gt;而在这里，最后的基因组就是异常行为的特征值组。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-疑惑&quot;&gt;&lt;a href=&quot;#0x03-疑惑&quot; class=&quot;headerlink&quot; title=&quot;0x03 疑惑&quot;&gt;&lt;/a&gt;0x03 疑惑&lt;/h2&gt;&lt;p&gt;整个论文的核心其实就是上述的一整套算法，接着论文利用这套算法与另一篇论文中的PAYL进行对比，并最终得到结论，论文的算法拥有更高的检出率和更低的误报率，并且训练速度较快。&lt;/p&gt;
+&lt;p&gt;这里还有几点疑惑，首先，遗传算法重要的一个研究点就是如何定义基因，或者说是编码，而论文中并没有提出这种编码机制。其次，如果没理解错的话，文中的payload仅使用目标地址和目标端口，这种选取是否合适。另外，就是文中的伪代码描述也不是很清晰。&lt;/p&gt;
+&lt;p&gt;当然，这篇文章有可能是建立在其他GA-IDS文章的基础上所以省略了上述说明。&lt;/p&gt;
+&lt;p&gt;句式：&lt;/p&gt;
+&lt;p&gt;In our system we use a two point crossover scheme where the two parents crossover at two different points producing a total of eight off springs out of which two are replicas of the parents itself which are discarded.&lt;/p&gt;
+&lt;p&gt;好长的一段话，大意就是说这个两点杂交会产生8个子代，而和父代完全一样的两个子代会被丢弃。主句是we use a two point crossover scheme。where修饰前句，the two parents crossover producing a total of……，然后out of which two指代前面的offsprings，再下一个which修饰two。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;基于遗传算法进行入侵检测&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.coding.me/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="GA" scheme="http://phantom0301.coding.me/tags/GA/"/>
+    
+      <category term="IDS" scheme="http://phantom0301.coding.me/tags/IDS/"/>
+    
+  </entry>
   
   <entry>
     <title>Harbor中的用户密码加密机制探究</title>
@@ -1135,7 +1208,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#108;&amp;#116;&amp;#111;&amp;#58;&amp;#x78;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&quot;&gt;&amp;#x78;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x40;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#105;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&quot;&gt;&amp;#x78;&amp;#x78;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#x78;&amp;#120;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1454,107 +1527,6 @@ if __name__ == &amp;quot;__main__&amp;quot;:
     
     
       <category term="工具" scheme="http://phantom0301.coding.me/tags/%E5%B7%A5%E5%85%B7/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>爆破工具Bruter文档翻译</title>
-    <link href="http://phantom0301.coding.me/2016/03/25/Bruter/"/>
-    <id>http://phantom0301.coding.me/2016/03/25/Bruter/</id>
-    <published>2016-03-25T01:54:43.000Z</published>
-    <updated>2016-08-04T07:58:14.828Z</updated>
-    
-    <content type="html">&lt;p&gt;说到爆破神器，kali中的msf爆破插件、hydra、medusa都足够强大，这里推荐一款win环境使用的爆破测试工具，bruter。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;仅仅翻译一下官方文档，bruter的所有说明文件都在目录的doc中。&lt;/p&gt;
-&lt;h2 id=&quot;0x01-介绍&quot;&gt;&lt;a href=&quot;#0x01-介绍&quot; class=&quot;headerlink&quot; title=&quot;0x01 介绍&quot;&gt;&lt;/a&gt;0x01 介绍&lt;/h2&gt;&lt;p&gt;Bruter是一个多线程暴力破解器，这款工具的诞生是为了证明选择强口令的重要性（反正我是信了~~），我们的目标是支持多种允许远程登录认证的服务。&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;警告：请记住，这款工具只能用于合法的目的&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x02-使用方法&quot;&gt;&lt;a href=&quot;#0x02-使用方法&quot; class=&quot;headerlink&quot; title=&quot;0x02 使用方法&quot;&gt;&lt;/a&gt;0x02 使用方法&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;连接选项，输入目标和选择协议的地方&lt;ol&gt;
-&lt;li&gt;目标：可以输入ipv4和host，不支持批量操作&lt;/li&gt;
-&lt;li&gt;协议：不同的协议有不同的选项，更多协议内容查看协议相关文档&lt;/li&gt;
-&lt;li&gt;端口：一般会有默认端口号，也可以手动修改&lt;/li&gt;
-&lt;li&gt;SSL：是否使用SSL，选择时端口号也相应会改变&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;代理选项&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;使用代理：选择是否使用代理&lt;/li&gt;
-&lt;li&gt;类型：支持HTTP、socks4、socks5代理&lt;/li&gt;
-&lt;li&gt;让代理解析host：选择本地解析还是让代理决定&lt;/li&gt;
-&lt;li&gt;端口：代理端口&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;要求认证：查看代理是否需要验证&lt;/p&gt;
-&lt;p&gt; 注意： http连接只支持基础认证；&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;socks5只支持用户名/密码认证
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;账号和密码：输入账号和密码的地方&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;爆破用户名选项&lt;ol&gt;
-&lt;li&gt;输入用户名或者用户名列表路径。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;密码模式选项&lt;ol&gt;
-&lt;li&gt;联合模式：当你的密码或列表输入使用username:password形式时，会自动去提取“：”后的password&lt;br&gt; 注意：会忽视username的内容；可以在选项里选择分隔符&lt;/li&gt;
-&lt;li&gt;字典模式：正常的模式，可以输入单个密码或者列表路径，不同之处在于它可以变量替换，类似（%username%）的输入可以将爆破用到的所有用户名添加到密码中来。&lt;br&gt; 注意：空密码就用空字符，而不是用空格；由于替换规则，你用不了“%username%”这个密码；使用时会先加载全部密码到内存，所以密码字典不要太大&lt;/li&gt;
-&lt;li&gt;暴力模式：根据提供的字符进行遍历&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;字典选项，使用字典模式附带的选项&lt;ol&gt;
-&lt;li&gt;小写，转化所有输入为小写&lt;/li&gt;
-&lt;li&gt;大写，转化所有输入为大写&lt;/li&gt;
-&lt;li&gt;大写首字母&lt;/li&gt;
-&lt;li&gt;翻转&lt;/li&gt;
-&lt;li&gt;重复两次，将输入的admin，变为adminadmin&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;杂项选项&lt;ol&gt;
-&lt;li&gt;连接数：设置进程数，win限制最大为64&lt;/li&gt;
-&lt;li&gt;最大重试数：同一个用户密码尝试次数&lt;/li&gt;
-&lt;li&gt;超时：整个破解过程使用多长时间&lt;/li&gt;
-&lt;li&gt;重试时间：同一个用户密码尝试间隔时间&lt;/li&gt;
-&lt;li&gt;重试时间：不同的用户密码尝试间隔时间&lt;/li&gt;
-&lt;li&gt;最大接受连接数：有两个值，-1表示自动检测；0表示直到服务断开&lt;/li&gt;
-&lt;li&gt;当发现有成功结果时是否停止&lt;/li&gt;
-&lt;li&gt;密码优先：这个选项会使程序优先以密码去遍历用户名&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;显示区&lt;ol&gt;
-&lt;li&gt;结果&lt;/li&gt;
-&lt;li&gt;正在测试情况&lt;/li&gt;
-&lt;li&gt;返回信息&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;状态栏&lt;ol&gt;
-&lt;li&gt;第一列：当前任务状态&lt;/li&gt;
-&lt;li&gt;第二列：每秒爆破数&lt;/li&gt;
-&lt;li&gt;第三列：总测试数&lt;/li&gt;
-&lt;li&gt;第四列：总用时&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;菜单&lt;ol&gt;
-&lt;li&gt;文件：保存和退出&lt;/li&gt;
-&lt;li&gt;设置：可以加载默认设置、保存设置、加载设置&lt;/li&gt;
-&lt;li&gt;日志：选择输出的日志级别&lt;/li&gt;
-&lt;li&gt;帮助：不用说了&lt;h2 id=&quot;0x03-后记&quot;&gt;&lt;a href=&quot;#0x03-后记&quot; class=&quot;headerlink&quot; title=&quot;0x03 后记&quot;&gt;&lt;/a&gt;0x03 后记&lt;/h2&gt;话说，3389的爆破工具都有哪些？以前似乎听说过一些，但是现在好像都销声匿迹了，是因为MS这方面防护做的更好了，3389爆破测试工具难以绕过一些规则吗？&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;原创文章，转载请注明： 转载自零の杂货铺&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;说到爆破神器，kali中的msf爆破插件、hydra、medusa都足够强大，这里推荐一款win环境使用的爆破测试工具，bruter。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="安全工具" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
-    
-    
-      <category term="bruter" scheme="http://phantom0301.coding.me/tags/bruter/"/>
-    
-      <category term="爆破" scheme="http://phantom0301.coding.me/tags/%E7%88%86%E7%A0%B4/"/>
     
   </entry>
   
