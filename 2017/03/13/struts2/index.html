@@ -299,7 +299,8 @@
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<p>Struts2的环境有时候显得有些庞大而复杂，这里借着漏洞学习的过程了解一下Tomcat+Struts2架构的一些问题，这么一看重要的学习其他而不是漏洞了~~。<br><a id="more"></a></p>
+      		<p>Struts2的环境有时候显得有些庞大而复杂，这里借着漏洞学习的过程了解一下Tomcat+Struts2架构的一些问题，这么一看重要的学习其他而不是漏洞了~~。</p>
+<p>修改：2017.3.23<br><a id="more"></a></p>
 <h2 id="0x01-Java-Tomcat-Struts2"><a href="#0x01-Java-Tomcat-Struts2" class="headerlink" title="0x01 Java+Tomcat+Struts2"></a>0x01 Java+Tomcat+Struts2</h2><p>之前很少接触Java环境下的Web问题，对于Jboss，Tomcat，Struts2，Weblogic等等的概念没有一下清晰的认识，通过查阅资料，有了如下的认识。</p>
 <p>首先这些应用都是为了完成一个Java的Web服务，那么，在拥有Java环境的情况下，我们需要一个能够监听Web服务并且调度相关逻辑的服务器，这个就是Tomcat起到的作用。</p>
 <p>和Tomcat具有同样身份作用的还有Jboss，Resin，Glassfish和Weblogic，那么其实Struts2都可以部署在这些Java容器中，这里就以Tomcat为例，一个运行成功的Tomcat应用如下图所示。</p>
@@ -460,14 +461,34 @@ java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).
 </code></pre><p>这里从我理解的MVC的角度进行解释，根据我查阅的资料，再往下走应该是struts2的filter机制，这里我就先不去理解了。</p>
 <p>2.上传成功，解析出错</p>
 <p>这种情况主要分为两种，一种是解析错但菜刀依然可以执行，另一种是类文件或者库文件缺失，个人猜测通过上传相应的文件到lib或者classes文件夹来进行尝试，但因为缺乏相应的测试条件，这个问题先留在这里，后面实践了再来补写。</p>
-<p>3.无法上传</p>
+<p>————————————————————2017.3.23 更新</p>
+<p>最近测试的时候发现，解析出错还有一种情况会导致Getshell失败，那就是服务端自己写了错误显示用的jsp，这样就会导致shell上传成功后，显示状态500，一般情况下状态500并不会影响shell连接，但是服务端自己实现500后可能会写入一个跳转操作，跳转回根目录，自然shell就无法访问到。</p>
+<p>这种时候，我们可以利用struts2的漏洞来改写服务端的错误处理代码，禁止出错跳转，是的shell可以被访问到。</p>
+<p>3.负载均衡</p>
+<p>测试中发现，很多Jboss的站会用到负载均衡，导致shell 404，这种情况一种是多试几次，反正有一次应该能够连上，一种是保证每台机器上都有Wenshell。</p>
+<p>————————————————————</p>
+<p>4.无法上传</p>
 <p>根据朋友讲的他遇到的经历，无法上传主要有以下几种情况：</p>
 <ul>
 <li>有防护软件进行文件查杀，这种可以通过一些特殊的Shell来绕过</li>
 <li>长度限制，这种存在于一些服务器对于请求包有所限制，导致过长的shell无法成功上传。</li>
 <li>在手动写文件时，还有些服务器禁用echo等写文件命令也会导致文件出错</li>
 </ul>
-<h2 id="0x04-其他"><a href="#0x04-其他" class="headerlink" title="0x04 其他"></a>0x04 其他</h2><p>在实际测试中发现，许多struts2的应用广泛使用了许多其他中间件，比如Hiberate、HyperSQL等等平时没有使用到的框架或者数据库，还有会使用其他Web服务器的情况，比如JBoss。</p>
+<h2 id="0x04-其他"><a href="#0x04-其他" class="headerlink" title="0x04 其他"></a>0x04 其他</h2><p>在实际测试中发现，许多struts2的应用广泛使用了许多其他中间件，比如Hiberate、HyperSQL、FirebirdSQL等等平时没有使用到的框架或者数据库，还有会使用其他Web服务器的情况，比如JBoss。</p>
+<p>————————————————————2017.3.23 更新</p>
+<p>这里在补充一下shell方面的学习</p>
+<p>1.war包shell</p>
+<p>这种需要服务器开启了热部署相关的应用才能使用，当然~~你愿意重启整个WEB服务也可以，将jsp和WEB-INF打包成一个war包上传，可以实现一个新的路径下的访问。</p>
+<p><a href="http://www.freebuf.com/articles/web/36455.html" title="http://www.freebuf.com/articles/web/36455.html" target="_blank" rel="external">http://www.freebuf.com/articles/web/36455.html</a></p>
+<p>这篇文章提到了具体的操作步骤。</p>
+<p>2.jspx shell</p>
+<p>园长在乌云上的JavaWeb系列讲解过，jspx是以xml语法来写jsp文件。个人理解是使用xml语法来规范jsp语法到html。</p>
+<p>当然园长的文章中提到，只要修改tomcat的conf中的web.xml，可以任意后缀解析。</p>
+<p>3.shell隐藏</p>
+<p>同样JavaWeb系列文章中提到了诸如jar包等隐藏方法。</p>
+<p>这里我复现的是91ri的《利用 Java Binary Webshell 对抗静态检测》，里面提到在tomcat下通过修改Catalina的配置文件，来做jsp文件更改延迟，达到欺骗引擎一直返回给浏览器字节码的目的，进而将Webshell隐藏在字节码中，实现无shell jsp文件下的理论上的权限维持</p>
+<p>当然，说是理论上，因为Tomcat只能延迟检测，不能完全去除检测，不知道对Tomcat框架理解深入的大牛们有没有方法完全规避检测~~</p>
+<p>————————————————————</p>
 
             <div class="clearfix"></div>
             <hr class="nogutter">
