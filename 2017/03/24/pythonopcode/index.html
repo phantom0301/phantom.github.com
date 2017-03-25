@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>Python与它的opcode | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(4)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(5)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(2)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(3)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-03-24T07:26:29.000Z" itemprop="datePublished">
+          2017-03-24
+      </time>
+    
+    
+    | 
+    <a href='/tags/opcode/'>opcode</a>,
+    
+    <a href='/tags/python/'>python</a>
+    
+    
+</span>
+                <h1>Python与它的opcode</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>0CTF中有一道opcode修改的题，当时觉得除了暴力尝试还原外没有什么更好的思路，结果后来看到了别人的write up，还真是暴力尝试~~</p>
+<a id="more"></a>
+<h2 id="0x01-PyCodeObject"><a href="#0x01-PyCodeObject" class="headerlink" title="0x01 PyCodeObject"></a>0x01 PyCodeObject</h2><p>Python代码在运行时，将我们写的源码转换成字节码，再由python解释器来执行字节码。而字节码就是一个PyCodeObject对象。一个相应的对象如下：文件在/include/code.h</p>
+<pre><code>/* Bytecode object */
+typedef struct {
+    PyObject_HEAD
+    int co_argcount;        /* #arguments, except *args */
+    int co_nlocals;        /* #local variables */
+    int co_stacksize;        /* #entries needed for evaluation stack */
+    int co_flags;        /* CO_..., see below */
+    PyObject *co_code;        /* 编译所得的字节码指令序列 */
+    PyObject *co_consts;    /* Block中所有常量的元组 */
+    PyObject *co_names;        /* 所有名字的元组 */
+    PyObject *co_varnames;    /* 在本代码段中赋值，但没有被内层代码引用的变量*/
+    PyObject *co_freevars;    /* 在本层引用，在外层赋值的变量*/
+    PyObject *co_cellvars;      /* 本层赋值，且被内层代码段引用的变量*/
+    /* The rest doesn&apos;t count for hash/cmp */
+    PyObject *co_filename;    /* python文件路径*/
+    PyObject *co_name;        /* 函数名或类名*/
+    int co_firstlineno;        /* Block所在的起始行*/
+    PyObject *co_lnotab;    /* 字节码指令与pyc文件中的source code对应关系*/
+    void *co_zombieframe;     /* 优化(see frameobject.c) */
+    PyObject *co_weakreflist;   /* to support weakrefs to code objects */
+} PyCodeObject;
+</code></pre><p>从这个定义中，我们可以简单了解一下，该对象有哪些参数组成：</p>
+<p>1 co_argcount，一个Code Bloack的参数计数。</p>
+<p>作为萌新，这里再多提一下python中的几种参数形式,python中的参数形式可以分成位置参数和关键字参数两类，位置参数即参数所在的位置影响它被处理的逻辑，关键字参数即参数所在的位置与它的处理逻辑无关。</p>
+<p>另一个概念是，Code Block，这个概念是说我们所写的Python代码中的每一个名字空间在编译时都会对应一个Code Block，每一个Block会创建一个PyCodeObject对象</p>
+<p>那么这样的话，我们就可以理解这个参数做了什么，我们写一段代码来做个测试，看这样一段代码：</p>
+<pre><code>def co_arg(fn):
+    print fn.__name__,fn.__code__.co_argcount
+@co_arg
+def f1():
+    pass
+@co_arg
+def f2(a):
+    pass
+@co_arg
+def f3(a,b):
+    pass
+@co_arg
+def f4(a,b=1):
+    pass
+@co_arg
+def f5(a,b,*c):
+    pass
+@co_arg
+def f6(a,b,*c,**d):
+    pass
+</code></pre><p>执行结果如下：</p>
+<pre><code>&gt;&gt;f1 0
+&gt;&gt;f2 1
+&gt;&gt;f3 2
+&gt;&gt;f4 2
+&gt;&gt;f5 2
+&gt;&gt;f6 2
+</code></pre><p>OK，我们可以看到这个变量记录了函数的参数个数，但不记录tuple参数和dict参数</p>
+<p>2 co_nlocals，一个Code Bloack的局部变量计数，包括所有参数和局部变量。</p>
+<p>同样看如下代码：</p>
+<pre><code>def co_nlo(fn):
+    print fn.__name__,fn.__code__.co_nlocals
+@co_nlo
+def f1():
+    pass
+@co_nlo
+def f2(a):
+    pass
+@co_nlo
+def f3(a):
+    b=1
+@co_nlo
+def f4(a,*b,**c):
+    d=1
+</code></pre><p>执行结果：</p>
+<pre><code>&gt;&gt;f1 0
+&gt;&gt;f2 1
+&gt;&gt;f3 2
+&gt;&gt;f4 4
+</code></pre><p>3 co_stacksize,运行这段Code Block需要的栈空间</p>
+<p>剩下的解释就直接标注在上面的type结构中。</p>
+<p>了解过PyCodeObject后，我们就可以来看看pyc，一般情况下，翻译的字节码会写入内存中，当程序结束后，会根据程序运行的方式来决定是否将字节码写入pyc或者其他格式的存储文件中。</p>
+<p>我们来看一下一个简单的pyc文件。</p>
+<h2 id="0x02-pyc"><a href="#0x02-pyc" class="headerlink" title="0x02 pyc"></a>0x02 pyc</h2><p>我们编译如下代码到pyc来进行学习：</p>
+<pre><code>def foo():
+    print 1
+if __name__ == &apos;__main__&apos;:
+    foo()
+</code></pre><blockquote>
+<p>python -m py_compile hello.py</p>
+</blockquote>
+<p>编译后的代码如下：</p>
+<p><img src="http://123.207.68.169/achiveimg/20170324171322.jpg" alt=""></p>
+<p>看上述pyc图，头4个字节，<em>03f3 0d0a</em> 是pyc的MAGIC数，用来表示python的版本。接下来的4个字节是时间。头声明完后的是一个Block的开头，即为63，后面的4个字节是PyObject中的argument数，这里为0，接着4个字节是nlocals，这里还是0。接着是4个字节的栈空间<em>，0200 0000</em>。</p>
+<p>接着4个字节的flags <em>4000 0000</em>。flag后面就是一些具体到代码的字节码。</p>
+<p>开始是co_code，0x73，代表类型s（string），接下来的4个字节代表长度  2300 0000<br>使用小端模式，表示有35个字节长度。</p>
+<p>接下来我们向后取35个字节长度，这时的字节码就可以对应上opcode，都2个字节对应相应opcode操作，如果操作后带有值，那么就在紧跟其后的4个字节中表示。</p>
+<p>完整的版本如下：</p>
+<pre><code>03f3 0d0a 版本
+76e2 d458 时间
+63  block
+0000 0000 argument
+0000 0000 nlocals
+0200 0000 栈空间
+4000 0000 flags
+73 类型 string
+2300 0000 长度 35 bytes
+64 00 00 LOAD_CONST  0
+84 00 00 MAKE_FUNCTION 0
+5a 00 00 STORE_NAME 0
+65 01 00 LOAD_NAME 1
+64 01 00 LOAD_CONST 1
+6b 02 00 COMPARE_OP 2
+72 1f 00 POP_JUMP_IF_FALSE
+65 00 00 LOAD_NAME 0
+83 00 00 CALL_FUNCTION 0
+01 POP_TOP
+6e 00 00 JUMP_FORWARD 0
+64 02 00 LOAD_CONST 2
+53 RETURN_VALUE
+
+28 (
+0300 0000 
+
+63 
+0000 0000
+0000 0000
+0100 0000
+4300 0000
+73 
+0900 0000 
+64 01 00
+47
+48
+64 00 00 
+53
+
+28 (
+0200 0000 
+4e N
+69 0100 0000 1
+
+28 (
+0000 0000
+28 (
+0000 0000 
+28 (
+0000 0000
+28 (
+0000 0000 
+
+73 string  co_filename
+3000 0000
+屏蔽敏感信息
+
+74 t co_name
+0300 0000 
+666f6f  foo
+
+0100 0000
+73 
+0200 0000 
+00 01 
+74
+0800 0000
+5f5f 6d61 696e 5f5f
+
+4e N
+28
+0200 0000
+52 R
+0000 0000 
+74
+0800 0000
+5f 5f6e 616d 655f5f
+
+28 0000 0000 
+28 0000 0000
+28 0000 0000
+
+73  co_filename
+30 0000 00
+屏蔽敏感信息
+
+74  co_name
+0800 0000 
+3c6d 6f64 756c 653e &lt;module&gt;
+
+0100 0000 
+
+73
+0400 0000
+0903 0c01 lnotab
+</code></pre><p>解释一下，第一个block其实可以看成是main主程序的执行，第二个block就是foo函数中执行print的逻辑。</p>
+<p>看这两张图，在对比我上面的字节码，应该就能懂了。</p>
+<p>block 1</p>
+<p><img src="http://123.207.68.169/achiveimg/20170324204233.jpg" alt=""></p>
+<p>block 2</p>
+<p><img src="http://123.207.68.169/achiveimg/20170324204343.jpg" alt=""></p>
+<p>而opcode对应的操作，可以查看python目录下的opcode.py</p>
+<h2 id="0x03-一道0ctf题"><a href="#0x03-一道0ctf题" class="headerlink" title="0x03 一道0ctf题"></a>0x03 一道0ctf题</h2><p>在明白了上述原理后，可以参考这篇文章</p>
+<p><a href="http://0x48.pw/2017/03/20/0x2f/" target="_blank" rel="external">http://0x48.pw/2017/03/20/0x2f/</a></p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2017/03/13/struts2/">
+        Struts2-S2-045漏洞学习及其他 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "08cc27a0c99d48a3b57418d8338dbb6c",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>
