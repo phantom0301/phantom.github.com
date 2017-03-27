@@ -324,7 +324,7 @@ typedef struct {
     PyObject *co_weakreflist;   /* to support weakrefs to code objects */
 } PyCodeObject;
 </code></pre><p>从这个定义中，我们可以简单了解一下，该对象有哪些参数组成：</p>
-<p>1 co_argcount，一个Code Bloack的参数计数。</p>
+<p>1 co_argcount，一个Code Block的参数计数。</p>
 <p>作为萌新，这里再多提一下python中的几种参数形式,python中的参数形式可以分成位置参数和关键字参数两类，位置参数即参数所在的位置影响它被处理的逻辑，关键字参数即参数所在的位置与它的处理逻辑无关。</p>
 <p>另一个概念是，Code Block，这个概念是说我们所写的Python代码中的每一个名字空间在编译时都会对应一个Code Block，每一个Block会创建一个PyCodeObject对象</p>
 <p>那么这样的话，我们就可以理解这个参数做了什么，我们写一段代码来做个测试，看这样一段代码：</p>
