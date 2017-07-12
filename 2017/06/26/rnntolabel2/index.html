@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>基于递归神经网络的监督序列标记（2） | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(5)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(6)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(6)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="https://www.leavesongs.com/" class="animsition-link">p牛的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                    <li><a href="https://stfltr.github.io/" class="animsition-link">zzw</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-06-26T01:54:06.000Z" itemprop="datePublished">
+          2017-06-26
+      </time>
+    
+    
+    | 
+    <a href='/tags/机器学习/'>机器学习</a>,
+    
+    <a href='/tags/神经网络/'>神经网络</a>,
+    
+    <a href='/tags/读书笔记/'>读书笔记</a>
+    
+    
+</span>
+                <h1>基于递归神经网络的监督序列标记（2）</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>机器学习小白的阅读笔记，continue~</p>
+<a id="more"></a>
+<h2 id="0x01-神经网络"><a href="#0x01-神经网络" class="headerlink" title="0x01 神经网络"></a>0x01 神经网络</h2><h3 id="多层感知机"><a href="#多层感知机" class="headerlink" title="多层感知机"></a>多层感知机</h3><p>人工神经网络最初是生物学大脑信息处理的一个数学模型。虽然现在很明显，人工神经网络和真正的生物学神经元没什么相似之处，但是它在模式分类领域还是很受欢迎。</p>
+<p>人工神经网络最基础的结构的是一个个小的处理单元或节点构成的网络，彼此之间的连接具有不同的权重。和生物模型相对比，节点就相当于神经元，而加权的连接就相当于神经元之间突触的强度。通过对节点的输入来激活整个网络，这个激活效果通过加权连接遍布整个网络。生物神经元的电激活其实可以看做一系列的尖锐峰值，而人工神经网络节点的激活最初是用来模拟这些峰值的平均发射率。</p>
+<p>在过去的时间里，很多特征迥异的人工神经网络模型被提出。一个显著的区别是一些人工神经网络是环状结构，而另一些模型的连接都是非环状的。环状的人工神经网络被称为反馈、递归、周期、神经网络。非环状的则被称为前馈神经网络。比较有名的前馈神经网络有感知机、径向基函数网络、科荷伦图以及霍普菲尔德网络。一个前馈神经网络广泛应用形式就是多层感知机。</p>
+<p>多层感知机中的单元按层级排列，连接从一层到另一层。输入模式在输入层这里，然后通过隐藏层传播到输出层。这一过程叫做网络的前向推算。</p>
+<p>由于多层感知机的输出只取决于当前输入，与过去或者将来无关，因此它更适合于模式识别而不是序列标记。</p>
+<p>具有特定权重的多层感知机定义了一个从输入到输出的函数。通过改变这些权重，一个多层感知机模型可以实例化成许多不同的函数。多层感知机已经被证明，如果它具有足够数量的非线性隐藏层单元，。它就可以近似于模拟紧凑输入域上的任意连续函数。由于这个原因，多层感知机被称为通用函数逼近器。</p>
+<h4 id="前向传递"><a href="#前向传递" class="headerlink" title="前向传递"></a>前向传递</h4><p>考虑一个带有输入单元，由输入向量激活的多层感知机。第一个隐藏层中的每个单元会计算输入单元的加权和。这个隐藏层函数就会引入激活函数。神经网络有很多激活函数，最常见的选择是双曲切线。这些激活函数往往呈现S型的特点。</p>
+<p>对比双曲切线公式和逻辑S型函数，你会发现它们可以彼此推导。它们的不同在于输出范围，如果输出范围在0~1之间，应该使用逻辑函数。</p>
+<p>它们的一个很重要的特性是非线性。非线性神经网络比线性的更加强大，因为它们可以用来拟合非线性的分类边界或者非线性方程。另外，任何线性运算的组合也是线性的，这意味着具有多个线性隐藏层的多层感知机和具有单个线性隐藏层的多层感知机完全相同。这与非线性网络形成了鲜明的对比，非线性网络可以利用连续的隐藏层来重新表示输入数据，这样处理会很有用。</p>
+<p>另一个关键特性是两个函数都是可微分的，这就使得网络可以通过梯度下降来进行训练。由于它们将无限的输入域减少到有限的输出范围，神经网络激活函数有时又被称为挤压函数。</p>
+<p>在计算了第一个隐藏层激活后，依次对其余的隐藏层进行累加激活。</p>
+<h4 id="输出层"><a href="#输出层" class="headerlink" title="输出层"></a>输出层</h4><p>输出单元激活后就给出了多层感知机的输出向量。每个单元的输出是输入和层级单元求和计算而成的。</p>
+<p>输出单元数和输出的激活函数取决于网络所要完成的任务。对于二分类问题，标准的用法是单一逻辑S函数。由于逻辑函数的取值是0和1，输出单元的激活可以被解释为输入向量属于一类的概率。</p>
+<p>这种逻辑S型的二元概率估计被称为逻辑回归或者分类评定模型。</p>
+<p>对于分类数大于2的分类问题，通常有多个输出，不同类别的输出激活函数使用<br>交叉熵损失函数。这就是多分类评定模型。</p>
+<p>根据上面的定义，多层感知机用于模式识别就很直观，简单的提供一个输入向量，激活网络，再选择与最活跃的输出单元对应的分类标签。</p>
+<h4 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h4><p>多层感知机训练的损失函数前面已经有提及，尽管我们试图近似到完整的预测分布，但这里我们还是主要关注最大似然损失函数的生成。</p>
+<p>无论是二分类问题还是多分类问题，我们都能得到相应的损失函数替换等式。</p>
+<h4 id="后向传递"><a href="#后向传递" class="headerlink" title="后向传递"></a>后向传递</h4><p>由于构造的多层感知机是可微的，所以它们可以用梯度下降的可微损失函数来最小化求解。梯度下降的基本思想是求出对每个网络权重的损失函数的导数，然后根据负斜率的方向调整权重。后面会讨论更多细节的部分。</p>
+<p>为了有效地计算梯度，我们使用反向传播算法来实现。这通常被称作网络的反向传递。</p>
+<p>反向传播仅仅是对偏导数链式法则的重复利用。第一步是计算出关于输出单元损失函数的导数。</p>
+<p>同样的，二分类问题和多分类问题分别有自己的偏导公式。需要记住的是，交叉熵函数层中每个单元的激活依赖于层中每个单元的网络输入。</p>
+<p>我们继续使用链式法则，在隐藏层中逆向推导。通过提出新的算子来简化表达，我们可以计算出每个网络的权重。</p>
+<h4 id="数值梯度"><a href="#数值梯度" class="headerlink" title="数值梯度"></a>数值梯度</h4><p>在实现反向传播时，强烈建议用数值来检查权重。这可以通过增加正向和负向的扰动来实现，并且可以计算损失函数的变化。</p>
+<p>这被称为对称有限差分。注意计算函数的变量取值太小会导致数值下溢和精度下降。因此，最优值取决于给定的浮点精度。系统测试发现，10的负5次方往往结果不错。</p>
+<p>注意，数字梯度比反向传播的时间代价要高。因此，数字型微分在网络训练中是不切实际的。另外，建议始终选择体系结构最小的网络来检查它的梯度，比如只有单一隐藏层的循环神经网络。</p>
+<h2 id="0x02-循环神经网络"><a href="#0x02-循环神经网络" class="headerlink" title="0x02 循环神经网络"></a>0x02 循环神经网络</h2><p>前面我们讨论了非环结构的前馈神经网络。如果我们允许环状连接，就可以获得循环神经网络。与前馈网络一样，已经提出了许多种类的循环神经网络，比如埃尔曼网络、乔丹网络、时延神经网络和回声状态网络。在这里，我们关注一个简单的循环神经网络，它包含一个单一的、自连接的隐藏层。</p>
+<p>虽然多层感知机和循环神经网络之间的差别看起来微不足道，但对于序列学习来说影响是深远的。多层感知机只能从输入映射到输出，而循环神经网络原则上可以从所有历史输入映射到每个输出。实际上，从多层感知机理论结果来说，循环神经网络只要有足够的隐藏单元，就可以在任意精度上近似任何可测量的序列映射。循环神经网络的关键点是循环连接允许之前输入的记忆持续存在于网络内部，从而影响网络输出。</p>
+<h3 id="前向传递-1"><a href="#前向传递-1" class="headerlink" title="前向传递"></a>前向传递</h3><p>循环神经网络的正向传递与单一隐藏层的多层感知器类似，不同之处在于激活不只是当前时间的外部输入信号，还有之前时间步长的隐藏层激活信号。这样的话，循环神经网络的隐藏层其实就是上述两部分的叠加。对于非线性的可微激活函数，也有类似多层感知机的公式。</p>
+<p>隐藏层激活的完整序列就可以从一个时间开始，递归的使用隐藏层公式在计算。需要注意的是，这需要为隐藏单元选择一个初始值，这个初始值在任何输入序列到来之前，来表示网络的状态。这里通常用零作为初始值。但是，有研究者发现使用非零的初始值可以提高循环神经网络的稳定性和性能。</p>
+<p>输出单元的网络输入可以与隐藏单元的激活同时计算。</p>
+<p>对于序列分类和段分类任务，可以重用多层感知机中的输出激活函数，同样，损失函数也可以重用。时间分类问题就比较棘手，因为它的目标类别是未知的，但是后面会介绍一种特殊的输出层来解决循环神经网络中的时间分类问题。</p>
+<h3 id="后向传递-1"><a href="#后向传递-1" class="headerlink" title="后向传递"></a>后向传递</h3><p>给定网络输出的可微损失函数的偏导，下一步就是求关于权重的导数。有两种已知的算法能够有效的计算权重的导数，一种是在线循环学习，一种是沿时间反向传播。我们主要观众后者，因为它更简单且更有效。</p>
+<p>和标准的反向传播算法类似，沿时反向传播由链式法则的重复应用组成。微妙之处在于，对于循环神经网络，依赖于隐藏层激活的损失函数，不仅仅影响输出层，还会在下一次时间步长里影响隐藏层。这里的计算和前向传递对应，做循环递减。最后，我们在每一步中重复使用相同的权重，再对整个序列进行求和，已得到关于网络权重的导数。</p>
+<h3 id="展开"><a href="#展开" class="headerlink" title="展开"></a>展开</h3><p>对循环神经网络有效的可视化展示方法是沿着输入序列展开网络。需要注意的是，展开图不包含循环结构，否则，前向传递和后向传递不好定义。</p>
+<p>展开循环神经网络使得对复杂网络的更新依赖进行泛化更加容易。接下来我们会讨论网络以及多维网络和分层网络。</p>
+<h3 id="双向网络"><a href="#双向网络" class="headerlink" title="双向网络"></a>双向网络</h3><p>对于许多序列标记任务来说，能够接触到时间点前后的上下文是有益的。比如，当进行手写字母分类时，知道字母两侧的上下文对分类是有帮助的。然而，由于标准的循环神经网络是按照时间顺序排列的，因此忽略了将来时刻的上下文。一个明显的解决方法是在网络输入中添加一个时间窗。然而，除了会增加输入权重的数量外，这种方法也会遇到和之前讨论过的时间窗方法同样的问题，即不能接受的失真和上下文始终定长。另一种尝试是在输入与目标之间引入一个延时，从而为网络提供一些将来上下文的时间。这种方法增加了网络对于失真的健壮性，但是仍然需要手动去决定上下文的范围。而且，由于这种方法需要迫使记住原始输入和它之前的上下文，这就给网络带来了不必要的负担。所以，这两种方法是无法消除过去与未来信息之间的不对等的。</p>
+<p>双向循环神经网络提供了一个更加优雅的解决方案，它的基本思想是将每个训练序列分别前馈和后馈给两个单独的隐藏层，这两层都连接到相同的输出层。这种结构使得输入序列中的每个点都提供了完整的过去和将来时刻的上下文，而不至于被循环输入所替代。双向网络在很多领域展现了它的改进效果，特别是蛋白质的二级预测和语音处理，我们发现它在序列标记方面的表现比单向循环网络要好。</p>
+<p>双向网络的前向传递和单向相同，不同之处在于两个隐藏层的传递方向正好相反，而输出层只有当两个隐藏层都处理了整个输入序列时才进行更新。</p>
+<p>同样的，后向传递也与单向相同，除了先进行所有输出层的计算，然后再反馈回两个方向相反的隐藏层。</p>
+<h4 id="因果关系任务"><a href="#因果关系任务" class="headerlink" title="因果关系任务"></a>因果关系任务</h4><p>对双向网络提出的一个异议是它违反了因果关系。显然，对于金融预测和机器人导航这样的任务，需要访问将来输入是不可行的。当然，还有些任务是不需要考虑因果的。比较明显的例子是空间上呈现出来的输入序列，它们是不需要区分过去和将来的。这也就是为什么蛋白质预测领域广泛采用这种算法。但是，双向网络也可以用于时序任务，只要网络的输出仅依赖于输入段完整结束即可。例如，在语音和手写识别中，数据通常分割成句子、段落或对话，它们的输出标记都是需要在完整处理整个序列后再输出。此外，即使对于在线的时序任务，例如自动听写，也可以使用双向算法，只要输入过程中有一些自然的中断，比如处理数据的一部分之前暂停语音。</p>
+<h3 id="序列雅可比矩阵"><a href="#序列雅可比矩阵" class="headerlink" title="序列雅可比矩阵"></a>序列雅可比矩阵</h3><p>前面说到，上下文信息对于序列标记十分重要。</p>
+<p>因此，我们希望有一种方法来准确的分析在特定序列中，算法是如何使用上下文的。对于循环神经网络来说，我们可以通过测量网络输出对网络输入的灵敏度来实现这一点。</p>
+<p>对于前馈神经网络，雅可比矩阵是网络输出对输入向量的偏导数矩阵。这些导数显示了输出对于输入微小变化的相对敏感度。通过在测量输入和输出变量时指定时间步长，可以将雅可比矩阵推广到循环神经网络。我们把产生的四维矩阵成为序列雅可比矩阵。</p>
+<p>这里提到用这种方法测量敏感度，但是需要注意的是，敏感度并不直接对应于上下文的重要性。比如，图像中的背景像素点，由于它的输入是一种不变的，所以它对于输入就会有很高的敏感度，但是它本身却不会提供有用的上下文信息。</p>
+<h2 id="0x03-网络训练"><a href="#0x03-网络训练" class="headerlink" title="0x03 网络训练"></a>0x03 网络训练</h2><p>前面讨论了损失函数和梯度下降，这里我们进一步淘箩如何高效快速的训练网络。</p>
+<h3 id="梯度下降算法"><a href="#梯度下降算法" class="headerlink" title="梯度下降算法"></a>梯度下降算法</h3><p>首先，我们需要决定如何跟随误差梯度。最简单的方法有众所周知的最速梯度下降，它是反复的在损失函数的负误差梯度上做一个固定的步骤，直到满足某个条件停止。</p>
+<p>这种方法的主要问题是容易陷入局部极小值。这可以通过增加动量项来减轻，它有效的增加了算法通过权重空间的运动惯性，从而加速收敛并从局部最小值逃逸。</p>
+<p>当这种梯度根据整个训练集定义的损失函数来计算时，权重的更新过程就被称为批学习。这和在线学习形成对比，后者是通过对个别训练示例进行权重更新。</p>
+<p>现在提出了许多复杂的梯度下降算法，例如弹性反馈算法、快速传播算法、共轭梯度算法和受限拟牛顿算法，在批量学习方面，这些方法通常优于最速梯度下降。然而，最速梯度下降更适应在线学习，因为它的每个权重更新都只需很小的步骤，可以更好的适应不断变化的梯度。</p>
+<p>在应对大量冗余和规律性的数据集时，在线学习往往比批学习更有效。此外，在线学习能够帮助我们逃离局部最小值，由于每个训练示例的损失函数是不同的。在每次通过训练集之前，随机化训练集合中数据的顺序可以进一步增强它的稳健性。</p>
+<p>最近提出的一种在线学习方法是随机元下降算法，它已经被证明可以更快的收敛和改进神经网络。</p>
+<h3 id="泛化"><a href="#泛化" class="headerlink" title="泛化"></a>泛化</h3><p>尽管我们在训练集的算法上讨论了这么多，但是最终的目标是在测试集上能够有很好的性能表现。是否能够将训练集的性能迁移到测试集上的问题称为泛化，这对机器学习来说至关重要。通常来说，更大的训练集会有更好的泛化效果。多年来，人们提出很多改进的方法用于修正训练集，而在这里，只有三个简单的规则被使用，提前停止、输入噪声和权重噪声。</p>
+<h4 id="提前停止"><a href="#提前停止" class="headerlink" title="提前停止"></a>提前停止</h4><p>为了提前停止，部分训练集被分出作为验证集。然后通过验证集来测试是否应该停止。最优权重值的选择也可以通过验证集来进行，通常通过选择在验证集上最小化的权重来评估测试集的性能。实践中，两种方法通常是同步进行的，在验证集上每隔一段时间对误差进行评估，并且在误差不在下降时停止训练，以此来减少训练时间。</p>
+<p>测试集不应该用于决定是否可以提前停止或者最佳权重选择。因为这是训练集间接训练的一部分。原则上，训练完成前不应该对网络进行评估。</p>
+<p>在训练过程中，误差通常会先在所有集合上减少，但是在某个点之后，当在训练集上继续减少时，误差反而会在测试集合验证集上增加，这就是过拟合。</p>
+<p>提前停止可能是最简单、使用最广泛的改进泛化的方法。但是，这样做的同时其实减少了训练集的数量，这可能导致训练性能降低，特别是在训练集数量很少的情况下。另一个问题在于，无法确定先验验证集应该有多大。需要注意的是，验证集不能作为测试集性能的准确度预测器，重要的是，过拟合在两种数据集上几乎是同时出现的。</p>
+<h4 id="输入噪声"><a href="#输入噪声" class="headerlink" title="输入噪声"></a>输入噪声</h4><p>在网络输入中增加零均值、固定方差的高斯噪声是训练增加泛化性的一种很好的方法。期望的效果是人为的增加训练集的大小，从而产生和原始输入结果相同的新输入，从而增强泛化性。</p>
+<p>输入噪声的一个问题是很难预先确定噪声的方差应该为多少。尽管有各种各样的经验法则，最可靠的方法是在验证集上按照经验设置方差。</p>
+<p>一个更难的问题是输入扰动只有在反映真实数据中的变化才是有效的。例如，将高斯噪声添加到图像的单个像素中，不会产生明显不同的图像，因此这种方法不太可能对图像进行泛化。因此，在平滑轨迹上的独立扰动是无效的。针对特定数据集进行的输入扰动已经被证明在泛化方面是非常有效的。然而，这需要数据集的先验模型，这通常做不到。</p>
+<p>在训练时，应该为网络上的每个样例重新生成输入噪声；特别的，在网络循环通过数据时，同样的噪声不应该被重新使用。测试阶段不应该再输入噪声，这样会妨碍性能。</p>
+<h4 id="权重噪声"><a href="#权重噪声" class="headerlink" title="权重噪声"></a>权重噪声</h4><p>另一种方法是给网络权重增加零均值、固定方差的高斯噪声。由于权重噪声或者突触噪声在网络内部是一种输入的表示，而不是输入本身，所以它可以用于任何数据类型。然而，权重噪声通常比精心设计的输入扰动效果要差，而且会带来更慢的收敛。</p>
+<p>权重噪声可以用来简化神经网络，以减少传输网络所需的信息量。直观地说，这是因为噪声降低了权重被表示出来的精度。根据奥卡姆剃刀原则，越简单的网络效果越好。</p>
+<p>和输入噪声一样，权重噪声也不应该添加到测试集评估中。</p>
+<h3 id="输入表示"><a href="#输入表示" class="headerlink" title="输入表示"></a>输入表示</h3><p>选择一种合适的输入数据表示形式是机器学习任务中的重要部分。实际上，在某些情况下，这比算法本身更加重要。神经网络对于输入表示的稳健性表现的相对较好，例如，在语音识别中，循环神经网络对各种预处理的语音训练都很有效。</p>
+<p>对神经网络输入表示的唯一要求是，它们是完整且合理的。尽管相互无关的输入对于神经网络不是问题但会引起维度灾难，高维空间的输入将会造成过多的输入权值和较低的泛化能力。</p>
+<p>所以，输入表示是一种黑盒艺术，它的目的是使输入和目标之间的关系尽可能简单。</p>
+<p>对于所有神经网络输入数据进行的一个程序是标准化输入向量，使得训练集向量分量均值为0，标准差为1。这个过程不会改变训练集中的信息，但是通过将输入值转换成更适合于标准激活函数来提高性能。注意，测试集和验证集需要和训练集一同被标准化。</p>
+<h3 id="权重初始化"><a href="#权重初始化" class="headerlink" title="权重初始化"></a>权重初始化</h3><p>神经网络的许多梯度下降算法要求权重拥有小而随机的初始值。我们在这里用正负1之间的平滑随机分布或者均值0、标准差0.1的高斯分布。然而，我们并没有发现我们的结果对分布或者范围非常敏感。结论就是权重初始化要重复做几次才能确定它的意义。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2017/06/22/rnntolabel/">
+        基于递归神经网络的监督序列标记（1） →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+<div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "08cc27a0c99d48a3b57418d8338dbb6c",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>

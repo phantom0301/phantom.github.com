@@ -4,9 +4,9 @@
   <subtitle>Free and Share</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://phantom0301.coding.me/"/>
-  <updated>2017-03-27T13:27:09.144Z</updated>
-  <id>http://phantom0301.coding.me/</id>
+  <link href="http://phantom0301.cc/"/>
+  <updated>2017-07-12T13:31:36.193Z</updated>
+  <id>http://phantom0301.cc/</id>
   
   <author>
     <name>Phantom</name>
@@ -16,9 +16,581 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>基于递归神经网络的监督序列标记（2）</title>
+    <link href="http://phantom0301.cc/2017/06/26/rnntolabel2/"/>
+    <id>http://phantom0301.cc/2017/06/26/rnntolabel2/</id>
+    <published>2017-06-26T01:54:06.000Z</published>
+    <updated>2017-07-12T13:31:36.193Z</updated>
+    
+    <content type="html">&lt;p&gt;机器学习小白的阅读笔记，continue~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-神经网络&quot;&gt;&lt;a href=&quot;#0x01-神经网络&quot; class=&quot;headerlink&quot; title=&quot;0x01 神经网络&quot;&gt;&lt;/a&gt;0x01 神经网络&lt;/h2&gt;&lt;h3 id=&quot;多层感知机&quot;&gt;&lt;a href=&quot;#多层感知机&quot; class=&quot;headerlink&quot; title=&quot;多层感知机&quot;&gt;&lt;/a&gt;多层感知机&lt;/h3&gt;&lt;p&gt;人工神经网络最初是生物学大脑信息处理的一个数学模型。虽然现在很明显，人工神经网络和真正的生物学神经元没什么相似之处，但是它在模式分类领域还是很受欢迎。&lt;/p&gt;
+&lt;p&gt;人工神经网络最基础的结构的是一个个小的处理单元或节点构成的网络，彼此之间的连接具有不同的权重。和生物模型相对比，节点就相当于神经元，而加权的连接就相当于神经元之间突触的强度。通过对节点的输入来激活整个网络，这个激活效果通过加权连接遍布整个网络。生物神经元的电激活其实可以看做一系列的尖锐峰值，而人工神经网络节点的激活最初是用来模拟这些峰值的平均发射率。&lt;/p&gt;
+&lt;p&gt;在过去的时间里，很多特征迥异的人工神经网络模型被提出。一个显著的区别是一些人工神经网络是环状结构，而另一些模型的连接都是非环状的。环状的人工神经网络被称为反馈、递归、周期、神经网络。非环状的则被称为前馈神经网络。比较有名的前馈神经网络有感知机、径向基函数网络、科荷伦图以及霍普菲尔德网络。一个前馈神经网络广泛应用形式就是多层感知机。&lt;/p&gt;
+&lt;p&gt;多层感知机中的单元按层级排列，连接从一层到另一层。输入模式在输入层这里，然后通过隐藏层传播到输出层。这一过程叫做网络的前向推算。&lt;/p&gt;
+&lt;p&gt;由于多层感知机的输出只取决于当前输入，与过去或者将来无关，因此它更适合于模式识别而不是序列标记。&lt;/p&gt;
+&lt;p&gt;具有特定权重的多层感知机定义了一个从输入到输出的函数。通过改变这些权重，一个多层感知机模型可以实例化成许多不同的函数。多层感知机已经被证明，如果它具有足够数量的非线性隐藏层单元，。它就可以近似于模拟紧凑输入域上的任意连续函数。由于这个原因，多层感知机被称为通用函数逼近器。&lt;/p&gt;
+&lt;h4 id=&quot;前向传递&quot;&gt;&lt;a href=&quot;#前向传递&quot; class=&quot;headerlink&quot; title=&quot;前向传递&quot;&gt;&lt;/a&gt;前向传递&lt;/h4&gt;&lt;p&gt;考虑一个带有输入单元，由输入向量激活的多层感知机。第一个隐藏层中的每个单元会计算输入单元的加权和。这个隐藏层函数就会引入激活函数。神经网络有很多激活函数，最常见的选择是双曲切线。这些激活函数往往呈现S型的特点。&lt;/p&gt;
+&lt;p&gt;对比双曲切线公式和逻辑S型函数，你会发现它们可以彼此推导。它们的不同在于输出范围，如果输出范围在0~1之间，应该使用逻辑函数。&lt;/p&gt;
+&lt;p&gt;它们的一个很重要的特性是非线性。非线性神经网络比线性的更加强大，因为它们可以用来拟合非线性的分类边界或者非线性方程。另外，任何线性运算的组合也是线性的，这意味着具有多个线性隐藏层的多层感知机和具有单个线性隐藏层的多层感知机完全相同。这与非线性网络形成了鲜明的对比，非线性网络可以利用连续的隐藏层来重新表示输入数据，这样处理会很有用。&lt;/p&gt;
+&lt;p&gt;另一个关键特性是两个函数都是可微分的，这就使得网络可以通过梯度下降来进行训练。由于它们将无限的输入域减少到有限的输出范围，神经网络激活函数有时又被称为挤压函数。&lt;/p&gt;
+&lt;p&gt;在计算了第一个隐藏层激活后，依次对其余的隐藏层进行累加激活。&lt;/p&gt;
+&lt;h4 id=&quot;输出层&quot;&gt;&lt;a href=&quot;#输出层&quot; class=&quot;headerlink&quot; title=&quot;输出层&quot;&gt;&lt;/a&gt;输出层&lt;/h4&gt;&lt;p&gt;输出单元激活后就给出了多层感知机的输出向量。每个单元的输出是输入和层级单元求和计算而成的。&lt;/p&gt;
+&lt;p&gt;输出单元数和输出的激活函数取决于网络所要完成的任务。对于二分类问题，标准的用法是单一逻辑S函数。由于逻辑函数的取值是0和1，输出单元的激活可以被解释为输入向量属于一类的概率。&lt;/p&gt;
+&lt;p&gt;这种逻辑S型的二元概率估计被称为逻辑回归或者分类评定模型。&lt;/p&gt;
+&lt;p&gt;对于分类数大于2的分类问题，通常有多个输出，不同类别的输出激活函数使用&lt;br&gt;交叉熵损失函数。这就是多分类评定模型。&lt;/p&gt;
+&lt;p&gt;根据上面的定义，多层感知机用于模式识别就很直观，简单的提供一个输入向量，激活网络，再选择与最活跃的输出单元对应的分类标签。&lt;/p&gt;
+&lt;h4 id=&quot;损失函数&quot;&gt;&lt;a href=&quot;#损失函数&quot; class=&quot;headerlink&quot; title=&quot;损失函数&quot;&gt;&lt;/a&gt;损失函数&lt;/h4&gt;&lt;p&gt;多层感知机训练的损失函数前面已经有提及，尽管我们试图近似到完整的预测分布，但这里我们还是主要关注最大似然损失函数的生成。&lt;/p&gt;
+&lt;p&gt;无论是二分类问题还是多分类问题，我们都能得到相应的损失函数替换等式。&lt;/p&gt;
+&lt;h4 id=&quot;后向传递&quot;&gt;&lt;a href=&quot;#后向传递&quot; class=&quot;headerlink&quot; title=&quot;后向传递&quot;&gt;&lt;/a&gt;后向传递&lt;/h4&gt;&lt;p&gt;由于构造的多层感知机是可微的，所以它们可以用梯度下降的可微损失函数来最小化求解。梯度下降的基本思想是求出对每个网络权重的损失函数的导数，然后根据负斜率的方向调整权重。后面会讨论更多细节的部分。&lt;/p&gt;
+&lt;p&gt;为了有效地计算梯度，我们使用反向传播算法来实现。这通常被称作网络的反向传递。&lt;/p&gt;
+&lt;p&gt;反向传播仅仅是对偏导数链式法则的重复利用。第一步是计算出关于输出单元损失函数的导数。&lt;/p&gt;
+&lt;p&gt;同样的，二分类问题和多分类问题分别有自己的偏导公式。需要记住的是，交叉熵函数层中每个单元的激活依赖于层中每个单元的网络输入。&lt;/p&gt;
+&lt;p&gt;我们继续使用链式法则，在隐藏层中逆向推导。通过提出新的算子来简化表达，我们可以计算出每个网络的权重。&lt;/p&gt;
+&lt;h4 id=&quot;数值梯度&quot;&gt;&lt;a href=&quot;#数值梯度&quot; class=&quot;headerlink&quot; title=&quot;数值梯度&quot;&gt;&lt;/a&gt;数值梯度&lt;/h4&gt;&lt;p&gt;在实现反向传播时，强烈建议用数值来检查权重。这可以通过增加正向和负向的扰动来实现，并且可以计算损失函数的变化。&lt;/p&gt;
+&lt;p&gt;这被称为对称有限差分。注意计算函数的变量取值太小会导致数值下溢和精度下降。因此，最优值取决于给定的浮点精度。系统测试发现，10的负5次方往往结果不错。&lt;/p&gt;
+&lt;p&gt;注意，数字梯度比反向传播的时间代价要高。因此，数字型微分在网络训练中是不切实际的。另外，建议始终选择体系结构最小的网络来检查它的梯度，比如只有单一隐藏层的循环神经网络。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-循环神经网络&quot;&gt;&lt;a href=&quot;#0x02-循环神经网络&quot; class=&quot;headerlink&quot; title=&quot;0x02 循环神经网络&quot;&gt;&lt;/a&gt;0x02 循环神经网络&lt;/h2&gt;&lt;p&gt;前面我们讨论了非环结构的前馈神经网络。如果我们允许环状连接，就可以获得循环神经网络。与前馈网络一样，已经提出了许多种类的循环神经网络，比如埃尔曼网络、乔丹网络、时延神经网络和回声状态网络。在这里，我们关注一个简单的循环神经网络，它包含一个单一的、自连接的隐藏层。&lt;/p&gt;
+&lt;p&gt;虽然多层感知机和循环神经网络之间的差别看起来微不足道，但对于序列学习来说影响是深远的。多层感知机只能从输入映射到输出，而循环神经网络原则上可以从所有历史输入映射到每个输出。实际上，从多层感知机理论结果来说，循环神经网络只要有足够的隐藏单元，就可以在任意精度上近似任何可测量的序列映射。循环神经网络的关键点是循环连接允许之前输入的记忆持续存在于网络内部，从而影响网络输出。&lt;/p&gt;
+&lt;h3 id=&quot;前向传递-1&quot;&gt;&lt;a href=&quot;#前向传递-1&quot; class=&quot;headerlink&quot; title=&quot;前向传递&quot;&gt;&lt;/a&gt;前向传递&lt;/h3&gt;&lt;p&gt;循环神经网络的正向传递与单一隐藏层的多层感知器类似，不同之处在于激活不只是当前时间的外部输入信号，还有之前时间步长的隐藏层激活信号。这样的话，循环神经网络的隐藏层其实就是上述两部分的叠加。对于非线性的可微激活函数，也有类似多层感知机的公式。&lt;/p&gt;
+&lt;p&gt;隐藏层激活的完整序列就可以从一个时间开始，递归的使用隐藏层公式在计算。需要注意的是，这需要为隐藏单元选择一个初始值，这个初始值在任何输入序列到来之前，来表示网络的状态。这里通常用零作为初始值。但是，有研究者发现使用非零的初始值可以提高循环神经网络的稳定性和性能。&lt;/p&gt;
+&lt;p&gt;输出单元的网络输入可以与隐藏单元的激活同时计算。&lt;/p&gt;
+&lt;p&gt;对于序列分类和段分类任务，可以重用多层感知机中的输出激活函数，同样，损失函数也可以重用。时间分类问题就比较棘手，因为它的目标类别是未知的，但是后面会介绍一种特殊的输出层来解决循环神经网络中的时间分类问题。&lt;/p&gt;
+&lt;h3 id=&quot;后向传递-1&quot;&gt;&lt;a href=&quot;#后向传递-1&quot; class=&quot;headerlink&quot; title=&quot;后向传递&quot;&gt;&lt;/a&gt;后向传递&lt;/h3&gt;&lt;p&gt;给定网络输出的可微损失函数的偏导，下一步就是求关于权重的导数。有两种已知的算法能够有效的计算权重的导数，一种是在线循环学习，一种是沿时间反向传播。我们主要观众后者，因为它更简单且更有效。&lt;/p&gt;
+&lt;p&gt;和标准的反向传播算法类似，沿时反向传播由链式法则的重复应用组成。微妙之处在于，对于循环神经网络，依赖于隐藏层激活的损失函数，不仅仅影响输出层，还会在下一次时间步长里影响隐藏层。这里的计算和前向传递对应，做循环递减。最后，我们在每一步中重复使用相同的权重，再对整个序列进行求和，已得到关于网络权重的导数。&lt;/p&gt;
+&lt;h3 id=&quot;展开&quot;&gt;&lt;a href=&quot;#展开&quot; class=&quot;headerlink&quot; title=&quot;展开&quot;&gt;&lt;/a&gt;展开&lt;/h3&gt;&lt;p&gt;对循环神经网络有效的可视化展示方法是沿着输入序列展开网络。需要注意的是，展开图不包含循环结构，否则，前向传递和后向传递不好定义。&lt;/p&gt;
+&lt;p&gt;展开循环神经网络使得对复杂网络的更新依赖进行泛化更加容易。接下来我们会讨论网络以及多维网络和分层网络。&lt;/p&gt;
+&lt;h3 id=&quot;双向网络&quot;&gt;&lt;a href=&quot;#双向网络&quot; class=&quot;headerlink&quot; title=&quot;双向网络&quot;&gt;&lt;/a&gt;双向网络&lt;/h3&gt;&lt;p&gt;对于许多序列标记任务来说，能够接触到时间点前后的上下文是有益的。比如，当进行手写字母分类时，知道字母两侧的上下文对分类是有帮助的。然而，由于标准的循环神经网络是按照时间顺序排列的，因此忽略了将来时刻的上下文。一个明显的解决方法是在网络输入中添加一个时间窗。然而，除了会增加输入权重的数量外，这种方法也会遇到和之前讨论过的时间窗方法同样的问题，即不能接受的失真和上下文始终定长。另一种尝试是在输入与目标之间引入一个延时，从而为网络提供一些将来上下文的时间。这种方法增加了网络对于失真的健壮性，但是仍然需要手动去决定上下文的范围。而且，由于这种方法需要迫使记住原始输入和它之前的上下文，这就给网络带来了不必要的负担。所以，这两种方法是无法消除过去与未来信息之间的不对等的。&lt;/p&gt;
+&lt;p&gt;双向循环神经网络提供了一个更加优雅的解决方案，它的基本思想是将每个训练序列分别前馈和后馈给两个单独的隐藏层，这两层都连接到相同的输出层。这种结构使得输入序列中的每个点都提供了完整的过去和将来时刻的上下文，而不至于被循环输入所替代。双向网络在很多领域展现了它的改进效果，特别是蛋白质的二级预测和语音处理，我们发现它在序列标记方面的表现比单向循环网络要好。&lt;/p&gt;
+&lt;p&gt;双向网络的前向传递和单向相同，不同之处在于两个隐藏层的传递方向正好相反，而输出层只有当两个隐藏层都处理了整个输入序列时才进行更新。&lt;/p&gt;
+&lt;p&gt;同样的，后向传递也与单向相同，除了先进行所有输出层的计算，然后再反馈回两个方向相反的隐藏层。&lt;/p&gt;
+&lt;h4 id=&quot;因果关系任务&quot;&gt;&lt;a href=&quot;#因果关系任务&quot; class=&quot;headerlink&quot; title=&quot;因果关系任务&quot;&gt;&lt;/a&gt;因果关系任务&lt;/h4&gt;&lt;p&gt;对双向网络提出的一个异议是它违反了因果关系。显然，对于金融预测和机器人导航这样的任务，需要访问将来输入是不可行的。当然，还有些任务是不需要考虑因果的。比较明显的例子是空间上呈现出来的输入序列，它们是不需要区分过去和将来的。这也就是为什么蛋白质预测领域广泛采用这种算法。但是，双向网络也可以用于时序任务，只要网络的输出仅依赖于输入段完整结束即可。例如，在语音和手写识别中，数据通常分割成句子、段落或对话，它们的输出标记都是需要在完整处理整个序列后再输出。此外，即使对于在线的时序任务，例如自动听写，也可以使用双向算法，只要输入过程中有一些自然的中断，比如处理数据的一部分之前暂停语音。&lt;/p&gt;
+&lt;h3 id=&quot;序列雅可比矩阵&quot;&gt;&lt;a href=&quot;#序列雅可比矩阵&quot; class=&quot;headerlink&quot; title=&quot;序列雅可比矩阵&quot;&gt;&lt;/a&gt;序列雅可比矩阵&lt;/h3&gt;&lt;p&gt;前面说到，上下文信息对于序列标记十分重要。&lt;/p&gt;
+&lt;p&gt;因此，我们希望有一种方法来准确的分析在特定序列中，算法是如何使用上下文的。对于循环神经网络来说，我们可以通过测量网络输出对网络输入的灵敏度来实现这一点。&lt;/p&gt;
+&lt;p&gt;对于前馈神经网络，雅可比矩阵是网络输出对输入向量的偏导数矩阵。这些导数显示了输出对于输入微小变化的相对敏感度。通过在测量输入和输出变量时指定时间步长，可以将雅可比矩阵推广到循环神经网络。我们把产生的四维矩阵成为序列雅可比矩阵。&lt;/p&gt;
+&lt;p&gt;这里提到用这种方法测量敏感度，但是需要注意的是，敏感度并不直接对应于上下文的重要性。比如，图像中的背景像素点，由于它的输入是一种不变的，所以它对于输入就会有很高的敏感度，但是它本身却不会提供有用的上下文信息。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-网络训练&quot;&gt;&lt;a href=&quot;#0x03-网络训练&quot; class=&quot;headerlink&quot; title=&quot;0x03 网络训练&quot;&gt;&lt;/a&gt;0x03 网络训练&lt;/h2&gt;&lt;p&gt;前面讨论了损失函数和梯度下降，这里我们进一步淘箩如何高效快速的训练网络。&lt;/p&gt;
+&lt;h3 id=&quot;梯度下降算法&quot;&gt;&lt;a href=&quot;#梯度下降算法&quot; class=&quot;headerlink&quot; title=&quot;梯度下降算法&quot;&gt;&lt;/a&gt;梯度下降算法&lt;/h3&gt;&lt;p&gt;首先，我们需要决定如何跟随误差梯度。最简单的方法有众所周知的最速梯度下降，它是反复的在损失函数的负误差梯度上做一个固定的步骤，直到满足某个条件停止。&lt;/p&gt;
+&lt;p&gt;这种方法的主要问题是容易陷入局部极小值。这可以通过增加动量项来减轻，它有效的增加了算法通过权重空间的运动惯性，从而加速收敛并从局部最小值逃逸。&lt;/p&gt;
+&lt;p&gt;当这种梯度根据整个训练集定义的损失函数来计算时，权重的更新过程就被称为批学习。这和在线学习形成对比，后者是通过对个别训练示例进行权重更新。&lt;/p&gt;
+&lt;p&gt;现在提出了许多复杂的梯度下降算法，例如弹性反馈算法、快速传播算法、共轭梯度算法和受限拟牛顿算法，在批量学习方面，这些方法通常优于最速梯度下降。然而，最速梯度下降更适应在线学习，因为它的每个权重更新都只需很小的步骤，可以更好的适应不断变化的梯度。&lt;/p&gt;
+&lt;p&gt;在应对大量冗余和规律性的数据集时，在线学习往往比批学习更有效。此外，在线学习能够帮助我们逃离局部最小值，由于每个训练示例的损失函数是不同的。在每次通过训练集之前，随机化训练集合中数据的顺序可以进一步增强它的稳健性。&lt;/p&gt;
+&lt;p&gt;最近提出的一种在线学习方法是随机元下降算法，它已经被证明可以更快的收敛和改进神经网络。&lt;/p&gt;
+&lt;h3 id=&quot;泛化&quot;&gt;&lt;a href=&quot;#泛化&quot; class=&quot;headerlink&quot; title=&quot;泛化&quot;&gt;&lt;/a&gt;泛化&lt;/h3&gt;&lt;p&gt;尽管我们在训练集的算法上讨论了这么多，但是最终的目标是在测试集上能够有很好的性能表现。是否能够将训练集的性能迁移到测试集上的问题称为泛化，这对机器学习来说至关重要。通常来说，更大的训练集会有更好的泛化效果。多年来，人们提出很多改进的方法用于修正训练集，而在这里，只有三个简单的规则被使用，提前停止、输入噪声和权重噪声。&lt;/p&gt;
+&lt;h4 id=&quot;提前停止&quot;&gt;&lt;a href=&quot;#提前停止&quot; class=&quot;headerlink&quot; title=&quot;提前停止&quot;&gt;&lt;/a&gt;提前停止&lt;/h4&gt;&lt;p&gt;为了提前停止，部分训练集被分出作为验证集。然后通过验证集来测试是否应该停止。最优权重值的选择也可以通过验证集来进行，通常通过选择在验证集上最小化的权重来评估测试集的性能。实践中，两种方法通常是同步进行的，在验证集上每隔一段时间对误差进行评估，并且在误差不在下降时停止训练，以此来减少训练时间。&lt;/p&gt;
+&lt;p&gt;测试集不应该用于决定是否可以提前停止或者最佳权重选择。因为这是训练集间接训练的一部分。原则上，训练完成前不应该对网络进行评估。&lt;/p&gt;
+&lt;p&gt;在训练过程中，误差通常会先在所有集合上减少，但是在某个点之后，当在训练集上继续减少时，误差反而会在测试集合验证集上增加，这就是过拟合。&lt;/p&gt;
+&lt;p&gt;提前停止可能是最简单、使用最广泛的改进泛化的方法。但是，这样做的同时其实减少了训练集的数量，这可能导致训练性能降低，特别是在训练集数量很少的情况下。另一个问题在于，无法确定先验验证集应该有多大。需要注意的是，验证集不能作为测试集性能的准确度预测器，重要的是，过拟合在两种数据集上几乎是同时出现的。&lt;/p&gt;
+&lt;h4 id=&quot;输入噪声&quot;&gt;&lt;a href=&quot;#输入噪声&quot; class=&quot;headerlink&quot; title=&quot;输入噪声&quot;&gt;&lt;/a&gt;输入噪声&lt;/h4&gt;&lt;p&gt;在网络输入中增加零均值、固定方差的高斯噪声是训练增加泛化性的一种很好的方法。期望的效果是人为的增加训练集的大小，从而产生和原始输入结果相同的新输入，从而增强泛化性。&lt;/p&gt;
+&lt;p&gt;输入噪声的一个问题是很难预先确定噪声的方差应该为多少。尽管有各种各样的经验法则，最可靠的方法是在验证集上按照经验设置方差。&lt;/p&gt;
+&lt;p&gt;一个更难的问题是输入扰动只有在反映真实数据中的变化才是有效的。例如，将高斯噪声添加到图像的单个像素中，不会产生明显不同的图像，因此这种方法不太可能对图像进行泛化。因此，在平滑轨迹上的独立扰动是无效的。针对特定数据集进行的输入扰动已经被证明在泛化方面是非常有效的。然而，这需要数据集的先验模型，这通常做不到。&lt;/p&gt;
+&lt;p&gt;在训练时，应该为网络上的每个样例重新生成输入噪声；特别的，在网络循环通过数据时，同样的噪声不应该被重新使用。测试阶段不应该再输入噪声，这样会妨碍性能。&lt;/p&gt;
+&lt;h4 id=&quot;权重噪声&quot;&gt;&lt;a href=&quot;#权重噪声&quot; class=&quot;headerlink&quot; title=&quot;权重噪声&quot;&gt;&lt;/a&gt;权重噪声&lt;/h4&gt;&lt;p&gt;另一种方法是给网络权重增加零均值、固定方差的高斯噪声。由于权重噪声或者突触噪声在网络内部是一种输入的表示，而不是输入本身，所以它可以用于任何数据类型。然而，权重噪声通常比精心设计的输入扰动效果要差，而且会带来更慢的收敛。&lt;/p&gt;
+&lt;p&gt;权重噪声可以用来简化神经网络，以减少传输网络所需的信息量。直观地说，这是因为噪声降低了权重被表示出来的精度。根据奥卡姆剃刀原则，越简单的网络效果越好。&lt;/p&gt;
+&lt;p&gt;和输入噪声一样，权重噪声也不应该添加到测试集评估中。&lt;/p&gt;
+&lt;h3 id=&quot;输入表示&quot;&gt;&lt;a href=&quot;#输入表示&quot; class=&quot;headerlink&quot; title=&quot;输入表示&quot;&gt;&lt;/a&gt;输入表示&lt;/h3&gt;&lt;p&gt;选择一种合适的输入数据表示形式是机器学习任务中的重要部分。实际上，在某些情况下，这比算法本身更加重要。神经网络对于输入表示的稳健性表现的相对较好，例如，在语音识别中，循环神经网络对各种预处理的语音训练都很有效。&lt;/p&gt;
+&lt;p&gt;对神经网络输入表示的唯一要求是，它们是完整且合理的。尽管相互无关的输入对于神经网络不是问题但会引起维度灾难，高维空间的输入将会造成过多的输入权值和较低的泛化能力。&lt;/p&gt;
+&lt;p&gt;所以，输入表示是一种黑盒艺术，它的目的是使输入和目标之间的关系尽可能简单。&lt;/p&gt;
+&lt;p&gt;对于所有神经网络输入数据进行的一个程序是标准化输入向量，使得训练集向量分量均值为0，标准差为1。这个过程不会改变训练集中的信息，但是通过将输入值转换成更适合于标准激活函数来提高性能。注意，测试集和验证集需要和训练集一同被标准化。&lt;/p&gt;
+&lt;h3 id=&quot;权重初始化&quot;&gt;&lt;a href=&quot;#权重初始化&quot; class=&quot;headerlink&quot; title=&quot;权重初始化&quot;&gt;&lt;/a&gt;权重初始化&lt;/h3&gt;&lt;p&gt;神经网络的许多梯度下降算法要求权重拥有小而随机的初始值。我们在这里用正负1之间的平滑随机分布或者均值0、标准差0.1的高斯分布。然而，我们并没有发现我们的结果对分布或者范围非常敏感。结论就是权重初始化要重复做几次才能确定它的意义。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;机器学习小白的阅读笔记，continue~&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="机器学习" scheme="http://phantom0301.cc/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+      <category term="神经网络" scheme="http://phantom0301.cc/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于递归神经网络的监督序列标记（1）</title>
+    <link href="http://phantom0301.cc/2017/06/22/rnntolabel/"/>
+    <id>http://phantom0301.cc/2017/06/22/rnntolabel/</id>
+    <published>2017-06-22T11:52:03.000Z</published>
+    <updated>2017-06-23T09:14:17.338Z</updated>
+    
+    <content type="html">&lt;p&gt;机器学习小白的阅读笔记，《Supervised Sequence Labelling with Recurrent Neural Networks》翻译，个人认为比较通俗易懂的相关英文文章~~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-监督学习&quot;&gt;&lt;a href=&quot;#0x01-监督学习&quot; class=&quot;headerlink&quot; title=&quot;0x01 监督学习&quot;&gt;&lt;/a&gt;0x01 监督学习&lt;/h2&gt;&lt;p&gt;是的，我们直接从第二章开始。&lt;/p&gt;
+&lt;p&gt;监督学习是使用一批带有标记的数据来进行训练的任务。这也是它和强化学习以及无监督学习的区别，强化学习是只使用一个标量奖励来训练，而无监督学习则是试图在没有标志的情况下发现整个数据的结构特点。&lt;/p&gt;
+&lt;p&gt;监督学习由一组元素和标签组成训练集，输入元素组成输入空间，标签组成目标空间，另一组互斥组成测试集。也就是说训练集和测试集一起组成了我们的数据集。当然，有些时候，我们还会引入验证集这个概念，验证集来源于训练集，用来验证训练期间算法的性能，验证集也可以用来决定训练是否应终止以防止过拟合。学习的目标就是通过训练集训练模型来减小某些在测试集上的错误指标。比如回归问题，通常的错误衡量指标是模型测试集输出与测试集标签之间的平方和或者平方欧氏距离。对于那些参数化的算法来说，一般的误差最小化的方法是渐进地调整算法参数，以优化训练集上的损失函数。这种从训练集到测试集的转化就是泛化。&lt;/p&gt;
+&lt;p&gt;根据监督学习任务的不同，我们需要选择不同标签的数据。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-模式识别&quot;&gt;&lt;a href=&quot;#0x02-模式识别&quot; class=&quot;headerlink&quot; title=&quot;0x02 模式识别&quot;&gt;&lt;/a&gt;0x02 模式识别&lt;/h2&gt;&lt;p&gt;模式识别是机器学习的一大领域，一些模式识别分类器，如多层感知机和支持向量机在研究领域被广泛使用。&lt;/p&gt;
+&lt;p&gt;模式识别通常使用在非序列额数据上，但是一些实践和理论框架依然可以被借鉴到序列数据案例中。因此，先回顾一下这些框架。&lt;/p&gt;
+&lt;p&gt;对于监督模式识别的输入空间，我们需要找到一个函数关系，使得输入空间可以映射到目标空间，也就是说把输入的向量数据映射到标签值上。这时，我们就可以用错误率来衡量分类器的性能。&lt;/p&gt;
+&lt;h3 id=&quot;概率分类&quot;&gt;&lt;a href=&quot;#概率分类&quot; class=&quot;headerlink&quot; title=&quot;概率分类&quot;&gt;&lt;/a&gt;概率分类&lt;/h3&gt;&lt;p&gt;一部分分类器通过判别函数输出分类标签，与之对应的，我们还可以选择概率分类来输出一个概率值。使用概率分类的好处在于我们衡量分类问题不再是单一的0或1，这丰富了我们对输出结果的认知，我们可以知道同样是标签1,被判别为1和1的输入之间彼此还有不同。另一个好处是，概率分类使得我们可以合并分类器结果。&lt;/p&gt;
+&lt;h3 id=&quot;训练概率分类器&quot;&gt;&lt;a href=&quot;#训练概率分类器&quot; class=&quot;headerlink&quot; title=&quot;训练概率分类器&quot;&gt;&lt;/a&gt;训练概率分类器&lt;/h3&gt;&lt;p&gt;如果把一个分类器看成是输入和参数对于分类标签的条件概率分布，我们可以得到一个概率公式，通过贝叶斯法则，我们可以推导出一个新的公式。&lt;/p&gt;
+&lt;p&gt;再通过对于参数的积分，我们可以得到一个关于输入的后验分布。&lt;/p&gt;
+&lt;p&gt;由于真实的参数是高维的，所以我们通过数学推导得到的公式并不好计算。因此我们引入一个叫最大先验近似的参数来简化这个积分公式。&lt;/p&gt;
+&lt;p&gt;在最大先验近似参数的计算公式中，有一个奥卡姆因子，用来改变一些权重，也就是说对于复杂的参数，我们认为它出现的可能性很低。当我们去掉这个因子，就得到最大似然参数。&lt;/p&gt;
+&lt;p&gt;到这里，我们就可以摆脱真实参数，而去讨论我们得到的更好用来计算的参数。&lt;/p&gt;
+&lt;h5 id=&quot;最大似然损失函数&quot;&gt;&lt;a href=&quot;#最大似然损失函数&quot; class=&quot;headerlink&quot; title=&quot;最大似然损失函数&quot;&gt;&lt;/a&gt;最大似然损失函数&lt;/h5&gt;&lt;p&gt;这个函数用来找到最大似然参数，它是分类器对输入空间预测的负自然对数和。由于对数的单调递增性，最小化这个负对数和，相当于在求真数的最大值。&lt;/p&gt;
+&lt;p&gt;而这个函数的导数就是网络权重。&lt;/p&gt;
+&lt;h3 id=&quot;生成方法与判别方法&quot;&gt;&lt;a href=&quot;#生成方法与判别方法&quot; class=&quot;headerlink&quot; title=&quot;生成方法与判别方法&quot;&gt;&lt;/a&gt;生成方法与判别方法&lt;/h3&gt;&lt;p&gt;通过模型对输入得到一个概率，这就是判别方法。但是，有时我们有需要根据分类条件密度，再通过贝叶斯法则结合先验概率来找到后验值，这种方法就是生成。生成方法可以独立训练每个类别，而判别的方法一旦有新的类别加入就需要重新训练模型。但是，判别方法会有更好的分类结果，因为它的目标就是找到合适的分类边界。&lt;/p&gt;
+&lt;p&gt;这里主要关注判别序列标记。当然，也会讨论广为人知的生成方法——隐马尔科夫模型。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-序列标记&quot;&gt;&lt;a href=&quot;#0x03-序列标记&quot; class=&quot;headerlink&quot; title=&quot;0x03 序列标记&quot;&gt;&lt;/a&gt;0x03 序列标记&lt;/h2&gt;&lt;p&gt;序列标记的目标是从固定字母表中提取标签序列分配给输入数据序列。比如通过一段手写图片或者声音序列得到它们的内容标记。虽然此类任务通常在和时间序列有关，但也存在于非时序序列的情况，比如蛋白质二级结构的预测。&lt;/p&gt;
+&lt;p&gt;如果假设序列是独立同分布的，那么我们就可以使用模式分类的基本框架，用序列代替模式。在实践中，这种假设可能并不完全正确，比如一些对于序列边界的讨论。进一步，我们假设标签序列与输入序列一样长，那么我们就有一个简单的识别任务。&lt;/p&gt;
+&lt;p&gt;某些情况下，我们可以应用一些附加的约束在标签序列上。这可能会影响算法所做的标签选择以及对性能的衡量。下面几节描述了三种序列标记任务，时间分类、段分类、序列分类。逐步放宽对应于输入和标签序列之间关系的假设，并讨论适用于每个序列的算法和算法性能。&lt;/p&gt;
+&lt;h3 id=&quot;序列分类&quot;&gt;&lt;a href=&quot;#序列分类&quot; class=&quot;headerlink&quot; title=&quot;序列分类&quot;&gt;&lt;/a&gt;序列分类&lt;/h3&gt;&lt;p&gt;最极端的例子是标签序列长度为1。也就是说每一个输入序列对应一个单一分类。这包括单个的语音识别和手写识别。这类任务的特点是在分类前可以先处理整个序列。&lt;/p&gt;
+&lt;p&gt;如果输入序列是定长的或者容易处理成定长的格式，它们就可以转换成输入向量来进行模式识别。这里面有名的测试集是MNIST。卷积神经网络和支持向量机等大量方法都被应用于它的识别。&lt;/p&gt;
+&lt;p&gt;和模式识别相似，我们使用序列错误率来衡量一个分类器的性能。&lt;/p&gt;
+&lt;h3 id=&quot;段分类&quot;&gt;&lt;a href=&quot;#段分类&quot; class=&quot;headerlink&quot; title=&quot;段分类&quot;&gt;&lt;/a&gt;段分类&lt;/h3&gt;&lt;p&gt;段分类指的是目标序列由多个标签组成的分类任务，但是标签的位置是预先知道的。段分类常见于自然语言处理和生物信息学等领域中，这些领域的输入是离散的且容易被分段。当然，如果能够完成繁琐的手工分割操作，它也可以被用在音频和图像识别领域。&lt;/p&gt;
+&lt;p&gt;段分类的一个关键要素是，段与段之间的上下文是否进行分类。上下文的有效使用对于段分类来说至关重要。标准的分类算法一次只能有一个输入，解决这个问题的简单方法就是使用时间窗。但是时间窗会造成数据的移位和扭曲，而且不同时间窗对于段的影响也是未知的。&lt;/p&gt;
+&lt;p&gt;段分类的衡量指标是段错误率&lt;/p&gt;
+&lt;p&gt;在语音识别中，每个声音帧的语音分类作为一个单独的片段，通常称为帧音位分类。在这种情况下，段错误率就可以被称为帧错误率。很多神经网络结构被应用在这一领域。在图像处理中，通过图像分割把图像分成每一个像素或像素块。多维循环神经网络应用于这种情况。&lt;/p&gt;
+&lt;h3 id=&quot;时间分类&quot;&gt;&lt;a href=&quot;#时间分类&quot; class=&quot;headerlink&quot; title=&quot;时间分类&quot;&gt;&lt;/a&gt;时间分类&lt;/h3&gt;&lt;p&gt;在一些情况下，我们不好对于标签序列做出什么假设，这种情况就可以用时间分类。&lt;/p&gt;
+&lt;p&gt;时间分类和段分类的关键区别在于前者需要确定输入序列应当被分类的位置。这就需要一个隐式或显式的序列全局结构模型。&lt;/p&gt;
+&lt;p&gt;显然，在这里我们需要新的衡量标准，我们通过计算将一个序列转换为另一个序列所需的替换、插入和删除的总数，给出了标签错误率来衡量。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;机器学习小白的阅读笔记，《Supervised Sequence Labelling with Recurrent Neural Networks》翻译，个人认为比较通俗易懂的相关英文文章~~&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="机器学习" scheme="http://phantom0301.cc/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+      <category term="神经网络" scheme="http://phantom0301.cc/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>PHP代码审计学习</title>
+    <link href="http://phantom0301.cc/2017/06/06/codeaudit/"/>
+    <id>http://phantom0301.cc/2017/06/06/codeaudit/</id>
+    <published>2017-06-06T08:14:04.000Z</published>
+    <updated>2017-06-08T09:13:36.939Z</updated>
+    
+    <content type="html">&lt;p&gt;这是一次分享准备。&lt;br&gt;自己还没有总结这个的能力，这次就当个搬运工好了~~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-工具准备&quot;&gt;&lt;a href=&quot;#0x01-工具准备&quot; class=&quot;headerlink&quot; title=&quot;0x01 工具准备&quot;&gt;&lt;/a&gt;0x01 工具准备&lt;/h2&gt;&lt;p&gt;PHPSTORM，不只是编程。&lt;/p&gt;
+&lt;p&gt;个人觉得只要能够提供全局搜索、单页搜索、函数跳转的编辑器就能够满足要求。一般在审计的时候，先找到一个入口点，配合代码和浏览器，一边下断点，一边打印变量，再在浏览器上观察反应。&lt;/p&gt;
+&lt;p&gt;自动化审计工具，食之无味，弃之可惜。&lt;/p&gt;
+&lt;p&gt;当然，我手边能用到的自动化审计工具就是能在网上找到资源的那几种。对于快速定位漏洞点来审计，自动化工具是有一定作用的，但是，大多数我能接触到的审计工具大抵是基于规则匹配的或者有一定的数据流向，但由于不能做到语义识别，很多逻辑控制语句无法识别，导致敏感点可可控参数无法自由的跳转结合。&lt;/p&gt;
+&lt;p&gt;现在的习惯是，有了代码，先会扔进审计工具里跑一跑，看一个大概趋势，如果时间充裕，一般还是愿意一点一点从代码入口点跟进。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-审计初步&quot;&gt;&lt;a href=&quot;#0x02-审计初步&quot; class=&quot;headerlink&quot; title=&quot;0x02 审计初步&quot;&gt;&lt;/a&gt;0x02 审计初步&lt;/h2&gt;&lt;p&gt;审计可以从多个角度切入，首先是搞清楚审计对象的架构，是套了开源的框架，还是原生代码；是MVC，还是仅仅是函数调用。&lt;/p&gt;
+&lt;p&gt;那么在审计之前，最好就是使用或者熟悉这些常见框架的特性机制。&lt;/p&gt;
+&lt;p&gt;CI&lt;br&gt;&lt;a href=&quot;https://codeigniter.org.cn/&quot; title=&quot;https://codeigniter.org.cn/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://codeigniter.org.cn/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;YII2&lt;a href=&quot;http://www.yiichina.com/&quot; title=&quot;http://www.yiichina.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.yiichina.com/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ThinkPHP&lt;a href=&quot;http://www.thinkphp.cn/&quot; title=&quot;http://www.thinkphp.cn/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.thinkphp.cn/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Laravel&lt;a href=&quot;https://laravel.com/&quot; title=&quot;https://laravel.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://laravel.com/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;熟悉这些框架方便我们快速判断审计点。比如之前的一次代码审计就是套了ThinkPHP的核心代码，结果导致ThinkPHP的漏洞对于那套系统依然适用。&lt;/p&gt;
+&lt;p&gt;为了能够边学习边实践别人的思想，我这里以MetInfo为例进行学习。&lt;/p&gt;
+&lt;p&gt;对于快速审计，比如自动化工具，往往可以考虑以下一些切入点。&lt;/p&gt;
+&lt;h5 id=&quot;敏感函数切入&quot;&gt;&lt;a href=&quot;#敏感函数切入&quot; class=&quot;headerlink&quot; title=&quot;敏感函数切入&quot;&gt;&lt;/a&gt;敏感函数切入&lt;/h5&gt;&lt;p&gt;敏感函数包括能够代码执行（PHP、MYSQL）的函数、上传下载文件的函数、文件读取的函数、加载资源的函数。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;eval()- 海洋CMS6.28&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;@eval(“if(“.$strIf.”){\$ifFlag=true;}else{\$ifFlag=false;}”);&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;exec()-imo云办公&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;$result = exec($_POST[‘command’]);&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;preg_replace()-Thinkphp2.1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;preg_replace(‘/test/e’, ‘phpinfo()’, ‘just test’);&lt;/p&gt;
+&lt;p&gt;preg_replace(‘@(w+)’.$depr.’([^’.$depr.’\/]+)@e’, ‘$var[\’\1\’]=”\2”;’, implode($depr,$paths));&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;system()-Family Connections CMS v2.5.0-v2.7.1&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;assert()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;call_user_func()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;call_user_func_array()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;create_function&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;shell_exec()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;passthru()-Narcissus在线图像汇编器&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;escapeshellcmd()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pcntl_exec() &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;反引号 ` 大括号{}&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ob_start()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;array_map()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;proc_open()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;popen()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;require_once()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;include_once()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;file_get_contents()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;highlight_file()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;fopen()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;readfile()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;fread()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;fgetss()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;fgets()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;parse_ini_file()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;show_source()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;file()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;echo XSS&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;……&lt;/p&gt;
+&lt;p&gt;这一类的函数有很多，这种漏洞一般可能会呈现两种趋势，一种就是常用函数过滤绕过，一种是不常见函数用法失误的。&lt;/p&gt;
+&lt;h5 id=&quot;漏洞点切入&quot;&gt;&lt;a href=&quot;#漏洞点切入&quot; class=&quot;headerlink&quot; title=&quot;漏洞点切入&quot;&gt;&lt;/a&gt;漏洞点切入&lt;/h5&gt;&lt;p&gt;如果说白盒找敏感函数的话，黑盒上对应的就是优先查找程序的SQL执行点、上传点、登录点、密码找回点等&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SQL注入&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;登录页面、表单接收页面、信息显示页面&lt;/p&gt;
+&lt;p&gt;普通拼接，这种不多说了，主流开源的代码想挖到这种已经很难了，要么没有拼接的用法，要么就做了更加严格的过滤。&lt;/p&gt;
+&lt;p&gt;当然，这里有些小技巧，比如多次过滤情况下的绕过。如\include\mail\class.phpmailer.php的1741行：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;tip1:
+$textMsg = trim(strip_tags(preg_replace(&amp;apos;/&amp;lt;(head|title|style|script)[^&amp;gt;]*&amp;gt;.*?&amp;lt;\/\\1&amp;gt;/s&amp;apos;,&amp;apos;&amp;apos;,$message)));
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里连续用了两个过滤函数，这两个函数在一起容易造成绕过。&lt;/p&gt;
+&lt;p&gt;可以使用这两个payload做对比：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;head&amp;gt;evil&amp;lt;/head&amp;gt;
+
+&amp;lt;he&amp;lt;&amp;gt;ad&amp;gt;evil&amp;lt;/head&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;编码注入： &lt;/p&gt;
+&lt;p&gt;二次编码注入，addslashes、mysql_real_escape_string、mysql_escape_string或者开启GPC来转义，但是，如果再次使用urlencode就会出现二次编码。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;文件包含&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;模块加载，模板加载，cache调用&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;任意文件读取&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;寻找文件读取敏感函数&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;文件上传&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;move_uploaded_file()&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;文件删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;unlink()&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;变量覆盖&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;extract()&lt;/p&gt;
+&lt;p&gt;parse_str()&lt;/p&gt;
+&lt;p&gt;$$&lt;/p&gt;
+&lt;h5 id=&quot;index切入&quot;&gt;&lt;a href=&quot;#index切入&quot; class=&quot;headerlink&quot; title=&quot;index切入&quot;&gt;&lt;/a&gt;index切入&lt;/h5&gt;&lt;p&gt;从软件的index入口点开始，逐渐遍历到所有函数文件。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-审计实践&quot;&gt;&lt;a href=&quot;#0x03-审计实践&quot; class=&quot;headerlink&quot; title=&quot;0x03 审计实践&quot;&gt;&lt;/a&gt;0x03 审计实践&lt;/h2&gt;&lt;p&gt;这里以Metinfo为例进行演示,先大致了解一下该款CMS的结构。&lt;/p&gt;
+&lt;p&gt;根目录下入口index.php,前台客户逻辑在/member/里，后台逻辑在/admin/里，自己创建的应用在/app/中，&lt;br&gt;前台的下载/搜索/等逻辑对应在相应的目录下。&lt;/p&gt;
+&lt;p&gt;常用的功能函数集中在/include/下，重点在*.inc.php和*.func.php中&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/index.php
+    |
+/include/common.inc.php
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这个文件很有意思，比如里面有名的变量覆盖，由变量覆盖处跳转到过滤函数daddslashes(),明显这里有国瓷打补丁的痕迹，分享时现场细说，这里就不赘述。&lt;br&gt;    /include/common.inc.php&lt;br&gt;        |&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/include/head.php
+    |
+/app/
+    |
+/include/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;MetInfo由于特殊的变量传递机制和路由机制，使得我们可以轻易访问到任意PHP文件并且携带参数进行测试，所以对于它的审计顺序会更加松散一点。&lt;/p&gt;
+&lt;p&gt;我这里先从关联性较弱的/about/，/upload/,/search/等几个文件夹看起，最后再集中阅读用户应用的/app/文件夹。&lt;/p&gt;
+&lt;p&gt;利用前面说到的断点输出变量的方法一点一点调试实例，分享用。&lt;/p&gt;
+&lt;p&gt;（&lt;a href=&quot;http://127.0.0.1/case/index.php?metid=1&amp;amp;filpy=&amp;amp;fmodule=0&amp;amp;modulefname=2）&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://127.0.0.1/case/index.php?metid=1&amp;amp;filpy=&amp;amp;fmodule=0&amp;amp;modulefname=2）&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;到这里都没有什么太大的发现，唯一的感受就是有很多点都很惊险，由于没有用MVC框架，显然很多SQL语句之间的写法差异都比较大。&lt;/p&gt;
+&lt;p&gt;之后就可以跟进include的功能函数来看，也就是在这里终于知道了一个小漏洞。&lt;/p&gt;
+&lt;p&gt;前台大概看得差不多，就可以跟进后台admin文件夹看看，这里就会觉得轻松很多，一个后台就不在适用过滤函数了，另一个后台功能更多一点，不过后台漏洞大多就只能算代码BUG，没有前台来得那么惊艳。&lt;/p&gt;
+&lt;p&gt;大多数的内容打算分享的时候直接口述，这里其实只能算是一个大纲，所以文字上可能不是很通顺。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这是一次分享准备。&lt;br&gt;自己还没有总结这个的能力，这次就当个搬运工好了~~&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="审计" scheme="http://phantom0301.cc/categories/%E5%AE%A1%E8%AE%A1/"/>
+    
+    
+      <category term="代码审计" scheme="http://phantom0301.cc/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读读法律——《网络安全法》、《情报法》</title>
+    <link href="http://phantom0301.cc/2017/05/19/security-law/"/>
+    <id>http://phantom0301.cc/2017/05/19/security-law/</id>
+    <published>2017-05-19T11:30:44.000Z</published>
+    <updated>2017-05-19T12:37:29.980Z</updated>
+    
+    <content type="html">&lt;p&gt;学习一下《中华人民共和国网络安全法》和《中华人民共和国国家情报法》&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-安全法&quot;&gt;&lt;a href=&quot;#0x01-安全法&quot; class=&quot;headerlink&quot; title=&quot;0x01 安全法&quot;&gt;&lt;/a&gt;0x01 安全法&lt;/h2&gt;&lt;p&gt;《安全法》自2017年6月1日起施行。共七章七十九条。&lt;/p&gt;
+&lt;p&gt;《安全法》首先是我国对于网络空间主权的宣示，提出对国内的管理以及与国外的合作。接着从国家、政府、企业、个人层面进行要求。&lt;/p&gt;
+&lt;p&gt;其次，在理论科研层面，我们会完善标准指定，加强宣传工作，培养相关人才。而重点的方向在于网络安全认证、网络风险评估、网络数据保护等方向。&lt;/p&gt;
+&lt;p&gt;接下来有几个个人注意的点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;网络运营者应该留存网络日志不少于六个月&lt;/li&gt;
+&lt;li&gt;网络产品不得设置恶意程序（不知道以前的哪些流氓软件们的行为现在算违法吗？）&lt;/li&gt;
+&lt;li&gt;网络产品、服务一旦出现漏洞，必须补救并告知用户、主管部门&lt;/li&gt;
+&lt;li&gt;在安全维护和个人信息收集方面提出要求&lt;/li&gt;
+&lt;li&gt;安全产品需要有安全认证&lt;/li&gt;
+&lt;li&gt;发布相关漏洞信息应当遵守国家有关规定（什么规定？）&lt;/li&gt;
+&lt;li&gt;不许非法入侵、不得提供非法入侵工具、不得提供入侵支持、推广、支付&lt;/li&gt;
+&lt;li&gt;网络运营者必须要向国家相关部门提供支持和协助&lt;/li&gt;
+&lt;li&gt;关键设施岗位安全背景审查，影响国家安全的关键设施采购需要国家安全审查&lt;/li&gt;
+&lt;li&gt;关键设施个人信息数据出境需要安全评估&lt;/li&gt;
+&lt;li&gt;经过处理无法识别特定个人且不能复原的个人信息可以向他人提供&lt;/li&gt;
+&lt;li&gt;不得窃取、出售个人信息&lt;/li&gt;
+&lt;li&gt;不得设立违法的网站、通讯群组&lt;/li&gt;
+&lt;li&gt;电子信息违法时，运营商需要处置&lt;/li&gt;
+&lt;li&gt;对人民政府在风险发生时的作为提出要求&lt;/li&gt;
+&lt;li&gt;在一定条件下可以进行网络通信限制&lt;/li&gt;
+&lt;li&gt;军事网络安全保护另行规定&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;从上面这几个点，可以看出，国家对于网络安全的管理主要从网络运营商，关键设施运营商，个人几个方面开展。&lt;/p&gt;
+&lt;p&gt;接下来，主要说说个人方面，一个是不得违法入侵、提供工具等，这就对于一些论坛的工具共享、黑客活动进行限制。另一个是不得建立非法网站和群组，这也就解释了最近QQ群管理加严的原因。&lt;/p&gt;
+&lt;p&gt;再来看看个人方面的法律责任：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;没有遵守国家规定发布漏洞的：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;警告——1万~10万罚款（主管人员、直接责任人员5000~5万罚款）&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;非法入侵、提供工具等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;没收违法所得，5日以下拘留，5万~50万罚款——5~15日拘留，10万~100万罚款&lt;/p&gt;
+&lt;p&gt;受到治安管理处罚——五年不得从事相关关键岗位工作&lt;/p&gt;
+&lt;p&gt;刑事处罚——终身不得从事相关关键岗位工作&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;建立违法网站、通讯群组&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;5日以下拘留，1万~10万罚款——5~15日以下拘留，5万~50万罚款&lt;/p&gt;
+&lt;p&gt;关闭网站、群组&lt;/p&gt;
+&lt;h2 id=&quot;0x01-情报法（草案）&quot;&gt;&lt;a href=&quot;#0x01-情报法（草案）&quot; class=&quot;headerlink&quot; title=&quot;0x01 情报法（草案）&quot;&gt;&lt;/a&gt;0x01 情报法（草案）&lt;/h2&gt;&lt;p&gt;共五章二十八条&lt;/p&gt;
+&lt;p&gt;《情报法》开门见山强调我们要建立国家情报体制，中央国家安全领导机构和中央军事委员会领导相应的情报工作。&lt;/p&gt;
+&lt;p&gt;同样，个人关注一下几点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;国家情报工作可以经批准使用技术侦查措施&lt;/li&gt;
+&lt;li&gt;国家情报机构工作人经批准，出示证件，可以查阅相关资料、可以进入相关区域、可以征用相关工具场地&lt;/li&gt;
+&lt;li&gt;国家有关部门保障情报工作人员亲属安全&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;当然，阅读情报法，主要关心的是对于情报的相关处罚措施。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;泄露国家秘密的，由情报工作人员建议相关单位：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;15日以下行政拘留——刑事责任&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;学习一下《中华人民共和国网络安全法》和《中华人民共和国国家情报法》&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="安全法规" scheme="http://phantom0301.cc/tags/%E5%AE%89%E5%85%A8%E6%B3%95%E8%A7%84/"/>
+    
+      <category term="情报法" scheme="http://phantom0301.cc/tags/%E6%83%85%E6%8A%A5%E6%B3%95/"/>
+    
+      <category term="网络安全法" scheme="http://phantom0301.cc/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《万历十五年》读书笔记</title>
+    <link href="http://phantom0301.cc/2017/05/12/wanli/"/>
+    <id>http://phantom0301.cc/2017/05/12/wanli/</id>
+    <published>2017-05-12T13:09:06.000Z</published>
+    <updated>2017-05-12T13:47:10.639Z</updated>
+    
+    <content type="html">&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近《人民的名义》很火，据说书中高育良欣赏高小凤便是因为此书，正好闲暇时间又在补《大明王朝1566》，嘉靖、隆庆、万历祖孙三也都悉数登场，所以就乘此机会补了一下这本书。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-顺从与叛逆&quot;&gt;&lt;a href=&quot;#0x01-顺从与叛逆&quot; class=&quot;headerlink&quot; title=&quot;0x01 顺从与叛逆&quot;&gt;&lt;/a&gt;0x01 顺从与叛逆&lt;/h2&gt;&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;书中开篇第一章便是讲万历皇帝，对于万历，最初的印象是幼时读余秋雨的文章，文中提到万历多年不上早朝，于是史学家最后下推断万历躲在后宫吸食了二十多年的鸦片云云。余先生又提到女真入侵大明时，军队急需补给，但万历却抠门到只愿拿出一丁点“发霉的碎银”打发那些前线的武人。自然，这么一说，大明的灭亡恐怕就要被算在他朱翊钧的头上了。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;后来年岁稍长，又略读过诸朝史事，大抵知道万历初年，在首辅张居正的悉心教育下，小皇帝至少表面上表现的还是勤勉图治的，据说张居正将前朝历代君王得失亲自编纂成册，教受于小皇帝。一时间，内廷的李太后、大伴冯保到厅阁中的张居正，都可以说是齐心督管小皇帝，只是不知道叛逆的种子是不是也就在此时埋在了万历皇帝的心中。据说，在读书教育问题上，生母李太后，老师张居正都是严格到近乎苛刻，小皇帝应该干什么不应该干什么都被他们所限制，稍有不配合便可能遭到来自道德层面的谴责，“道德”也正是《万历》一书中多次被强调的一种精神。而我们能从史书看到的就是在朱翊钧幼时对于这种教导还是比较配合的。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;皇帝年幼，宫中府中又俱为一体，这也就为张居正的改革带来了很优越的条件。史书上历来改革者都是得到最高层支持的孤独者形象，改革无疑就会触动到既得利益者的反对，而在我们古老的国家里，讲究师出有名，我们的那些道德领袖们又及其擅长运用修辞学来将对手描绘成道德败类，无论最初的目的是多么不可告人，只要将自己摆在道德高位，便能够自欺，欺人一箭双雕，更令人诧异的是，这种自欺往往最后就会演变成一种自信，使得攻讦者自己都认为自己的所作所为是站在大无畏的道德高位上，与斯文败类的斗争。而在诸多道德指责中，不孝又是最能够驱小力而搏巨擘的说辞。张居正便因不孝而被推到了风口浪尖，当然，这个时候小皇帝和内府站在了他的这一边，虽然风暴猛烈，但张居正依然可以巍然不动。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;那么其实，站在我们自身的角度来看，对万历皇帝早年的近乎压抑的约束一定会为后来更加疯狂的举动埋下伏笔。小皇帝亲政后，随着张居正的离世，这段看似美好的平衡最终被打破，这无疑为万历的思想注入了第一层悲剧的元素。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;明朝是这样一个矛盾的王朝，一方面为了巩固中央集权而废除丞相，限制武将。对武将的限制最终导致了明朝原属军队的战斗力低下，而对文官的限制又反而加深了皇帝与文官集团的对立，因为文官体系的名义上的无权，使得一切的国家决定的成败全部落在了皇帝的身上。于是，一旦文官集团陷入对朝局不满的状态，那么在他们的对立面上，原来应该有一层的缓冲带就被打破，而直接面对着皇帝。另一方面，以内阁机制来代替丞相机制，有一个很明显的不同在于，后者的担任者原则上应该是具有行政、管理等能力的人，而内阁的备资讯性质使得它的担任者往往更多是在儒家学术（很多时候可能是指文学）上有成就的学者，而更有悲剧意味的是儒家学说在经过一代又一代的解说或者说是限制后，到这时恐怕更多的是禁锢，这种禁锢使得这样一个以备咨询为首的文官组织敢于站在皇帝的对立面，尤其是万历这种小时即位，被灌输了要以明君要求自己的帝王。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;万历早年被张居正和太后等约束，在尝试了长大后的一点点自由后，又发现被群臣所限制，这样一个集团不接受他对身边爱妃的加封，不接受他个人对继承人的指定，不接受他的一切不合儒家规范的举动。这种压抑使得万历早年的明君教育与现在他想去做的事情形成了强烈的矛盾，这种矛盾使万历想要反抗群臣但又无法真正做到，最终，万历选择了另一种方式来抗争，这可以被视为一种非暴力不合作方式，万历故意躲避群臣，故意在小的方面做一点仪式性的反抗来换取内心的平衡。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;从这种角度来看，万历就像是青春期的孩子一般，在童年一味顺从后，反叛的内心终于在此时爆发。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-变革和守成&quot;&gt;&lt;a href=&quot;#0x02-变革和守成&quot; class=&quot;headerlink&quot; title=&quot;0x02 变革和守成&quot;&gt;&lt;/a&gt;0x02 变革和守成&lt;/h2&gt;&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;张居正和历朝历代的变革者一洋，最终成为众矢之的，当这些社会精英站在巅峰之时，是否会曾想过历史潮流中的那些先烈们的结局，是否会因此为自己想一想出路。无论是否想到或者甚至为自己准备后路，结局我们都已经看到了。其实从某种角度来看，明朝的制度最初便充满了问题，直到此时恐怕已经积重难返。任何时候王朝的兴盛都离不开商业，但是明朝制度从最初便是把一个一个的社会人都禁锢在他们的土地上，在最初就是在制约商业经济的发展，这和同时代的日本形成了对比，日本松散的社会制度导致包括商人、僧人在内的社会阶层都能够拥有自己的一份力量，商人的兴盛极大促进了日本商品的流通，最终带来的是科技技术的流动。反观大明，此时的明朝从赋税到军队，无一不都被钉死在自己的区域里。张居正希望能够改变，实时上同时代的俞大猷等人也尝试变革，但此时的儒家信徒们大都以祖制如此为由，生怕自己的体面生活被打破。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;申时行做为继任者，显然没有展示出张居正一样的雷厉手段，我们不知道当日当时的申时行是怎么想的，是看见前任的凄惨下场，或者仅仅是个人的处世哲学，或者是文官集团的强大压力，或者他本身就是保守文官集团的一份子。不过有一点我们是可以知道的，就是当整个文官集团倚儒卖儒的时候，申时行清楚认识到了万历皇帝的叛逆，作为清楚的认识者，他一不能阻止整个文官集团的碰钉行为，二不能左右已经成人的小皇帝的意志，他只能竭力去充当两大对立者的和事老，看得出来，作为一个和前任相比会显得平庸的首辅，他不会去在做什么大的变革，但他也努力让整个明朝局势不要太恶化。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;戚继光就认识到了变革的困难，所以在他的能力范围内，他追求能够有一些变化。不得不佩服这位武将的智慧，也正是他的这种中庸，使得他既能够建立起一支当时唯一还有一点战斗力的军队，将大明即将倾覆的马车又赶了很长一段路程。戚继光有时让我想到了封常清——那个最初代表中央对抗安禄山军队的人，封常清并非庸将，只是当他到达边关时才发现大唐的军队已经如此腐朽，不得已只能带着已经失去战斗力的大唐军队去对付安禄山的精锐。同样，最初的戚继光一定也看到了大明军队已然不堪一击，只是幸运的是，他还有机会重新训练一支可以打仗的军队。但大明的祖制不会允许他采取彻底的改革，于是戚继光一方面知道要获得最高层的支持，一方面懂得如何变通的进行变化，最终为大明的军队挽回了一丝颜面。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-清廉无为与贪污立功&quot;&gt;&lt;a href=&quot;#0x03-清廉无为与贪污立功&quot; class=&quot;headerlink&quot; title=&quot;0x03 清廉无为与贪污立功&quot;&gt;&lt;/a&gt;0x03 清廉无为与贪污立功&lt;/h2&gt;&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;一直以来，历史都会给我们一个难题，两全其美固然很好，但是如果只能取其一，清廉但碌碌无为，贪污但使社会进步，你到底选哪个？这里就要说说海瑞，历史上海瑞一直有刚正不阿，清正廉洁之名，和他相比，无论文官集团的徐阶、高拱、张居正，还是军旅队伍的戚继光、胡宗宪，都多多少少留下了收贿受贿的记录。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;但我们几乎可以下定论的是，徐高张在大明政治上的建树，胡戚等人在军事上对大明的挽救所建立的功绩都远超海瑞，而后者的清正廉洁甚至导致了他子女的身亡。这里不禁要提出一个疑问，一个能够使得整个社会进步的人，一个不会对社会产生多大贡献的人，我们是否应该以同样的清廉观来审视他们。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;更重要的一点是，正是胡宗宪攀附严嵩，戚继光攀附张居正才会带来他们在军事行动上不被掣肘，才使得抗倭的战役最终取得了胜利。换句话说，有时候，这种行贿行为反而给当时的普罗大众带来了安定。我们做一个假设，假设大明当时真的是一应清流们把持朝政，一方面恪守祖宗体制，一方面对胡戚二人一丝不苟的评判，恐怕浙直一带的百姓生活在水深火热中，他们也只能念一句忧国忧民的诗句罢了。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-结尾&quot;&gt;&lt;a href=&quot;#0x04-结尾&quot; class=&quot;headerlink&quot; title=&quot;0x04 结尾&quot;&gt;&lt;/a&gt;0x04 结尾&lt;/h2&gt;&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;整个《万历十五年》读下来，最深刻的感受就是，“矛盾”，大概正应了那句话，人是一切矛盾的综合体。&lt;/p&gt;
+&lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;以上，作为一个并没有树立起正确的历史观的历史爱好者的读书感悟。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近《人民的名义》很火，据说书中高育良欣赏高小凤便是因为此书，正好闲暇时间又在补《大明王朝1566》，嘉靖、隆庆、万历祖孙三也都悉数登场，所以就乘此机会补了一下这本书。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="万历" scheme="http://phantom0301.cc/tags/%E4%B8%87%E5%8E%86/"/>
+    
+      <category term="明史" scheme="http://phantom0301.cc/tags/%E6%98%8E%E5%8F%B2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>利用Mongo数据库的oplog机制实现准实时数据操作监控</title>
+    <link href="http://phantom0301.cc/2017/05/08/MongoOplog/"/>
+    <id>http://phantom0301.cc/2017/05/08/MongoOplog/</id>
+    <published>2017-05-08T12:39:38.000Z</published>
+    <updated>2017-05-08T13:23:58.913Z</updated>
+    
+    <content type="html">&lt;p&gt;最近有一个需求是要实时获取到新插入到MongoDB的数据，而插入程序本身已经有一套处理逻辑，所以不方便直接在插入程序里写相关程序，传统的数据库大多自带这种触发器机制，但是Mongo没有相关的函数可以用（也可能我了解的太少了，求纠正），当然还有一点是需要python实现，于是收集整理了一个相应的实现方法。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-引子&quot;&gt;&lt;a href=&quot;#0x01-引子&quot; class=&quot;headerlink&quot; title=&quot;0x01 引子&quot;&gt;&lt;/a&gt;0x01 引子&lt;/h2&gt;&lt;p&gt;首先可以想到，这种需求其实很像数据库的主从备份机制，从数据库之所以能够同步主库是因为存在某些指标来做控制，我们知道MongoDB虽然没有现成触发器，但是它能够实现主从备份，所以我们就从它的主从备份机制入手。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-Oplog&quot;&gt;&lt;a href=&quot;#0x02-Oplog&quot; class=&quot;headerlink&quot; title=&quot;0x02 Oplog&quot;&gt;&lt;/a&gt;0x02 Oplog&lt;/h2&gt;&lt;p&gt;首先，需要以master模式来打开mongod守护，命令行使用&lt;em&gt;–master&lt;/em&gt;,或者配置文件增加master键为true。&lt;/p&gt;
+&lt;p&gt;此时，我们可以在Mongo的系统库local里见到新增的collection——oplog，此时oplog.$main里就会存储进oplog信息，如果此时还有充当从数据库的Mongo存在，就会还有一些slaves的信息，由于我们这里并不是主从同步，所以不存在这些集合。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170508205438.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;再来看看oplog结构：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;quot;ts&amp;quot; : Timestamp(6417682881216249, 1),  时间戳
+&amp;quot;h&amp;quot; : NumberLong(0),  长度
+&amp;quot;v&amp;quot; : 2,  
+&amp;quot;op&amp;quot; : &amp;quot;n&amp;quot;, 操作类型
+&amp;quot;ns&amp;quot; : &amp;quot;&amp;quot;,  操作的库和集合
+&amp;quot;o2&amp;quot; : &amp;quot;_id&amp;quot;  update条件
+&amp;quot;o&amp;quot; : {}  操作值，即document
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里需要知道op的几种属性：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;insert，&amp;apos;i&amp;apos;
+update, &amp;apos;u&amp;apos;
+remove(delete), &amp;apos;d&amp;apos;
+cmd, &amp;apos;c&amp;apos;
+noop, &amp;apos;n&amp;apos; 空操作
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;从上面的信息可以看出，我们只要不断读取到ts来做对比，然后根据op即可判断当前出现的是什么操作，相当于使用程序实现了一个从数据库的接收端。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-Code&quot;&gt;&lt;a href=&quot;#0x03-Code&quot; class=&quot;headerlink&quot; title=&quot;0x03 Code&quot;&gt;&lt;/a&gt;0x03 Code&lt;/h2&gt;&lt;p&gt;在Github上找到了别人的实现方式，不过它的函数库太老旧，所以在他的基础上进行修改。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/RedBeard0531/mongo-oplog-watcher&quot; title=&quot;https://github.com/RedBeard0531/mongo-oplog-watcher&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/RedBeard0531/mongo-oplog-watcher&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;首先是实现一个数据库的初始化，设定一个延迟时间（准实时）：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;self.poll_time = poll_time
+self.connection = connection or pymongo.MongoClient()
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;主要的函数是start(),实现一个时间的比对并进行相应字段的处理：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;def start(self):
+    oplog = self.connection.local[&amp;apos;oplog.$main&amp;apos;]
+    #读取之前提到的库
+    ts = oplog.find().sort(&amp;apos;$natural&amp;apos;, -1)[0][&amp;apos;ts&amp;apos;]
+    #获取一个时间边际
+    while True:
+        if self._ns_filter is None:
+            filter = {}
+        else:
+            filter = {&amp;apos;ns&amp;apos;: self._ns_filter}
+        filter[&amp;apos;ts&amp;apos;] = {&amp;apos;$gt&amp;apos;: ts}
+        try:
+            cursor = oplog.find(filter)
+            #对此时间之后的进行处理
+            while True:
+                for op in cursor:
+                    ts = op[&amp;apos;ts&amp;apos;]
+                    id = self.__get_id(op)
+                    self.all_with_noop(ns=op[&amp;apos;ns&amp;apos;], ts=ts, op=op[&amp;apos;op&amp;apos;], id=id, raw=op)
+                    #可以指定处理插入监控，更新监控或者删除监控等
+                time.sleep(self.poll_time)
+                if not cursor.alive:
+                    break
+        except AutoReconnect:
+            time.sleep(self.poll_time)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;循环这个start函数，在all_with_noop这里就可以编写相应的监控处理逻辑。&lt;/p&gt;
+&lt;p&gt;这样就可以实现一个简易的准实时Mongo数据库操作监控器，下一步就可以配合其他操作来对新入库的程序进行相应处理。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近有一个需求是要实时获取到新插入到MongoDB的数据，而插入程序本身已经有一套处理逻辑，所以不方便直接在插入程序里写相关程序，传统的数据库大多自带这种触发器机制，但是Mongo没有相关的函数可以用（也可能我了解的太少了，求纠正），当然还有一点是需要python实现，于是收集整理了一个相应的实现方法。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
+    
+    
+      <category term="pymongo" scheme="http://phantom0301.cc/tags/pymongo/"/>
+    
+      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
+    
+      <category term="trigger" scheme="http://phantom0301.cc/tags/trigger/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>FangfaCMS前台PHP命令执行+多处SQL注入代码审计</title>
+    <link href="http://phantom0301.cc/2017/04/25/fangfacms/"/>
+    <id>http://phantom0301.cc/2017/04/25/fangfacms/</id>
+    <published>2017-04-25T12:14:46.000Z</published>
+    <updated>2017-04-26T06:12:50.678Z</updated>
+    
+    <content type="html">&lt;p&gt;这是一篇加密的博文~~&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;script type=&quot;text/ecmascript&quot; src=&quot;/js/MD5.js&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;text/ecmascript&quot; src=&quot;/js/crypto.js&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+      var cyber = &quot;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&quot;
+      var string = prompt(&#39;请输入文章密码&#39;);
+      if (string == null){
+        location=&quot;http://phantom0301.cc&quot;;
+      }
+      if (hex_md5(string) == &quot;73c9778213e388e1e0bdf2b2ed210f94&quot;){
+          alert(&#39;密码正确！&#39;);
+          txt  = CryptoJS.AES.decrypt(cyber, string).toString(CryptoJS.enc.Utf8);
+            }
+      else
+       {
+         alert(&quot;密码错误&quot;);
+         location=&quot;http://phantom0301.cc&quot;;
+      }
+      document.write(txt);
+&lt;/script&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这是一篇加密的博文~~&lt;br&gt;
+    
+    </summary>
+    
+      <category term="审计" scheme="http://phantom0301.cc/categories/%E5%AE%A1%E8%AE%A1/"/>
+    
+    
+      <category term="FANGFACMS" scheme="http://phantom0301.cc/tags/FANGFACMS/"/>
+    
+      <category term="PHP命令执行" scheme="http://phantom0301.cc/tags/PHP%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/"/>
+    
+      <category term="SQL注入" scheme="http://phantom0301.cc/tags/SQL%E6%B3%A8%E5%85%A5/"/>
+    
+  </entry>
+  
+  <entry>
     <title>ANOMALI STAXX威胁情报订阅分析系统把玩</title>
-    <link href="http://phantom0301.coding.me/2017/03/27/staxx/"/>
-    <id>http://phantom0301.coding.me/2017/03/27/staxx/</id>
+    <link href="http://phantom0301.cc/2017/03/27/staxx/"/>
+    <id>http://phantom0301.cc/2017/03/27/staxx/</id>
     <published>2017-03-27T12:35:24.000Z</published>
     <updated>2017-03-27T13:27:09.144Z</updated>
     
@@ -56,17 +628,17 @@
     
     </summary>
     
-      <category term="安全工具" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
+      <category term="安全工具" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7/"/>
     
     
-      <category term="威胁情报，taxii" scheme="http://phantom0301.coding.me/tags/%E5%A8%81%E8%83%81%E6%83%85%E6%8A%A5%EF%BC%8Ctaxii/"/>
+      <category term="威胁情报，taxii" scheme="http://phantom0301.cc/tags/%E5%A8%81%E8%83%81%E6%83%85%E6%8A%A5%EF%BC%8Ctaxii/"/>
     
   </entry>
   
   <entry>
     <title>Python与它的opcode</title>
-    <link href="http://phantom0301.coding.me/2017/03/24/pythonopcode/"/>
-    <id>http://phantom0301.coding.me/2017/03/24/pythonopcode/</id>
+    <link href="http://phantom0301.cc/2017/03/24/pythonopcode/"/>
+    <id>http://phantom0301.cc/2017/03/24/pythonopcode/</id>
     <published>2017-03-24T07:26:29.000Z</published>
     <updated>2017-03-27T13:36:27.122Z</updated>
     
@@ -279,19 +851,19 @@ if __name__ == &amp;apos;__main__&amp;apos;:
     
     </summary>
     
-      <category term="python" scheme="http://phantom0301.coding.me/categories/python/"/>
+      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
     
     
-      <category term="opcode" scheme="http://phantom0301.coding.me/tags/opcode/"/>
+      <category term="opcode" scheme="http://phantom0301.cc/tags/opcode/"/>
     
-      <category term="python" scheme="http://phantom0301.coding.me/tags/python/"/>
+      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
     
   </entry>
   
   <entry>
     <title>Struts2-S2-045漏洞学习及其他</title>
-    <link href="http://phantom0301.coding.me/2017/03/13/struts2/"/>
-    <id>http://phantom0301.coding.me/2017/03/13/struts2/</id>
+    <link href="http://phantom0301.cc/2017/03/13/struts2/"/>
+    <id>http://phantom0301.cc/2017/03/13/struts2/</id>
     <published>2017-03-13T11:30:45.000Z</published>
     <updated>2017-03-23T08:30:19.524Z</updated>
     
@@ -494,19 +1066,19 @@ java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).
     
     </summary>
     
-      <category term="JAVA" scheme="http://phantom0301.coding.me/categories/JAVA/"/>
+      <category term="JAVA" scheme="http://phantom0301.cc/categories/JAVA/"/>
     
     
-      <category term="struts2" scheme="http://phantom0301.coding.me/tags/struts2/"/>
+      <category term="struts2" scheme="http://phantom0301.cc/tags/struts2/"/>
     
-      <category term="漏洞学习" scheme="http://phantom0301.coding.me/tags/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/"/>
+      <category term="漏洞学习" scheme="http://phantom0301.cc/tags/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/"/>
     
   </entry>
   
   <entry>
     <title>英文文献阅读-使用遗传算法的异常入侵检测</title>
-    <link href="http://phantom0301.coding.me/2017/03/05/ids-ga/"/>
-    <id>http://phantom0301.coding.me/2017/03/05/ids-ga/</id>
+    <link href="http://phantom0301.cc/2017/03/05/ids-ga/"/>
+    <id>http://phantom0301.cc/2017/03/05/ids-ga/</id>
     <published>2017-03-05T06:14:15.000Z</published>
     <updated>2017-03-05T07:35:35.096Z</updated>
     
@@ -577,19 +1149,19 @@ begin：
     
     </summary>
     
-      <category term="读书笔记" scheme="http://phantom0301.coding.me/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-      <category term="GA" scheme="http://phantom0301.coding.me/tags/GA/"/>
+      <category term="GA" scheme="http://phantom0301.cc/tags/GA/"/>
     
-      <category term="IDS" scheme="http://phantom0301.coding.me/tags/IDS/"/>
+      <category term="IDS" scheme="http://phantom0301.cc/tags/IDS/"/>
     
   </entry>
   
   <entry>
     <title>Harbor中的用户密码加密机制探究</title>
-    <link href="http://phantom0301.coding.me/2017/02/08/harborpass/"/>
-    <id>http://phantom0301.coding.me/2017/02/08/harborpass/</id>
+    <link href="http://phantom0301.cc/2017/02/08/harborpass/"/>
+    <id>http://phantom0301.cc/2017/02/08/harborpass/</id>
     <published>2017-02-08T13:22:53.000Z</published>
     <updated>2017-02-09T02:09:20.530Z</updated>
     
@@ -674,21 +1246,21 @@ check(&amp;apos;123QWEqwe&amp;apos;, &amp;apos;gktqer4zml32472wmht9xeuixvg5pvjd&
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="harbor" scheme="http://phantom0301.coding.me/tags/harbor/"/>
+      <category term="harbor" scheme="http://phantom0301.cc/tags/harbor/"/>
     
-      <category term="pbkdf2" scheme="http://phantom0301.coding.me/tags/pbkdf2/"/>
+      <category term="pbkdf2" scheme="http://phantom0301.cc/tags/pbkdf2/"/>
     
-      <category term="密码学" scheme="http://phantom0301.coding.me/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+      <category term="密码学" scheme="http://phantom0301.cc/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
     
   </entry>
   
   <entry>
     <title>Swf文件利用姿势学习-CVE-2017-5494</title>
-    <link href="http://phantom0301.coding.me/2017/02/06/cveswf/"/>
-    <id>http://phantom0301.coding.me/2017/02/06/cveswf/</id>
+    <link href="http://phantom0301.cc/2017/02/06/cveswf/"/>
+    <id>http://phantom0301.cc/2017/02/06/cveswf/</id>
     <published>2017-02-06T01:04:43.000Z</published>
     <updated>2017-02-06T03:41:14.262Z</updated>
     
@@ -727,19 +1299,19 @@ check(&amp;apos;123QWEqwe&amp;apos;, &amp;apos;gktqer4zml32472wmht9xeuixvg5pvjd&
     
     </summary>
     
-      <category term="审计" scheme="http://phantom0301.coding.me/categories/%E5%AE%A1%E8%AE%A1/"/>
+      <category term="审计" scheme="http://phantom0301.cc/categories/%E5%AE%A1%E8%AE%A1/"/>
     
     
-      <category term="CVE" scheme="http://phantom0301.coding.me/tags/CVE/"/>
+      <category term="CVE" scheme="http://phantom0301.cc/tags/CVE/"/>
     
-      <category term="swf" scheme="http://phantom0301.coding.me/tags/swf/"/>
+      <category term="swf" scheme="http://phantom0301.cc/tags/swf/"/>
     
   </entry>
   
   <entry>
     <title>前端用户指纹识别实践</title>
-    <link href="http://phantom0301.coding.me/2016/12/08/jsuser/"/>
-    <id>http://phantom0301.coding.me/2016/12/08/jsuser/</id>
+    <link href="http://phantom0301.cc/2016/12/08/jsuser/"/>
+    <id>http://phantom0301.cc/2016/12/08/jsuser/</id>
     <published>2016-12-08T11:47:31.000Z</published>
     <updated>2016-12-09T01:58:25.813Z</updated>
     
@@ -817,21 +1389,21 @@ fnShowPrcName(&amp;quot;Win32_StartupCommand&amp;quot;);
     
     </summary>
     
-      <category term="Javascript" scheme="http://phantom0301.coding.me/categories/Javascript/"/>
+      <category term="Javascript" scheme="http://phantom0301.cc/categories/Javascript/"/>
     
     
-      <category term="html5" scheme="http://phantom0301.coding.me/tags/html5/"/>
+      <category term="html5" scheme="http://phantom0301.cc/tags/html5/"/>
     
-      <category term="javascript" scheme="http://phantom0301.coding.me/tags/javascript/"/>
+      <category term="javascript" scheme="http://phantom0301.cc/tags/javascript/"/>
     
-      <category term="身份识别" scheme="http://phantom0301.coding.me/tags/%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB/"/>
+      <category term="身份识别" scheme="http://phantom0301.cc/tags/%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB/"/>
     
   </entry>
   
   <entry>
     <title>Python实现网页解析翻译</title>
-    <link href="http://phantom0301.coding.me/2016/12/02/htmlparser/"/>
-    <id>http://phantom0301.coding.me/2016/12/02/htmlparser/</id>
+    <link href="http://phantom0301.cc/2016/12/02/htmlparser/"/>
+    <id>http://phantom0301.cc/2016/12/02/htmlparser/</id>
     <published>2016-12-02T10:32:34.000Z</published>
     <updated>2016-12-08T06:12:06.851Z</updated>
     
@@ -907,19 +1479,19 @@ def output(self):
     
     </summary>
     
-      <category term="python" scheme="http://phantom0301.coding.me/categories/python/"/>
+      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
     
     
-      <category term="htmlparser" scheme="http://phantom0301.coding.me/tags/htmlparser/"/>
+      <category term="htmlparser" scheme="http://phantom0301.cc/tags/htmlparser/"/>
     
-      <category term="python" scheme="http://phantom0301.coding.me/tags/python/"/>
+      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
     
   </entry>
   
   <entry>
     <title>Zmap论文简读</title>
-    <link href="http://phantom0301.coding.me/2016/10/27/Zmapread/"/>
-    <id>http://phantom0301.coding.me/2016/10/27/Zmapread/</id>
+    <link href="http://phantom0301.cc/2016/10/27/Zmapread/"/>
+    <id>http://phantom0301.cc/2016/10/27/Zmapread/</id>
     <published>2016-10-27T03:00:29.000Z</published>
     <updated>2016-10-27T03:36:19.940Z</updated>
     
@@ -955,19 +1527,19 @@ def output(self):
     
     </summary>
     
-      <category term="工具" scheme="http://phantom0301.coding.me/categories/%E5%B7%A5%E5%85%B7/"/>
+      <category term="工具" scheme="http://phantom0301.cc/categories/%E5%B7%A5%E5%85%B7/"/>
     
     
-      <category term="Zmap" scheme="http://phantom0301.coding.me/tags/Zmap/"/>
+      <category term="Zmap" scheme="http://phantom0301.cc/tags/Zmap/"/>
     
-      <category term="scanner" scheme="http://phantom0301.coding.me/tags/scanner/"/>
+      <category term="scanner" scheme="http://phantom0301.cc/tags/scanner/"/>
     
   </entry>
   
   <entry>
     <title>数论基础-原根与指标</title>
-    <link href="http://phantom0301.coding.me/2016/10/15/primitiveroot/"/>
-    <id>http://phantom0301.coding.me/2016/10/15/primitiveroot/</id>
+    <link href="http://phantom0301.cc/2016/10/15/primitiveroot/"/>
+    <id>http://phantom0301.cc/2016/10/15/primitiveroot/</id>
     <published>2016-10-15T09:48:34.000Z</published>
     <updated>2016-12-08T06:19:34.754Z</updated>
     
@@ -1063,21 +1635,21 @@ if __name__ == &amp;apos;__main__&amp;apos;:
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="原根" scheme="http://phantom0301.coding.me/tags/%E5%8E%9F%E6%A0%B9/"/>
+      <category term="原根" scheme="http://phantom0301.cc/tags/%E5%8E%9F%E6%A0%B9/"/>
     
-      <category term="指标" scheme="http://phantom0301.coding.me/tags/%E6%8C%87%E6%A0%87/"/>
+      <category term="指标" scheme="http://phantom0301.cc/tags/%E6%8C%87%E6%A0%87/"/>
     
-      <category term="数论" scheme="http://phantom0301.coding.me/tags/%E6%95%B0%E8%AE%BA/"/>
+      <category term="数论" scheme="http://phantom0301.cc/tags/%E6%95%B0%E8%AE%BA/"/>
     
   </entry>
   
   <entry>
     <title>没能复现的学习——DEFCON-HTTP-Smuggling</title>
-    <link href="http://phantom0301.coding.me/2016/09/12/httpsmuggling/"/>
-    <id>http://phantom0301.coding.me/2016/09/12/httpsmuggling/</id>
+    <link href="http://phantom0301.cc/2016/09/12/httpsmuggling/"/>
+    <id>http://phantom0301.cc/2016/09/12/httpsmuggling/</id>
     <published>2016-09-12T12:44:03.000Z</published>
     <updated>2016-09-19T13:27:33.228Z</updated>
     
@@ -1125,21 +1697,21 @@ if __name__ == &amp;apos;__main__&amp;apos;:
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="DEFCON" scheme="http://phantom0301.coding.me/tags/DEFCON/"/>
+      <category term="DEFCON" scheme="http://phantom0301.cc/tags/DEFCON/"/>
     
-      <category term="Smuggling" scheme="http://phantom0301.coding.me/tags/Smuggling/"/>
+      <category term="Smuggling" scheme="http://phantom0301.cc/tags/Smuggling/"/>
     
-      <category term="http" scheme="http://phantom0301.coding.me/tags/http/"/>
+      <category term="http" scheme="http://phantom0301.cc/tags/http/"/>
     
   </entry>
   
   <entry>
     <title>也说DNS反弹Shell</title>
-    <link href="http://phantom0301.coding.me/2016/08/11/DNSshell/"/>
-    <id>http://phantom0301.coding.me/2016/08/11/DNSshell/</id>
+    <link href="http://phantom0301.cc/2016/08/11/DNSshell/"/>
+    <id>http://phantom0301.cc/2016/08/11/DNSshell/</id>
     <published>2016-08-11T12:03:39.000Z</published>
     <updated>2016-08-13T04:25:23.896Z</updated>
     
@@ -1253,19 +1825,19 @@ def runCmd(cmd)
     
     </summary>
     
-      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
+      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
     
     
-      <category term="DNS" scheme="http://phantom0301.coding.me/tags/DNS/"/>
+      <category term="DNS" scheme="http://phantom0301.cc/tags/DNS/"/>
     
-      <category term="协议分析" scheme="http://phantom0301.coding.me/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
+      <category term="协议分析" scheme="http://phantom0301.cc/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>Ubuntu服务器下Remastersys系统打包</title>
-    <link href="http://phantom0301.coding.me/2016/08/08/Remastersys/"/>
-    <id>http://phantom0301.coding.me/2016/08/08/Remastersys/</id>
+    <link href="http://phantom0301.cc/2016/08/08/Remastersys/"/>
+    <id>http://phantom0301.cc/2016/08/08/Remastersys/</id>
     <published>2016-08-08T13:08:13.000Z</published>
     <updated>2016-08-08T13:32:18.906Z</updated>
     
@@ -1308,509 +1880,12 @@ sudo remastersys dist iso filename.iso
     
     </summary>
     
-      <category term="ubuntu" scheme="http://phantom0301.coding.me/categories/ubuntu/"/>
+      <category term="ubuntu" scheme="http://phantom0301.cc/categories/ubuntu/"/>
     
     
-      <category term="iso" scheme="http://phantom0301.coding.me/tags/iso/"/>
+      <category term="iso" scheme="http://phantom0301.cc/tags/iso/"/>
     
-      <category term="ubuntu" scheme="http://phantom0301.coding.me/tags/ubuntu/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SMTP协议附件数据流抓取与还原</title>
-    <link href="http://phantom0301.coding.me/2016/08/01/SMTP/"/>
-    <id>http://phantom0301.coding.me/2016/08/01/SMTP/</id>
-    <published>2016-08-01T13:00:54.000Z</published>
-    <updated>2016-08-04T07:51:15.196Z</updated>
-    
-    <content type="html">&lt;p&gt;SMTP作为一种广泛使用的文件传输协议，已经和POP等协议一同构成了电子邮件系统传输的基石，针对于协议的分析也有很多书籍和博文可以参考，但是在这当中，对于MIME附件的数据流还原能找到的参考不多，所以在这里记下实践心得。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x00-基础知识&quot;&gt;&lt;a href=&quot;#0x00-基础知识&quot; class=&quot;headerlink&quot; title=&quot;0x00 基础知识&quot;&gt;&lt;/a&gt;0x00 基础知识&lt;/h2&gt;&lt;p&gt;1.数据包的层级关系&lt;/p&gt;
-&lt;p&gt;SMTP通过TCP协议进行传输，在这之前不得不再复习一下数据包的构成关系。&lt;/p&gt;
-&lt;p&gt;一个典型的SMTP包将会由一下几部分构成：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Ethernet{首部，数据部（IP{首部，数据部（TCP{首部，数据部}）}）}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;从上面的结构可以看出数据链路层、网络层、传输层上面的协议是嵌套关系，高层次的完整数据包作为底层次协议中的数据部。&lt;/p&gt;
-&lt;p&gt;打个比方，如果我们要发送“Hello World！”的信息，正文信息将会在编码后加上TCP头成为TCP包，而TCP包会作为IP包的数据部，和IP头组成IP包，以此类推，以太网包就是首部加上IP包。&lt;/p&gt;
-&lt;p&gt;不同的层次被赋予了不同的职责，我们要传送的实体信息是一切的基石，TCP头则负责告知收发双方的端口号并通过序号和校验保证数据的顺序和完整性；IP头负责告知收发双方的IP地址；eth头负责告知收发双发的MAC地址。&lt;/p&gt;
-&lt;p&gt;2.SMTP协议&lt;/p&gt;
-&lt;p&gt;SMTP协议的具体含义网上可以很轻易的得到。&lt;/p&gt;
-&lt;p&gt;这里插一句，早期的SMTP实现过程是这样的，发送方写好一份邮件存在自己的硬盘上，通过TCP连接直接将邮件转到接收者的硬盘中，如果发送成功，发送者的硬盘就会删除邮件。否则，将会等待重发。&lt;/p&gt;
-&lt;p&gt;很明显，上述实现过程在现代复杂网络中已经显得十分简陋，其他的先不说，这种机制首先必须要求收发方都要在线，这大大制约了电子邮件的发送。因此，邮件服务器就应运而生，二十四小时持续运转的邮件服务器可以使得邮件的发送不用在收到时间的限制。电子邮件系统雏形也就这样诞生了。&lt;/p&gt;
-&lt;p&gt;由于需要与邮件服务器交流，便产生了相应的操作指令和状态码，详细的操作指令和状态码也可以很容易的从网络获得。今天，当我们发送邮件时，邮件客户端帮我们完成了SMTP指令的交互，我们只需要关系邮件实体的相关内容即可。&lt;/p&gt;
-&lt;p&gt;3.MIME格式&lt;/p&gt;
-&lt;p&gt;最初的邮件只能传输文本，这显然无法满足我们的交流需求。MIME的出现就是为了丰富邮件传输的类型，与此同时，我们可以在邮件附件中添加图片、动画、声音和程序。&lt;/p&gt;
-&lt;p&gt;MIME主要由首部和正文组成，通过“Content-Type”确定发送富文本的类型，常用的类型有：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;text/plain  纯文本
-mutipart/mixed  多部分组成
-application/octet-stream  二进制数据
-image/jpeg  jpeg图像
-video/mpeg  mpeg动画
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;当声明为多部分组成时，通过“boundary”来进行分割。&lt;/p&gt;
-&lt;h2 id=&quot;0x01-邮件发送&quot;&gt;&lt;a href=&quot;#0x01-邮件发送&quot; class=&quot;headerlink&quot; title=&quot;0x01 邮件发送&quot;&gt;&lt;/a&gt;0x01 邮件发送&lt;/h2&gt;&lt;p&gt;为了便于我们进行分析，我们在本地的另一台Ubuntu主机上搭建SMTP服务器，通过Python程序在本机上发送邮件到Ubuntu主机上，这样就能实现一个可控的操作环境。&lt;/p&gt;
-&lt;p&gt;在Ubuntu上安装Postfix和SMTP服务&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;apt-get install postfix
-apt-get install mailutils
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;完成之后，我们可以在本机上使用&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;telnet Ubuntu的IP 25
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;来验证是否搭建成功&lt;/p&gt;
-&lt;p&gt;搭建完成后我们来编写一个可以传输MIME附件的Pyhton程序，关键代码如下：&lt;br&gt;需要的Python库&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.header import Header
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;先初始化发送邮箱，邮件服务器，邮箱认证账号密码&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def init():  
-    sender = 
-    smtpserver = 
-    username = 
-    password = 
-    return sender, smtpserver, username, password
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;发送部分调用&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;msg = MIMEMultipart(&amp;apos;alternative&amp;apos;)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在msg中添加邮件来源、主题、正文内容。附件部分这样处理&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;att = MIMEText(open(&amp;apos;1.jpg&amp;apos;, &amp;apos;rb&amp;apos;).read(), &amp;apos;base64&amp;apos;, &amp;apos;utf-8&amp;apos;)
-att[&amp;quot;Content-Type&amp;quot;] = &amp;apos;application/octet-stream&amp;apos;
-att[&amp;quot;Content-Disposition&amp;quot;] = &amp;apos;attachment;filename=&amp;quot;1.jpg&amp;quot;&amp;apos;
-msg.attach(att)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;信息添加完整后，调用smtp来发送&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;smtp = smtplib.SMTP()
-smtp.connect(&amp;apos;邮件服务器地址&amp;apos;)
-smtp.login(username, password)
-smtp.sendmail(sender, receiver, msg.as_string())
-smtp.quit()
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;整个实践的基础环境就可用了。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-附件数据流抓取与解析&quot;&gt;&lt;a href=&quot;#0x02-附件数据流抓取与解析&quot; class=&quot;headerlink&quot; title=&quot;0x02 附件数据流抓取与解析&quot;&gt;&lt;/a&gt;0x02 附件数据流抓取与解析&lt;/h2&gt;&lt;p&gt;同样使用Python来编写（╮(╯▽╰)╭，Python用的熟），主要从网卡抓取到流量，先还原为完整的数据包，再做编码转换，将一个完整的邮件发送过程中的命令交互和邮件内容分别还原出来。&lt;/p&gt;
-&lt;p&gt;程序监听网卡后，过滤出端口为25的tcp协议，过滤后的数据包大体结构如下所示：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Ethernet(dst=&amp;apos;xxx&amp;apos;, src=&amp;apos;xxx&amp;apos;, data=IP(len=78, id=44381, off=16384, p=6, sum=52034, src=&amp;apos;xxx&amp;apos;, dst=&amp;apos;xxx&amp;apos;, opts=&amp;apos;&amp;apos;, data=TCP(sport=25, dport=45675, seq=175475907, ack=2692538927L, flags=24, win=229, sum=40326, opts=&amp;apos;&amp;apos;, data=&amp;apos;220 localhost ESMTP Postfix (Ubuntu)\r\n&amp;apos;)))
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;和我们在基础知识中提到的数据包结构一样，这里完整的获得了从Ethernet到TCP层的数据。这一条抓取到是Ubuntu邮件服务器发送给我们的欢迎信息。当然，大概了解了抓取到的包解构后，略过其他重要信息，我们直奔主题，去寻找数据包中附件的部分。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160802213609.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;为了便于展示，这里使用Wireshark重复再抓取一次电子邮件的包，可以从图中看到，这些被分割成相同的1440bytes大小的数据包就是我们所传的图片附件，而在我们的程序中，它是接下来这个样子的，数据较长，这里截取一部分。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Content-Type: multipart/alternative; 
-
-boundary=&amp;quot;===============0786123174==&amp;quot;\r\n
-
-MIME-Version: 1.0\r\n
-
-From: \r\n
-
-Subject: \r\n\r\n
---===============0786123174==\r\n
-Content-Type: text/plain; 
-charset=&amp;quot;us-ascii&amp;quot;\r\n
-MIME-Version: 1.0\r\n
-Content-Transfer-Encoding: 7bit\r\n\r\n123456\r\n
---===============0786123174==\r\n
-Content-Type: image/png\r\n
-MIME-Version: 1.0\r\n
-Content-Transfer-Encoding: base64\r\n
-Content-ID: application/octet-stream\r\n
-
-
-iVBORw0KGgoAAAANSUhEUgAAAKoAAA
-FHCAYAAAAx29dqAAAgAElEQVR4nKy9d5T
-c2XXfeSt0d3XO\r\nOQNooLuR02ByYpjhcEi
-KSTYlS5S0+4dE7ZElK9iWLC+8Pmd3La20K1
-nBa3ltr5UlUiaXEidxhhPA\r\nmUEaAING6Eb
-onFN1d3VVdcW9n/v7vUIDA1IkjwqnUNW/
-+oX37vvefN97gf/9f/2/89PT01JdXSWV\r\n
-lZWytLwsHR0dsh5dk83NTVldXZWmpiZpa
-GiQYDAonDs2NiadnZ2yrOc+9NBDcvvWL
-akor5BUKmXn\r\nXbly
-.............
-.............
-.............
-l7wVOj83I4AAAAASUVORK5CYII=\r\n
---===============0786123174==--\r\n
-.\r\n
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;简单分析一下，在这里，我们传递的真是多MIME的邮件，第一个分隔符以上说明是多部分合在一起，第一段内是邮件的发送者信息和标题，第二段是我们传递的邮件正文，第三段是附件。重点再看一下第三部分，第三部分首先声明了附件类型、编码方式,紧接着就是文件二进制的base64编码。&lt;/p&gt;
-&lt;p&gt;通过上述分析，为了能够还原出附件，我们大致需要进行以下步骤：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;准确分离出一封完整的邮件&lt;/li&gt;
-&lt;li&gt;准确分离出附件段&lt;/li&gt;
-&lt;li&gt;从附件段分离出附件的base64编码正文&lt;/li&gt;
-&lt;li&gt;将base64解码为二进制文件&lt;/li&gt;
-&lt;li&gt;获取当前文件类型，保存二进制文件为当前文件类型&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;一次完整的发送过程包括若干次完整的包，我们需要保存这一次发送中的若干个包，这就需要我们在捕捉到的多次发送包中先匹配出邮件开始和结束的标志，从上面可以看到，邮件结束时都使用一个单行的“.”来标志。我们匹配出完整的邮件包后，根据边界标志来匹配出附件部分的文件类型声明和编码正文，得到正文后我们使用Python的base64模块进行解码，将解码后的文件存成相应类型，就基本完成了附件的还原。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-存在的问题&quot;&gt;&lt;a href=&quot;#0x03-存在的问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 存在的问题&quot;&gt;&lt;/a&gt;0x03 存在的问题&lt;/h2&gt;&lt;p&gt;上面对于一次单一的发送行为做了附件还原，但其实还有很多问题有待解决。&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;TCP发送过程中存在重复发送和乱序的问题，需要一定的机制去做判断，暂时想到的方法是使用TCP包中的Seq和Ack参数按照包编号和大小去逐个递增查找&lt;/li&gt;
-&lt;li&gt;多个发送行为存在的时候，如何在可能交叉的发送包中匹配出一次完整的发送包&lt;/li&gt;
-&lt;li&gt;当发送程序使用不同的编码时，还需要获取到编码方式再对应进行解码&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;接下来将会侧重于这部分问题解决方法的探索~~ &lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;SMTP作为一种广泛使用的文件传输协议，已经和POP等协议一同构成了电子邮件系统传输的基石，针对于协议的分析也有很多书籍和博文可以参考，但是在这当中，对于MIME附件的数据流还原能找到的参考不多，所以在这里记下实践心得。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="安全基础" scheme="http://phantom0301.coding.me/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="SMTP" scheme="http://phantom0301.coding.me/tags/SMTP/"/>
-    
-      <category term="协议分析" scheme="http://phantom0301.coding.me/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>再探Docker-另类Docker安全</title>
-    <link href="http://phantom0301.coding.me/2016/07/21/Docker3/"/>
-    <id>http://phantom0301.coding.me/2016/07/21/Docker3/</id>
-    <published>2016-07-21T05:53:06.000Z</published>
-    <updated>2016-08-04T08:00:35.132Z</updated>
-    
-    <content type="html">&lt;p&gt;Docker怎么做才能在被别人拿到SHELL后将危害做到最小？&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-别人说&quot;&gt;&lt;a href=&quot;#0x01-别人说&quot; class=&quot;headerlink&quot; title=&quot;0x01 别人说&quot;&gt;&lt;/a&gt;0x01 别人说&lt;/h2&gt;&lt;p&gt;Docker安全的问题有许多的相关文章分析，援引“Docker安全那些事”中提到的，Docker安全具体应该说分为Docker自身安全和Docker镜像安全两种，Docker之前有记录的漏洞分别是1.3和1.6，而现在的版本已经到1.12，到现在为止都没有再爆出漏洞的信息，而且Docker自身的安全往往是和Linux的底层功能息息相关的，这也是我不懂的领域。&lt;/p&gt;
-&lt;p&gt;还有一个特别的点就是Docker的远程调用API接口存在未授权访问，但其实导致这个问题的是Docker的服务端程序Docker daemon被绑定到了公网的端口上，并且没有增加认证。默认情况下Docker daemon使用的是sock监听，本身只有root和docker用户组才有权限，所以不进行验证。换句话说，如果你不打算通过网络执行Docker命令或者增加证书验证的环节,这种漏洞就可以避免。&lt;/p&gt;
-&lt;p&gt;我们可以在本地复现一下这个漏洞，首先我们关闭Docker daemon的本地sock，开启远程访问，并绑定端口。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;service stop docker
-docker daemon -H unix:///var/run/docker.sock -H 0.0.0.0:9090
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;之后我们访问&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;curl http://127.0.0.1:9090/containers/json
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们来获取一些敏感的信息&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;curl http://127.0.0.1:9090/containers/(id)/logs?stdout=1
-
-curl http://127.0.0.1:9090/containers/(id)/json
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;另外通过Post包我们还可以新建、开启和关闭容器。&lt;/p&gt;
-&lt;p&gt;相关的参考文件：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://yq.aliyun.com/articles/48689&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://yq.aliyun.com/articles/48689&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://cache.baiducontent.com/c?m=9f65cb4a8c8507ed4fece7631040973b5b1597634b928d483493cf5f93130601127ba5e065635559809e203c4bee084beb812173401420b786cb8d4cdebf8f3c6ad567627f4adb104b8459b8ca3632b122872ae9b868edad834284afa2c4ae5244bb56120c82e7f8511715ba7881672692a6&amp;amp;p=8b2a9715d9c042a40caa8c0c4e47c6&amp;amp;newp=817ec54ad5c04ab94ebcc7710f0090231615d70e37d1da01298ffe0cc4241a1a1a3aecbf26201403d6cf7f6604a94c5feff53c78340634f1f689df08d2ecce7e399e76&amp;amp;user=baidu&amp;amp;fm=sc&amp;amp;query=Docker%B0%B2%C8%AB%C4%C7%D0%A9%CA%C2&amp;amp;qid=e65331f700005115&amp;amp;p1=5&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Docker安全那些事&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.91ri.org/15837.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://www.91ri.org/15837.html&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x02-另类视角一：孤岛限制&quot;&gt;&lt;a href=&quot;#0x02-另类视角一：孤岛限制&quot; class=&quot;headerlink&quot; title=&quot;0x02 另类视角一：孤岛限制&quot;&gt;&lt;/a&gt;0x02 另类视角一：孤岛限制&lt;/h2&gt;&lt;p&gt;我们这里谈到的安全，将从另一个视角来解读，假设我们默认部署好的容器应用存在某种漏洞而被利用，最坏的情况是攻击者完全拿下了容器并且取得了root权限。可以预想到的是，在默认的配置下，拥有root权限的Docker就如同真正的跳板机一样，容器如同使用宿主机作为路由器的主机，不仅能够扫描到宿主机的端口情况，还可以扫描到宿主机所在网段的拓扑。&lt;/p&gt;
-&lt;p&gt;最初是想在宿主机上做端口转发策略的限制，进而限制容器访问到更大范围的局域网。本以为在宿主机上的端口转发并不会影响宿主机的网络访问功能。使用如下指令：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sysctl net.ipv4.ip_forward
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在宿主机上运行上面的指令可以查看当前的转发策略是否开启，当键值为1时表示开启，此时的容器网络访问是畅行无阻的。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo sysctl -w net.ipv4.ip_forward=0
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;使用上面的命令可以临时将这个参数的键值改为0，此时我们发现容器只能访问到同一网段的其它容器而无法访问到宿主机所在的局域网中，与此同时，我们只要保证作为路由器的宿主机上没有运行开启端口的应用，就应该是安全的。可是随后注意到一个问题，关闭容器对外的端口转发后，外界对于容器的访问也一起被禁止了。&lt;/p&gt;
-&lt;p&gt;这样的话，只能乖乖的在iptables上做文章了。因为不是介绍iptables的文章，就不多对这个Linux下自带的防火墙做过多的介绍。我的想法是使用宿主机的iptables禁止相应的应用容器访问外网（包括宿主机所在的局域网），这样既能实现容器限制，又不会影响外界访问容器。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo iptables -I FORWARD -i docker0 -o ens33 -j DROP
-sudo iptables -I FORWARD -i docker0 -o ens33 -m state --state RELATED,ESTABLISHED  -j ACCEPT
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;该命令可以从宿主机的层面限制容器对外的访问，这样可以从一定程度上解决通过容器做跳板的问题。这样的场景实际上就像是将容器设置成只有一条单向入口的孤岛，只允许外界对容器进行访问，而不允许使用容器在做进一步的其它网络访问。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-另类视角二：文件监控&quot;&gt;&lt;a href=&quot;#0x03-另类视角二：文件监控&quot; class=&quot;headerlink&quot; title=&quot;0x03 另类视角二：文件监控&quot;&gt;&lt;/a&gt;0x03 另类视角二：文件监控&lt;/h2&gt;&lt;p&gt;除了上述限制的方法外，我们还可以对于容器中的重点文件夹或文件做监控，一旦检测到相应的文件发生变化，可以立即重新生成新的镜像，以应对攻击。&lt;/p&gt;
-&lt;p&gt;这里的架构思路如下，作为监控程序，它不应该位于目标容器内，所以我们考虑使用我在上一个谈论Docker日志的笔记里提到的挂载的方式，将容器内部重要的文件夹挂载进监控容器内，在监控容器内运行程序监控相应文件的增、删、改等操作，一旦发现不被允许的操作执行，就关闭容器或者重新构建容器。具体文件监控容器方面的学习有机会再在后面贴出。&lt;/p&gt;
-&lt;h2 id=&quot;0x04-综述&quot;&gt;&lt;a href=&quot;#0x04-综述&quot; class=&quot;headerlink&quot; title=&quot;0x04 综述&quot;&gt;&lt;/a&gt;0x04 综述&lt;/h2&gt;&lt;p&gt;Docker一旦部署到真实环境中，我们就要对它的安全性做全面的衡量，不过通过上述分析，在排除可能存在0Day的情况下，只要配置得当，Docker的安全性还是有保障的。&lt;/p&gt;
-&lt;p&gt;由于容器的便携性、易部署性、隔离性，我们可以很方便的在部署容器服务的同时，连带部署一系列的监控、处理容器对于服务容器做维护。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Docker怎么做才能在被别人拿到SHELL后将危害做到最小？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
-    
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
-    
-      <category term="信息安全" scheme="http://phantom0301.coding.me/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
-    
-      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>再探Docker-日志收集</title>
-    <link href="http://phantom0301.coding.me/2016/07/20/Docker2/"/>
-    <id>http://phantom0301.coding.me/2016/07/20/Docker2/</id>
-    <published>2016-07-20T08:11:59.000Z</published>
-    <updated>2016-08-04T08:01:46.972Z</updated>
-    
-    <content type="html">&lt;p&gt;一次Docker项目需求构架的尝试    &lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-方法选择&quot;&gt;&lt;a href=&quot;#0x01-方法选择&quot; class=&quot;headerlink&quot; title=&quot;0x01 方法选择&quot;&gt;&lt;/a&gt;0x01 方法选择&lt;/h2&gt;&lt;p&gt;当我们的Docker部署完成后，为了能够掌握Docker的状态，除了使用logs、event、diff等实时运维命令查看外，我们还存在需要对Docker产生的日志进行收集整理分析的必要。&lt;/p&gt;
-&lt;p&gt;网上能找到的日志收集系统有很多，例如Flume、Fluentd、Logstash等等。经过一段时间的摸索搭建，个人最容易搭建成功的是Logstash，而且整个ELK体系也提供一套完整的日志收集、存储、查找、可视化流程，可以省去很多编写中间件的精力。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-调试&quot;&gt;&lt;a href=&quot;#0x02-调试&quot; class=&quot;headerlink&quot; title=&quot;0x02 调试&quot;&gt;&lt;/a&gt;0x02 调试&lt;/h2&gt;&lt;p&gt;所以最终我的整体架构如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker1\
-        \
-docker2——————&amp;gt;docker-logstash————&amp;gt;任意机器（可以不是宿主机）
-        /
-docker3/
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;ELK一整套工具可以很方便的从Elastic的官网上下到，在这里就不在赘述。在任意一台主机上安装Elasticsearch和Kibana，在宿主机上安装不同的Docker以及一个Logstash的Docker。这里我使用我在上一篇博客中编译好的Wordpress的Docker。不同的是我需要将WP中记录日志的文件夹挂载到logstash-docker上。命令如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker run -d -v /var/log/nginx/ --name wordpress -p 0.0.0.0:80:80 long/wordpress
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;简单解释一下这条命令，我们运行了之前编译好的Wordpress，将其中的Nginx下的日志挂载出来。&lt;/p&gt;
-&lt;p&gt;接下来，我们再从官网仓库中pull下Docker版的Logstash，使用如下命令开启：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker run -it --rm --volumes-from wordpress -v &amp;quot;$PWD&amp;quot;:/home  logstash logstash -f /home/test.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里有几个坑要事先声明一下，一个是这里我使用了Logstash的配置文件，而这个配置文件我是从宿主机挂载到容器的home文件夹下，另一个点就是Logstash容器从Wordpress中接手之前挂载的文件夹，从里面实时增量读取日志，但是两个容器的权限不对应，所以要注意在Wordpress容器对相应的文件夹做权限变更。&lt;/p&gt;
-&lt;p&gt;Logstash的配置文件我写法如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;input {
-    file {
-        path =&amp;gt; &amp;quot;xxxx&amp;quot;
-        start_position =&amp;gt; beginning
-         }
-      }
-filter {
-
-       }
-
-output {
-    stdout { }
-       }
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;从日志中读取信息，打印在标准输出中。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker21.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;这一步调试成功后，我们接着调试Elastic的部分，Elastic+Kibana我是运行在一台Windows的主机上的，运行前调整Elastic的配置文件中的，使得宿主机可以访问到它，当然这里的访问是没有任何认证的，但是作为测试，我们先不讨论安全问题。&lt;/p&gt;
-&lt;p&gt;通过windows主机访问宿主机上的Wordpress-docker，然后访问&lt;/p&gt;
-&lt;p&gt;此时，宿主机中容器的日志已经显示在了Windows的主机中。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-总结&quot;&gt;&lt;a href=&quot;#0x03-总结&quot; class=&quot;headerlink&quot; title=&quot;0x03 总结&quot;&gt;&lt;/a&gt;0x03 总结&lt;/h2&gt;&lt;p&gt;利用这种方式，我们实现了容器日志传输到任意主机上存储的目的，而日志传输则是通过在多个容器之间挂载目录实现。这样做，可以很好的实现应用、日志（或数据）之间的解耦合，将重要日志存储在更安全的实体主机上，便于实现中心对应分布的日志分析。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一次Docker项目需求构架的尝试    &lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
-    
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
-    
-      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>效率利器-NSSM</title>
-    <link href="http://phantom0301.coding.me/2016/07/19/NSSM/"/>
-    <id>http://phantom0301.coding.me/2016/07/19/NSSM/</id>
-    <published>2016-07-19T13:20:30.000Z</published>
-    <updated>2016-08-04T07:59:37.035Z</updated>
-    
-    <content type="html">&lt;p&gt;NSSM(the Non-Sucking Service Manager),作为英语战五渣，为了弄清它的中文译名也是查了很多资料，关键在于Non-Sucking这个词应该如何翻译，姑且翻译成“不糟糕的服务管理器”这样页游装备名般的中文。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;言归正传，NSSM是一款开源的Windows下”好用的服务管理工具”，根据它自己的介绍，之所以叫“Non-Sucking”,是因为其他类似的工具都不能很好的处理正在运行中的应用失败的情况。感觉上它有点像Ubuntu下的supervisor。&lt;/p&gt;
-&lt;p&gt;而服务管理工具的作用其实就是将运行的应用封装成系统服务，这样针对于一些bat的脚本程序可以快速执行操纵命令并监控程序是否存活,就像下面的样子，我将ELK应用作为服务来启动：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/N1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;下载方面可以访问这个地址&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://nssm.cc/download&quot; title=&quot;https://nssm.cc/download&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://nssm.cc/download&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;使用方面十分简单，将下载好的文件进行解压，再将nssm.exe复制到需要启动的应用所在目录中，在当前目录执行cmd命令：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;nssm install &amp;lt;servicename&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这时就会弹出安装界面&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://nssm.cc/images/install_application.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在Application界面的Path配置需要启动的exe或者bat等程序的路径，Detail界面命名服务名和描述信息，Dependencies界面配置依赖的环境，就是已有的服务名。&lt;/p&gt;
-&lt;p&gt;将这些基本信息配置好后，点击Install service安装完毕。&lt;/p&gt;
-&lt;p&gt;这个时候，可以在控制面板-管理-服务中看到已经安装成功的服务，通过这个界面可以打开服务，这时，你所指定的程序应用就以服务的名义运行起来了。&lt;/p&gt;
-&lt;p&gt;先在这里安利这款工具以及它的基本运行命令，详细的官方文档有时间会在后面翻译出来吧~~&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;NSSM(the Non-Sucking Service Manager),作为英语战五渣，为了弄清它的中文译名也是查了很多资料，关键在于Non-Sucking这个词应该如何翻译，姑且翻译成“不糟糕的服务管理器”这样页游装备名般的中文。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="工具" scheme="http://phantom0301.coding.me/tags/%E5%B7%A5%E5%85%B7/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Docker快速入门</title>
-    <link href="http://phantom0301.coding.me/2016/07/16/Docker1/"/>
-    <id>http://phantom0301.coding.me/2016/07/16/Docker1/</id>
-    <published>2016-07-16T01:14:01.000Z</published>
-    <updated>2016-08-04T07:55:36.795Z</updated>
-    
-    <content type="html">&lt;p&gt;套用介绍Docker的话，Docker是一个开源的引擎，可以创建一个轻量级的虚拟系统。由于它可以更加轻量级的实现虚拟机的作用，而且它自带很多很方便的监控运行系统状态的特性，所以受到大家的青睐。&lt;/p&gt;
-&lt;p&gt;这篇博客旨在快速部署Docker，并不是对Docker进行深入研究，所以只会说说我在实际用Docker的过程中使用频次较高的实际指令，并不会详细介绍Docker基于Linux的底层实现原理和理论的东西，如果有错误请留言指正。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-基本部署&quot;&gt;&lt;a href=&quot;#0x01-基本部署&quot; class=&quot;headerlink&quot; title=&quot;0x01 基本部署&quot;&gt;&lt;/a&gt;0x01 基本部署&lt;/h2&gt;&lt;p&gt;这里我使用Ubuntu16.04进行测试。先说说Docker的安装，最简单的方法的直接使用Ubuntu的apt-get安装：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo apt-get update
-sudo apt-get install docker
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;而我为了能够安装最新版的Docker，使用下面更加复杂的方法：&lt;/p&gt;
-&lt;p&gt;1.升级source列表，安装相应的ca证书&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo apt-get update
-sudo apt-get install apt-transport-https ca-certificates
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.增加密钥&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;3.添加源列表文件&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo vi /etc/apt/sources.list.d/docker.list
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;4.按照系统版本增加entry&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo deb https://apt.dockerproject.org/repo ubuntu-xenial main
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;5.安装docker并测试&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo apt-get update
-sudo apt-get install docker-engine
-sudo service docker start
-sudo docker run hello-world
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这个时候docker程序会先检查本地仓库是否有镜像，如果没有，就会从官方的仓库中拉取相应的镜像并运行它。而这个hello-world的程序还会打印出官方的一些帮助信息。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x02-常用命令&quot;&gt;&lt;a href=&quot;#0x02-常用命令&quot; class=&quot;headerlink&quot; title=&quot;0x02 常用命令&quot;&gt;&lt;/a&gt;0x02 常用命令&lt;/h2&gt;&lt;p&gt;接着上一节拉取到的镜像，我们就用这个镜像说明Docker会经常用到的一些指令。&lt;/p&gt;
-&lt;p&gt;0.快速的搜寻镜像&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker search 镜像名或id
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这种方法可以快速的从官方仓库查找可用的镜像，相比起直接访问官网查询，这种方法不用太多的等待，不足之处在于，作为初心者，这种方式几乎看不到镜像的详细使用说明，对新手的使用并不够友好，而在官网上可以看到作者的详细使用说明和Dockerfile文件，更适合我们入门学习。&lt;/p&gt;
-&lt;p&gt;1.安静的拉取镜像&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker pull 镜像名或id
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这个命令只会从官方仓库下载镜像到本地，并不会执行生成容器。 &lt;/p&gt;
-&lt;p&gt;2.方便的掌握镜像&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker images
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;查看本地仓库中的可用镜像&lt;/p&gt;
-&lt;p&gt;3.常用的运行方式&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker run -it 镜像名或id /bin/bash
-docker run -d 镜像名或id
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以上两种是学习过程中经常能够看到的命令，前者适合对于生成的容器进行调试，而且即使没有前台进程（后面会说这个的关系），它也可以运行起来；后者多作为真正部署时使用。&lt;/p&gt;
-&lt;p&gt;之所以会这样，当然是因为run后面不同的参数值了，i参数是为了保持stdin打开，t参数是为了维持一个为终端，而d参数测试在后台运行容器。&lt;/p&gt;
-&lt;p&gt;当容器运行在后台时，它就有点像我们通常在Windows下执行可执行程序的逻辑，当没有循环或者其他逻辑维持它的前台进程时，容器就会自动结束。所以当使用d参数时，就需要有一个前台进程来保持容器的运行。&lt;/p&gt;
-&lt;p&gt;run指令下还有一些常用的参数：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;-a参数，负责进行连接附加，可以连接标准输入输出等
--e参数，设置环境变量，例如一些数据库镜像的生成时的参数
---name，重命名容器，方便进行管理，避免了你输入那些随机生成的科学家名或者ID
--p参数，将容器内的端口映射到宿主机相应端口
--v参数，挂载容器内的内容
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;其他参数可以直接查阅手册，这里只列出了我常用到的参数。&lt;/p&gt;
-&lt;p&gt;示例如下：&lt;/p&gt;
-&lt;p&gt;我们运行一个由我自己编译的wordpress镜像，内置数据库&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker2.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;我们先用images查看可用的镜像&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/docker3.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在使用下面这个指令来启动镜像，生成容器&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker -d --name wordpress -p 0.0.0.0：80：80 镜像名或id
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;生成的同时，容器被赋予了一个唯一的ID&lt;/p&gt;
-&lt;p&gt;4.常用的维护命令&lt;/p&gt;
-&lt;p&gt;还是如上图&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker ps 
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以查看正在运行的容器和基本信息，而-l参数则显示上一次运行过的容器&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker inspect 容器名或id
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以查看容器的详细信息，这个指令的输出较多，就不截图了。不过这个指令结果里有几个重要参数值的我们注意：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;容器的宿主机存储路径，包括容器主机名、配置信息、日志等&lt;/li&gt;
-&lt;li&gt;容器映射出的端口信息&lt;/li&gt;
-&lt;li&gt;网络服务的配置信息，包括容器ip、DNS等&lt;/li&gt;
-&lt;li&gt;运行环境的配置信息&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;strong&gt;……&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;这些信息可以帮助我们更好的去认识镜像、容器、宿主机之间的关系&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker exec -it 容器名 /bin/bash
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这条指令可以方便我们去访问后台运行状态的容器内部，进行修改添加应用，当然，也可以在一开始就给容器开一个ssh进行管理&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker events/logs/info
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这几条指令都是将容器当前运行的一些事件、日志信息输出到宿主机界面上，方便我们进行容器部署应用的观察和管理&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker commit 容器名 镜像名：标签
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;提交一个你修改满意的容器到本地仓库生成相应的镜像&lt;/p&gt;
-&lt;p&gt;5.常用的删除启动命令&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker start/stop/restart 容器名
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这个不用多解释了&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker rm 容器名
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;永久删除当前容器，但是前提是先stop了这个容器&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker rmi 镜像名
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;永久删除本地仓库中的镜像&lt;/p&gt;
-&lt;p&gt;有了这几条命令，简单运行一个Docker就基本逻辑可以走顺了，当然，完整的命令请参照官方手册。&lt;/p&gt;
-&lt;p&gt;还有几个关键命令会在下一节适合它们的地方登场。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-DIY&quot;&gt;&lt;a href=&quot;#0x03-DIY&quot; class=&quot;headerlink&quot; title=&quot;0x03 DIY&quot;&gt;&lt;/a&gt;0x03 DIY&lt;/h2&gt;&lt;p&gt;官方仓库中经过认证和未认证的项目有上千例（未具体求证），基本满足我们的应用部署需要，但是，有时候我们的有一些特殊需求时，可能就需要我们自己去编译一个镜像。&lt;/p&gt;
-&lt;p&gt;当然，在介绍这部分之前，不得不提一个Dockeric（不保证有这么个词）的观点，Docker实现的容器应该是模块化的，所以每一个单独的容器最好只运行一个单独的进程，复杂的逻辑关系应该通过容器间的连接（–link）实现。向我在之前作为例子实现的wordpress其实就是一个反例，因为我在一个容器中同时放入了wordpress进程和mysql进程。所以，在DIY编译镜像时，尽量不要想使用vmware那样放太多的东西进去，小心鸡蛋砸在一个Container里~~。&lt;/p&gt;
-&lt;p&gt;先入门基本指令，我以我的wordpress为例：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;FROM ubuntu:14.04&lt;/p&gt;
-&lt;p&gt;MAINTAINER xxxx &lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#105;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&quot;&gt;&amp;#120;&amp;#x78;&amp;#x78;&amp;#x78;&amp;#x40;&amp;#x78;&amp;#120;&amp;#x78;&amp;#x78;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;ENV DEBIAN_FRONTEND noninteractive&lt;/p&gt;
-&lt;p&gt;RUN apt-get update&lt;/p&gt;
-&lt;p&gt;RUN apt-get -y upgrade&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;上手先W再E，FROM决定整个镜像的根基，你是打算用Ubuntu:14.04，Ubuntu:latset，CentOS还是什么其他的；MAINTAINER填写创建者信息；RUN是运行安装指令的基础；ENV设置环境变量&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;RUN apt-get -y install mysql-server mysql-client nginx php5-fpm php5-mysql php-apc pwgen python-setuptools curl git unzip&lt;/p&gt;
-&lt;p&gt;RUN sed -i -e”s/^bind-address\s&lt;em&gt;=\s&lt;/em&gt;127.0.0.1/bind-address = 0.0.0.0/“ /etc/mysql/my.cnf&lt;br&gt;……&lt;/p&gt;
-&lt;p&gt;ADD ./nginx-site.conf /etc/nginx/sites-available/default&lt;/p&gt;
-&lt;p&gt;EXPOSE 3306&lt;/p&gt;
-&lt;p&gt;EXPOSE 80&lt;/p&gt;
-&lt;p&gt;VOLUME [“/var/lib/mysql”, “/usr/share/nginx/www”]&lt;/p&gt;
-&lt;p&gt;CMD [“/bin/bash”, “/start.sh”]&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;接着Q后面接R，ADD可以拷贝编译文件夹下的文件到镜像生成后的容器的相应文件夹下，EXPOSE则设置容器内部开启的端口，VOLUME负责挂载容器的文件，CMD是容器启动时执行的命令。而有多条CMD命令时，只执行最后的一行的CMD命令。&lt;/p&gt;
-&lt;p&gt;当然这个文件只是说明，并不完整，完整的Dockerfile官网上有很多，我就不把我写的蹩脚file放到这里了。&lt;/p&gt;
-&lt;p&gt;写好写指令后，保存为Dockerfile文件名，存在一个文件夹下，把相应的外部文件也都移到一起。&lt;/p&gt;
-&lt;p&gt;在当前目录下执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;docker build -t 自己起的镜像名 .（这里还有一点，别看掉了）
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;程序就会按照你指定的安装流程进行相应的安装了。&lt;/p&gt;
-&lt;h2 id=&quot;0x04-结语&quot;&gt;&lt;a href=&quot;#0x04-结语&quot; class=&quot;headerlink&quot; title=&quot;0x04 结语&quot;&gt;&lt;/a&gt;0x04 结语&lt;/h2&gt;&lt;p&gt;还是要说一下，这一篇是基于快速部署而写下的，内容肯定很浅薄，后面随着我对Docker学习的深入，应该还会有更进一步的经验总结和实际应用。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;套用介绍Docker的话，Docker是一个开源的引擎，可以创建一个轻量级的虚拟系统。由于它可以更加轻量级的实现虚拟机的作用，而且它自带很多很方便的监控运行系统状态的特性，所以受到大家的青睐。&lt;/p&gt;
-&lt;p&gt;这篇博客旨在快速部署Docker，并不是对Docker进行深入研究，所以只会说说我在实际用Docker的过程中使用频次较高的实际指令，并不会详细介绍Docker基于Linux的底层实现原理和理论的东西，如果有错误请留言指正。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/categories/Docker/"/>
-    
-    
-      <category term="Docker" scheme="http://phantom0301.coding.me/tags/Docker/"/>
-    
-      <category term="入门" scheme="http://phantom0301.coding.me/tags/%E5%85%A5%E9%97%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>碎碎念</title>
-    <link href="http://phantom0301.coding.me/2016/07/04/whisper/"/>
-    <id>http://phantom0301.coding.me/2016/07/04/whisper/</id>
-    <published>2016-07-04T10:49:17.000Z</published>
-    <updated>2016-08-04T07:59:18.525Z</updated>
-    
-    <content type="html">&lt;p&gt;离别的氛围仿佛嵌进了空气一般，凝结在每一次的呼吸中。作为留守者，送别一个个远去的身影也仿佛成为了一种义务。有时明知道结果是离别，便不愿投入太多在一件事，一个人上，可是在还未分别的时光消磨下，也不知不觉的将他们在心中的地位不断提升，等到真正的离别到来时，才发现，哦，原来再向他们说分别已是如此的困难了。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;我们的生命就这样被分割成了一段段的相遇和离别，无论如何好像也摆脱不掉这样的轮回。在一整段的时光里看起来是那样的光鲜亮丽，可若是逢着连接整段时光的那些间隙，就难免让人有些失落和孤寂。毕竟，和一群人一起拥有了那么多的回忆，可是转瞬，就只剩下了你自己。&lt;/p&gt;
-&lt;p&gt;终究一切的碎碎念和不好的情绪都要被自己消化掉，也渐渐强迫着用麻木的心态去对待这些离别，有时这被称为成长或是强大。当然，运动和其他的什么爱好可以作为占据内心的那些人或事离开时暂时的寄托，于是制订一项项学习，锻炼的计划也是远离不安孤寂不错的方法。&lt;/p&gt;
-&lt;p&gt;其实做出某些选择时，前方未知的道路便已经渐渐露出了它延伸的方向。而我们能够做的，是决定以什么样的姿态去走完它。我总是希望自己最终不会败给生活中的苟且，希望即便有可能充满艰难，但依然在不易中有自己去选择的权利和自由。离开了一群人，我希望再相遇一些能让我不舍得人。结束了一段还尚且满意的生涯，我希望能够依然在接下去的时光中昂首前进。&lt;/p&gt;
-&lt;p&gt;山已成隍，花已成尘，就在这变迁中不忘初心，追逐梦想。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;离别的氛围仿佛嵌进了空气一般，凝结在每一次的呼吸中。作为留守者，送别一个个远去的身影也仿佛成为了一种义务。有时明知道结果是离别，便不愿投入太多在一件事，一个人上，可是在还未分别的时光消磨下，也不知不觉的将他们在心中的地位不断提升，等到真正的离别到来时，才发现，哦，原来再向他们说分别已是如此的困难了。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="感悟" scheme="http://phantom0301.coding.me/categories/%E6%84%9F%E6%82%9F/"/>
-    
-    
-      <category term="感悟" scheme="http://phantom0301.coding.me/tags/%E6%84%9F%E6%82%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>闲谈-隐匿于网络中的入侵者</title>
-    <link href="http://phantom0301.coding.me/2016/05/18/invader/"/>
-    <id>http://phantom0301.coding.me/2016/05/18/invader/</id>
-    <published>2016-05-18T12:05:53.000Z</published>
-    <updated>2016-08-04T07:59:30.350Z</updated>
-    
-    <content type="html">&lt;h2 id=&quot;0x00&quot;&gt;&lt;a href=&quot;#0x00&quot; class=&quot;headerlink&quot; title=&quot;0x00&quot;&gt;&lt;/a&gt;0x00&lt;/h2&gt;&lt;p&gt;最近一段时间都在赶毕业设计了，觉得这期间被挖出来的那些影响比较大的漏洞都没有细致的去了解。不过论文之余，晚上睡前都在看Gregory Fell和Mike Barlow的《Who are the bad guys and what do they want？》，其中的第一部分就是书名的前半段。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;查过一些作者们的资料，似乎两位都不是专门研究信息安全的学者，所以书中大量的内容其实应该是来自作者们对于相关专家话语的记录，不过书中提到的很多观点都很有意思。&lt;/p&gt;
-&lt;h2 id=&quot;0x01-白帽子还是黑帽子&quot;&gt;&lt;a href=&quot;#0x01-白帽子还是黑帽子&quot; class=&quot;headerlink&quot; title=&quot;0x01 白帽子还是黑帽子&quot;&gt;&lt;/a&gt;0x01 白帽子还是黑帽子&lt;/h2&gt;&lt;p&gt;我们经常会给一些hacker或是cracker（这两者是很不一样的）贴上一些标签，这是个白帽子平台，那是个黑帽子社区等等。但在文章中提到，有时候这些表面上的标签往往会让我们忽视某一群体在发现漏洞时的意图。&lt;/p&gt;
-&lt;p&gt;那么在这种情况下，单纯的用“好人”或者“坏人”这样二进制意味浓厚的划分原则将会掩盖复杂的入侵意图。&lt;/p&gt;
-&lt;p&gt;使用意图来对攻击进行定义或许能够让我们看到事情的本质。有些是出于研究意图的测试，那么这种行为往往带有友好的提醒；有些是出于个人情感，对于个人或者企业的一种打击报复；有些纯粹是出于贪婪，企图获取金钱或者其他利益；还有的可能是更复杂的情况，包括各国之间的窥探行为，或者只是偶然的一个点击等等，这些意图彼此之间并非泾渭分明的，它们往往能够在一定条件下进行转化。&lt;/p&gt;
-&lt;p&gt;实际情况将会比上述这样简单的理论层面的分类更趋于多样化，大家也可以结合自身的经历来分析身边的“意图”，而不是仅仅靠扣上几个颜色的帽子就定义出谁是正义的谁是邪恶的。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-隐匿在网络中的人&quot;&gt;&lt;a href=&quot;#0x02-隐匿在网络中的人&quot; class=&quot;headerlink&quot; title=&quot;0x02 隐匿在网络中的人&quot;&gt;&lt;/a&gt;0x02 隐匿在网络中的人&lt;/h2&gt;&lt;p&gt;很多时候，我们的视线都汇聚到一个0day是怎么实现的、泄露出的数据体量到底有多少、哪个著名的企业在圣诞前夕又被DDOS威胁了等等这些十分吸引眼球的问题上，当然关注这些问题也是十分有意义的。不过，对于漏洞背后人的探索似乎很多时候没有引起足够多的关注。&lt;/p&gt;
-&lt;p&gt;之前说过我们不应该简单的通过扣帽子的方式来给网络中的人们下定义，而是应该确定出那些驱使他们挖掘漏洞的因素。&lt;/p&gt;
-&lt;p&gt;这里用了书中的一张表来对网络中的活动者下定义，&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160518204514.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;这张表中划分出的类别算是补充了之前我的认知，他将网络中的活动者分成了五类，其实这些词不是太好准确的翻译，大概是内部人员、网络犯罪者、纯粹的黑客、恐怖分子和国家层面活动者，同样的，这些角色彼此之间也都是有关联的，那么按照我的想法，将图中几个角色的位置重新放置一下，我们其实可以做一个雷达图来对每一个信息安全事件背后的行动派进行角色判定，这样我们更能够清晰的认识到许多的网络活动的目的都不会那么的单一。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-是管理风险还是管理代码&quot;&gt;&lt;a href=&quot;#0x03-是管理风险还是管理代码&quot; class=&quot;headerlink&quot; title=&quot;0x03 是管理风险还是管理代码&quot;&gt;&lt;/a&gt;0x03 是管理风险还是管理代码&lt;/h2&gt;&lt;p&gt;另一个在书中提到的认知就是，信息安全的问题恐怕很难通过技术的进步去解决，无论你有多么先进的加密手段、无论你的机器学习能够模仿多么专业的安全研究人员，入侵者依然能够找到撕破防线的短板。当防线被攻破，最终，信息安全问题转化为了一个风险控制的问题。&lt;/p&gt;
-&lt;p&gt;那么在这种情况下，采用更加合理的风险控制策略可能起到的作用会大于在代码中加入了一段安全的防护。当然，这两者并未站在对立的两个极端，我们显然可以通过彼此结合的手段来增强对资产的防护，当然，这里提到的是谁更应该放在主位的问题。&lt;/p&gt;
-&lt;h2 id=&quot;0x04-结尾&quot;&gt;&lt;a href=&quot;#0x04-结尾&quot; class=&quot;headerlink&quot; title=&quot;0x04 结尾&quot;&gt;&lt;/a&gt;0x04 结尾&lt;/h2&gt;&lt;p&gt;就瞎扯到这里，好像后面和主题已经无关了，不管那么多了。&lt;/p&gt;
-&lt;p&gt;有兴趣的可以阅读他们的原书。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;0x00&quot;&gt;&lt;a href=&quot;#0x00&quot; class=&quot;headerlink&quot; title=&quot;0x00&quot;&gt;&lt;/a&gt;0x00&lt;/h2&gt;&lt;p&gt;最近一段时间都在赶毕业设计了，觉得这期间被挖出来的那些影响比较大的漏洞都没有细致的去了解。不过论文之余，晚上睡前都在看Gregory Fell和Mike Barlow的《Who are the bad guys and what do they want？》，其中的第一部分就是书名的前半段。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://phantom0301.coding.me/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-    
-      <category term="信息安全" scheme="http://phantom0301.coding.me/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/"/>
-    
-      <category term="闲谈" scheme="http://phantom0301.coding.me/tags/%E9%97%B2%E8%B0%88/"/>
+      <category term="ubuntu" scheme="http://phantom0301.cc/tags/ubuntu/"/>
     
   </entry>
   
