@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>阿里XSS挑战赛思路及PoC | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/CTF/" class="animsition-link">CTF<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Openstack/" class="animsition-link">Openstack<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(7)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/xss/" class="animsition-link">xss<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(6)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(8)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="https://www.leavesongs.com/" class="animsition-link">p牛的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                    <li><a href="https://stfltr.github.io/" class="animsition-link">zzw</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-08-30T02:51:03.000Z" itemprop="datePublished">
+          2017-08-30
+      </time>
+    
+    
+    | 
+    <a href='/tags/MIME/'>MIME</a>,
+    
+    <a href='/tags/RPO/'>RPO</a>,
+    
+    <a href='/tags/xss/'>xss</a>
+    
+    
+</span>
+                <h1>阿里XSS挑战赛思路及PoC</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>先知社区的XSS挑战，不只是过滤的绕过，还需要结合很多浏览器、HTML、CSS、JS的知识点，最后也只做出来9道题~~离2000的ECS还差那么一点点<br>_(:з」∠)_</p>
+<p>完整writeup可以查看先知社区，博客里主要记录我的一些解题思路。</p>
+<a id="more"></a>
+<h2 id="0x01-文件上传"><a href="#0x01-文件上传" class="headerlink" title="0x01 文件上传"></a>0x01 文件上传</h2><p><img src="http://phantom0301.cc/achiveimg/20170830105920.jpg" alt=""></p>
+<p>查看源代码可以得知，这里的触发点在文件名</p>
+<pre><code>$_FILES[&quot;fileToUpload&quot;][&quot;name&quot;])
+</code></pre><p>自测的情况下通过抓包修改可以成功弹窗，这道题的难点在于如何把一个self xss变成可以攻击的向量。</p>
+<p>当时首先想到了通过中间服务器POST表单进行提交，但是如何在表单中构造文件就成了问题。</p>
+<pre><code>&lt;input type=&apos;file&apos;&gt;
+</code></pre><p>作为安全策略，input标签中的文件类型在定义时会生成一个文件对象，而服务端是没有权限来控制这个文件对象的，当然flash是否能够完成对文件对象的控制这里没有尝试，暂时存疑。</p>
+<p>无法控制文件对象，那么是否能够通过POST数据来构造一个文件提交呢？</p>
+<p>这里又有问题，text型的PSOT数据无法更改文件上传时http头中的boundary,最终还是在先知社区找到了解决方法。</p>
+<p><a href="https://xianzhi.aliyun.com/forum/read/224.html" target="_blank" rel="external">https://xianzhi.aliyun.com/forum/read/224.html</a></p>
+<p>通过&lt;textarea&gt;字段可以伪造文件上传。</p>
+<p>在中间服务器上构造form表单，包含&lt;textarea&gt;字段，再使用js自动表单提交。核心代码是这一句</p>
+<pre><code>&lt;textarea id=&quot;fileToUpload&quot; name=&apos;fileToUpload&quot;; filename=&quot;&lt;img src=x onerror=alert(1)&gt;121111.gif&apos;&gt;GIF89a hacked.gif&lt;/textarea&gt;
+</code></pre><p>这里还有两个点，一个是textarea没有filename字段，所以我们通过闭合引号来伪造，但是firefox和chrome会对双引号进行转义，因此这种方式只能在IE11下成功。另一个点是上传文件进行了文件类型的检测，这里面最容易构造的是gif文件。</p>
+<h2 id="0x04-referrer"><a href="#0x04-referrer" class="headerlink" title="0x04 referrer"></a>0x04 referrer</h2><p>触发点在 </p>
+<pre><code>$_SERVER[&apos;HTTP_REFERER&apos;]
+</code></pre><p>所以需要中间页面来跳转，关于携带refer的跳转方式可以参考这篇博客</p>
+<p><a href="http://wps2015.org/2016/06/27/unusual-xss/" target="_blank" rel="external">http://wps2015.org/2016/06/27/unusual-xss/</a></p>
+<p>这里的问题在于传递后中间refer会被firefox和chrome编码，所以只在win7的IE11中测试成功了。</p>
+<p>后来有大牛提到这里可以使用flash做跳转，就可以支持win10的IE，经过测试确实有效。</p>
+<p><img src="http://phantom0301.cc/achiveimg/20170830174512.jpg" alt=""></p>
+<h2 id="0x05-跳转"><a href="#0x05-跳转" class="headerlink" title="0x05 跳转"></a>0x05 跳转</h2><p>这道题使用</p>
+<pre><code>header(&quot;Location: &quot;.$url);
+</code></pre><p>进行跳转，只有跳转失败，才会执行到触发点上，所以关键问题是如何跳转失败。</p>
+<p>这个点过滤了crlf，因此我当时想只能从协议下手，很自然的想到之前被提的较多的gopher协议，所以直接进行测试。</p>
+<pre><code>http://ec2-13-58-146-2.us-east-2.compute.amazonaws.com/xss5.php?url=gopher://&apos;&gt;&lt;script&gt;alert(123)&lt;/script&gt;&lt;&apos;
+</code></pre><p>发现没有跳转，能够进入触发点，接下来就是构造传统的payload了。</p>
+<p><img src="http://phantom0301.cc/achiveimg/20170830202319.png" alt=""></p>
+<p>分析这个点之所以这样，个人猜测是非http协议浏览器在进行执行时策略不同，不一定都是跳转，有的可能是弹框，比如FTP，有的可能是加载相关插件，比如迅雷的下载协议等。</p>
+<h2 id="0x06-强制下载"><a href="#0x06-强制下载" class="headerlink" title="0x06 强制下载"></a>0x06 强制下载</h2><p>和上一题类似，关键点在于不能让</p>
+<pre><code>header(&apos;Content-Disposition: attachment; filename=&quot;&apos;.$_GET[&quot;filename&quot;].&apos;&quot;&apos;);
+</code></pre><p>执行成功，这里我使用%00%0a进行绕过，还可以通过fuzz去发现更多的bypass手段。</p>
+<pre><code>filename=%00%0a1.php&amp;url=http://phantom0301.cc/alixss2.html
+</code></pre><p>绕过后就可以执行到触发点，触发XSS。</p>
+<h2 id="0x07-text-plain"><a href="#0x07-text-plain" class="headerlink" title="0x07 text/plain"></a>0x07 text/plain</h2><p>这道题有些迷，题目本身通过设置text/plain强制输出文本，我们可以用MIME Sniffing去绕过，我构造了一个iso文件，文件中写入paylaod，在兼容模式下的IE11中可以触发，而小伙伴另一个版本的IE11可以无条件触发。由于需要兼容模式的先决条件，所以这道题当时并不算通过。在这里就不多说了，等待官方writeup。</p>
+<h2 id="0x10-MVM"><a href="#0x10-MVM" class="headerlink" title="0x10 MVM"></a>0x10 MVM</h2><p>考察的点是angularJS的模板注入，在两个花括号中angular会解析支持的操作。</p>
+<p>网上关于这个点给出的paylaod是</p>
+<pre><code>\{\{constructor.constructor(&apos;alert()&apos;)()\}\}
+</code></pre><p>一共40个字符（忽视我用来转义的斜杠），为什么要数字符数呢？因为这道题的难点在于限制字符只能小于36个。</p>
+<p>对于懂angularJS的同学，这道题可能要简单很多，我之前有研究过python的Jinja模板注入，其实两者有很多相似之处。这个点无非是要通过constructor.constructor得到一个匿名函数类型，进而执行弹窗操作，那么突破点就是如何能够构造一个尽可能短的匿名函数类型。</p>
+<p>首先，我们要先得到一个JS的变量，为下一步用构造函数得到底层的类型做准备，作为前端小白，只能对照angularJS的手册，一个个尝试，我先后尝试了’’，1，()，[]等多个数据结构，最后找到了如下paylaod</p>
+<pre><code>\{\{&apos;&apos;.sub.constructor(&apos;alert()&apos;)()\}\}
+</code></pre><p>刚刚好~~</p>
+<h2 id="0x12-preview"><a href="#0x12-preview" class="headerlink" title="0x12 preview"></a>0x12 preview</h2><p>还是一个利用MIME Sniffing来完成的题。</p>
+<p>题目请求url后，需要请求的资源符合所规定的MIME类型，利用这里构造后缀名、文件标识与Content-Type不符合的文件进行请求，在IE11下能够成功弹窗。</p>
+<pre><code>http://ec2-13-58-146-2.us-east-2.compute.amazonaws.com/xss12.php?url=http://phantom0301.cc/img/1.avi
+</code></pre><p>其中1.avi的内容如下</p>
+<pre><code>&lt;html&gt;
+&lt;img src=x onerror=alert(1)&gt;
+&lt;/html&gt;
+</code></pre><h2 id="0x13-REQUEST-URI"><a href="#0x13-REQUEST-URI" class="headerlink" title="0x13 REQUEST_URI"></a>0x13 REQUEST_URI</h2><p>出发点如下</p>
+<pre><code>echo &quot;REQUEST_URI:&quot;.$_SERVER[&apos;REQUEST_URI&apos;];
+</code></pre><p>这道题上上面的一道题类似，通过GET变量添加的方式在php文件后面携带paylaod</p>
+<pre><code>xss13.php?&lt;script&gt;alert(123)&lt;/script&gt;
+</code></pre><h2 id="0x14-Hidden"><a href="#0x14-Hidden" class="headerlink" title="0x14 Hidden"></a>0x14 Hidden</h2><p>难点在于input标签是hidden的，因此一些on的事件无法成功触发，同时使用htmlspecialchars过滤标签。</p>
+<p>这个在网上可以找到很多类似的讨论，不用再这里细说。</p>
+<p>首先使用单引号闭合前一属性，增加accesskey标签，使用onclick标签，这样在firefox下使用Ctrl+Shift+accesskey标签值得组合就可以触发onclick事件。</p>
+<p>完整payload如下</p>
+<pre><code>&apos; accesskey=X onclick=&apos;alert(document.domain)
+</code></pre><h2 id="0x16-PHP-SELF"><a href="#0x16-PHP-SELF" class="headerlink" title="0x16 PHP_SELF"></a>0x16 PHP_SELF</h2><p>RPO attack</p>
+<p>将payload利用绝对路径/相对路径的方式写入CSS文件中，利用IE的CSS样式XSS方法触发弹框，我这里只找到了IE7 IE6成功执行的payload。</p>
+<h2 id="0x17-passive-element"><a href="#0x17-passive-element" class="headerlink" title="0x17 passive element"></a>0x17 passive element</h2><p>div标签中过滤尖括号，同样有很多种绕过手法，我这里使用了和Hideen那道题一样的触发思路：</p>
+<pre><code>&apos; accesskey=X  onclick=alert(1) id=&apos;xss
+</code></pre><p>在需要快捷键的情况下触发成功。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>真正完成9道题，实现了11道题的弹框。里面大多数题都需要自己去不断尝试，前前后后做了5天左右的样子，头脑风暴的感觉很好，而且几道没有做出来的题都有进一步fuzz测试的思路，可以对XSS整体有了更进一步的了解，而且包括浏览器差异、特殊字符差异等问题也值得去研究探索。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2017/10/16/rnntolabel4/" style="float: left;">
+        ← 基于递归神经网络的监督序列标记（4）
+    </a>
+    
+    
+    <a class="pull-right" href="/2017/08/17/nmapvslibnmap/">
+        python-nmap与python-libnmap对比 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>Hctf2017-JS逆向-writeup | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/CTF/" class="animsition-link">CTF<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Openstack/" class="animsition-link">Openstack<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(7)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/xss/" class="animsition-link">xss<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(6)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(8)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="https://www.leavesongs.com/" class="animsition-link">p牛的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                    <li><a href="https://stfltr.github.io/" class="animsition-link">zzw</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-11-13T03:50:03.000Z" itemprop="datePublished">
+          2017-11-13
+      </time>
+    
+    
+    | 
+    <a href='/tags/JS/'>JS</a>,
+    
+    <a href='/tags/writeup/'>writeup</a>
+    
+    
+</span>
+                <h1>Hctf2017-JS逆向-writeup</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>让你在前端感受逆向题的酸爽。题目的最大难度在于考验人的耐心吧。<br><a id="more"></a></p>
+<p>题目就不用多说了，很容易发现是Javascript代码审计。</p>
+<p>整个文件的变量名/函数名可以看作是混淆了的，分析一下整个文件的结构</p>
+<pre><code>——
+|-  _0x180a,关键字的替换数组
+|-  匿名函数,对数组元素进行重排
+|-  _0xa180,取出对应索引的数组元素
+|-  check,主要的分析函数
+|-  test,主要的运行函数
+</code></pre><h2 id="0x01-分析方法"><a href="#0x01-分析方法" class="headerlink" title="0x01 分析方法"></a>0x01 分析方法</h2><p>这道题结合浏览器进行动态调试，可以节省很多脑力。</p>
+<p>首先是重排，这里不需要去深究到底逻辑原理，让引擎代替你去把数组重排好即可。结合程序员计算器和CyberChef分析更加方便。</p>
+<h2 id="0x02-逐句解读"><a href="#0x02-逐句解读" class="headerlink" title="0x02 逐句解读"></a>0x02 逐句解读</h2><p>这样我们可以直接进入check函数进行分析。</p>
+<pre><code>——
+|-  _0x2e2f8d,又一次进行数组混淆，得到一个新数组
+|-  _0x50559f,获取flag的前四位，即‘hctf’
+|-  _0x5cea12,由‘hctf’生成一个基数
+|-  这里有一个debug的事件，个人认为是阻止使用F12调试用的，所以可以直接删去
+|-  匿名函数，对_0x2e2f8d这个数组再进行排列
+|-  _0x43c8d1,根据输入获取数组中相应值的函数
+|-  _0x1c3854,将输入的ascii码转化为16进制，再加上‘0x’
+</code></pre><p>以上部分可以看成是准备部分，这一部分的难点在于多次处理了数组，在动态调试时，很多函数如果多次执行就会产生与原答案不同的数组结构，因此，每次执行都需要重新初始化。</p>
+<pre><code>——
+|-  _0x76e1e8,以下划线分割输入,从后面分析可以得知flag一共有5段
+|-  _0x34f55b,这一段给出了第一个逆向的条件，结合下一句if条件。
+</code></pre><p>单独来分析，其实最初我看掉了一个括号，结果弄混了符号优先级，导致觉得这个条件没有意义。</p>
+<p>这个条件是说，<strong>第一段的最后两个字符的16进制和‘{’的16进制异或后，对第一段的长度求余应该等于5</strong>。</p>
+<p>这里可以先进行如下猜测</p>
+<p>第一段，已经有‘hctf{’了，这里正好去最后两位，先猜测第一段一共只有7位，这个猜测是后验的，先不细说。</p>
+<pre><code>——
+|-  b2c
+</code></pre><p>理解这个函数极为重要，通过随机输入进行测试，输出结果有些眼熟，像是base64但不对，比对后确定是base32编码，知道这个就不用再去多解读它了。同时，这里也有一个debug需要删除</p>
+<pre><code>——
+|- e，第二个逆向条件
+</code></pre><p>这一句是说，<strong>第三段做base32编码，取等号前的部分，再进行16进制和0x53a3f32异或等于0x4b7c0a73</strong></p>
+<pre><code>计算 0x4b7c0a73^0x53a3f32=0x‭4E463541‬
+‭4E463541  =&gt;  NF5A  16进制转字符
+NF5A  =&gt;  iz  base32解码
+</code></pre><p>因此，flag暂时如下hctf{x_x_iz_x_x}</p>
+<pre><code>——
+|- f，第三个逆向条件
+</code></pre><p>这一句是说，第四段和第三段一样编码后，和0x4b7c0a73异或等于0x4315332</p>
+<pre><code>计算 0x4315332^0x4b7c0a73=0x‭4F4D5941
+4F4D5941 =&gt; OMYA
+OMYA =&gt; s0
+</code></pre><p>flag hctf{x_x_iz_s0_x}</p>
+<pre><code>——
+|- n，f*e*第一段的长度（先不管）
+|- h，将输入字符串的每一个字符ascii码进行计算（*第二段长度）
+    后连接起来显示（字符到ascii码转换）
+|- j，将第二段以‘3’分割，又后面可以确定是分成了两部分
+|- 第四个逆向条件
+</code></pre><p>首先是，<strong>分割的两部份长度相等，第一部分和第二部分16进制异或等于0x1613</strong>，这个条件只能后验，也先不管。</p>
+<pre><code>——
+|- k，输入的ascii码*第二段的长度
+|- l，第一部分逐字符ascii码*第二段长度等于0x2f9b5072
+</code></pre><p>首先，0x2f9b5072 == 798707826‬</p>
+<pre><code>798  707  826
+正好分成三个，已知h是对应ascii码*常数，
+所以假设第一部分有三个字符，那么就是变成了求解常数
+也就是798 707 826的最大公约数
+求解得常数为7
+字符 114  101  118 =&gt; rev
+</code></pre><p>所以，第二段一共有7个字符,前四个字符为rev3，带入上面的后验条件0x1613</p>
+<pre><code>0x726576^0x1613=0x‭727365
+727365 =&gt; rse
+</code></pre><p>flag hctf{?_rev3rse_iz_s0_?}</p>
+<pre><code>——
+|- m,第五个逆向条件，第五段的前四位和第一段的长度有关
+</code></pre><p>题目的hint提示，每一段都有意义，因此我们这里做个爆破，假设第一段的长度在6-30之间，我们可以算出n，在用n去算第五段前四位。</p>
+<pre><code>n = f*e*(6-30)
+第五段前四位 = n % 0x2f9b5072 + 0x48a05362
+</code></pre><p>代码：</p>
+<pre><code>import binascii
+for i in range(6,31):
+    n = 0x4315332*0x4b7c0a73*i
+    strings = n%0x2f9b5072 + 0x48a05362
+    print binascii.a2b_hex(str(hex(strings))[2:-1])
+</code></pre><p>结果：</p>
+<pre><code>qK┒
+h4r
+_;
+Vn
+L钔V
+sr姘
+j[瘶
+aDx€
+X-Ah
+O
+P
+u?
+l傡
+ck祕
+ZT~b
+Q=GJ
+w羆
+n?
+e掤t
+\{籠
+Sd凞
+JMM,
+p裦
+g?n
+^ⅧV
+U嬃&gt;
+</code></pre><p>可以看到大多数字符都没有意义，除了h4r让人遐想联翩，可惜还是不全，但是结合已经分析出的flag，猜测应该是h4rd。</p>
+<p>flag hctf{??_rev3rse_iz_s0_h4rd?}</p>
+<pre><code>——
+|- _0x5a6d56,将输入重复指定次数组合
+|- 第六个逆向条件和第七个逆向条件
+</code></pre><ol>
+<li>第五段的第六位重复两次不等于倒数第5-8位，这个条件也让人摸不着头脑。</li>
+<li>第五段倒数第2位等于第五段第五位加1</li>
+<li>第五段第7-8位去掉0x等于第五段第7位的ascii码*第五段长度*5</li>
+<li>第五段第五位为2，第五段7-8位等于第五段第8位重复两次</li>
+<li>结合hint</li>
+</ol>
+<p>由以上条件可以推出以下flag</p>
+<pre><code>hctf{??_rev3ser_iz_s0_h4rd2?3??3333}
+</code></pre><p>先假设2和3之间没有数字了，这时7-8位还未知但是7-8位相同，这时的方程</p>
+<pre><code>而且在这里，由于直接把0x去掉，所以x的16进制一定全为数字
+字符拼接{hex(x)hex(x)} = ascii(x)*13*5
+</code></pre><p>爆破代码：</p>
+<pre><code>import binascii
+
+for i in range(1,128):
+    string1 = hex(i)[2:]
+    try:
+        if int(string1+string1) == i*13*5:
+            print chr(i)
+    except:
+        continue
+
+output： e
+</code></pre><p>验证前面的后验条件可以确定如下flag</p>
+<pre><code>hctf{??_rev3ser_iz_s0_h4rd23ee3333}
+</code></pre><p>只剩下最前面的两位，为了方便，利用题目提供的sha256结果，我就不回溯条件在判断，直接进行碰撞。</p>
+<pre><code>import hashlib
+
+a = &apos;hctf{&apos;  
+b = &apos;_rev3rse_iz_s0_h4rd23ee3333}&apos;
+
+e1 = [&apos;0&apos;,&apos;1&apos;,&apos;2&apos;,&apos;3&apos;,&apos;4&apos;,&apos;5&apos;,&apos;6&apos;,&apos;7&apos;,&apos;8&apos;,&apos;9&apos;,&apos;a&apos;,&apos;b&apos;,&apos;c&apos;,&apos;d&apos;,&apos;e&apos;,&apos;f&apos;,&apos;g&apos;,&apos;h&apos;,&apos;i&apos;,&apos;j&apos;,&apos;k&apos;,
+&apos;l&apos;,&apos;m&apos;,&apos;n&apos;,&apos;o&apos;,&apos;p&apos;,&apos;q&apos;,&apos;r&apos;,&apos;s&apos;,&apos;t&apos;,&apos;u&apos;,&apos;v&apos;,&apos;w&apos;,&apos;x&apos;,&apos;y&apos;,&apos;z&apos;]
+e2 = [&apos;0&apos;,&apos;1&apos;,&apos;2&apos;,&apos;3&apos;,&apos;4&apos;,&apos;5&apos;,&apos;6&apos;,&apos;7&apos;,&apos;8&apos;,&apos;9&apos;,&apos;a&apos;,&apos;b&apos;,&apos;c&apos;,&apos;d&apos;,&apos;e&apos;,&apos;f&apos;,&apos;g&apos;,&apos;h&apos;,&apos;i&apos;,&apos;j&apos;,&apos;k&apos;,
+&apos;l&apos;,&apos;m&apos;,&apos;n&apos;,&apos;o&apos;,&apos;p&apos;,&apos;q&apos;,&apos;r&apos;,&apos;s&apos;,&apos;t&apos;,&apos;u&apos;,&apos;v&apos;,&apos;w&apos;,&apos;x&apos;,&apos;y&apos;,&apos;z&apos;]
+
+for i in e1:
+    for j in e2:
+        sh = hashlib.sha256()
+        sh.update(a+i+j+b)
+        if sh.hexdigest() == &quot;d3f154b641251e319855a73b010309a168a12927f3873c97d2e5163ea5cbb443&quot;:
+            print a+i+j+b
+</code></pre><p>output:</p>
+<pre><code>hctf{j5_rev3rse_iz_s0_h4rd23ee3333}
+</code></pre><p>‬</p>
+<pre><code>‬
+</code></pre>
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2018/01/09/openstack-deploy/" style="float: left;">
+        ← 聊聊物理多节点OpenStack部署
+    </a>
+    
+    
+    <a class="pull-right" href="/2017/11/06/pyinstaller-new/">
+        Pyinstaller新踩坑实录 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>

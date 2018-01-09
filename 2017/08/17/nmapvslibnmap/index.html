@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>python-nmap与python-libnmap对比 | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/CTF/" class="animsition-link">CTF<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Openstack/" class="animsition-link">Openstack<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(7)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/xss/" class="animsition-link">xss<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(6)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(8)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="https://www.leavesongs.com/" class="animsition-link">p牛的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                    <li><a href="https://stfltr.github.io/" class="animsition-link">zzw</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-08-17T08:08:15.000Z" itemprop="datePublished">
+          2017-08-17
+      </time>
+    
+    
+    | 
+    <a href='/tags/nmap/'>nmap</a>,
+    
+    <a href='/tags/python/'>python</a>
+    
+    
+</span>
+                <h1>python-nmap与python-libnmap对比</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>写一个小项目时的对比，项目地址：</p>
+<p><a href="https://github.com/phantom0301/Cynops" target="_blank" rel="external">Cynops</a></p>
+<a id="more"></a>
+<h2 id="0x01-简介"><a href="#0x01-简介" class="headerlink" title="0x01 简介"></a>0x01 简介</h2><p>写的练手项目中用到了python调用nmap的情景，对比使用了两款常见的python库</p>
+<ul>
+<li>python-nmap</li>
+<li>python-libnmap</li>
+</ul>
+<p>两种库各有各的优点，可以考虑在不同的环境下使用。</p>
+<h2 id="0x02-源码分析"><a href="#0x02-源码分析" class="headerlink" title="0x02 源码分析"></a>0x02 源码分析</h2><p>首先，我们从源码的角度来分析两个库：</p>
+<ol>
+<li>py-nmap</li>
+</ol>
+<p>它的代码统一写在一个单文件中，主要定义了三种扫描类、一个目标字典类和一个扫描错误类。</p>
+<p>基础类PortScanner，该类主要提供扫描方法、扫描结果xml输出、扫描CSV结果的文本输出功能。</p>
+<p>异步扫描类PortScannerAsync，该类主要提供异步扫描功能。</p>
+<p>生成扫描类PortScannerYield提供一种作为生成器的扫描方式。</p>
+<p>从源码可以看出，它主要就是通过python调用nmap进行扫描，并没有太多其他的实现，所有的nmap需求通过nmap自身的参数来实现。</p>
+<ol>
+<li>py-libnmap</li>
+</ol>
+<p>相比之下，libnmap的函数实现就要复杂一些，它定义了包括对象、插件和基础功能在内的多个函数。</p>
+<p>基础功能包process，主体类NmapProcess，在该类中，定义类包括扫描行为、输出结果、后台执行、sudo执行、执行时间状态等多种方法。</p>
+<p>结果解析包Parser，能够对输出的文本结果进行多种来源格式的解析，但是在实际运行过程中会发现对于一些特殊的请求结果，解析效果不是很令人满意，而且用起来没有自己写解析器顺手。</p>
+<p>对象模块负责定义各种不同的Nmap对象体</p>
+<p>插件模块提供了数据库和后台的功能插件。</p>
+<p>从这里看到libnmap的实现更加庞大，不只是单单调用nmap，还对nmap中的交互对象进行了类定义，从插件模块可以看出，该库还试图通过插件来不断丰富自己功能。</p>
+<h2 id="0x03-实际测试"><a href="#0x03-实际测试" class="headerlink" title="0x03 实际测试"></a>0x03 实际测试</h2><p>实际测试中，选取默认扫描、使用nse脚本扫描和traceroute扫描三种方式来比对它们的扫描的结果差异。统一用我的博客作为扫描目标。</p>
+<h4 id="默认扫描"><a href="#默认扫描" class="headerlink" title="默认扫描"></a>默认扫描</h4><p>直接调用扫描类，只提供目标IP，其他参数缺省。</p>
+<ol>
+<li><p>py-nmap</p>
+<pre><code>nmap -oX - -sV 123.207.68.169
+</code></pre></li>
+</ol>
+<p>这一条是该库调用Nmap时使用到的参数</p>
+<p><img src="http://phantom0301.cc/achiveimg/20170817170158.jpg" alt=""></p>
+<p>可以看到结果是一个字典，提供扫描状态、扫描信息、扫描结果的查询。</p>
+<ol>
+<li><p>py-libnmap</p>
+<pre><code>nmap -oX - -vvv --stats-every 1s -sT 123.207.68.169
+</code></pre></li>
+</ol>
+<p>libnmap的默认扫描更加复杂。</p>
+<p><img src="http://phantom0301.cc/achiveimg/20170817171922.jpg" alt=""></p>
+<p>默认能够获取到的是标准的文本格式Nmap xml结果，需要使用上面提到的Parser进行解析。</p>
+<h4 id="脚本调用"><a href="#脚本调用" class="headerlink" title="脚本调用"></a>脚本调用</h4><p>我们对特定的80端口使用http-enum，查看结果。</p>
+<ol>
+<li><p>py-nmap</p>
+<pre><code>&apos;script&apos;: {&apos;http-enum&apos;: &apos;\n  /atom.xml: RSS or Atom feed\n  
+                    /test/: Test page\n  
+                    /test.html: Test page\n  
+                    /archives/: Potentially interesting folder\n  
+                    /css/: Potentially interesting folder\n  
+                    /images/: Potentially interesting folder\n
+</code></pre></li>
+</ol>
+<p>可以看到可以使用脚本的输出结果。</p>
+<ol>
+<li>py-libnmap，同时在这里使用Parser来解析结果。</li>
+</ol>
+<p>同样通过xml输出了脚本的结果，解析后的结果需要参照对象模块里不同的对象类来输出用户需要的结果，这里用起来觉得它的封装不是很清晰，不如py-nmap的结果更加友好。</p>
+<h4 id="traceroute"><a href="#traceroute" class="headerlink" title="traceroute"></a>traceroute</h4><p>这里分别再次用两个包执行nmap的traceroute对比结果，之所以单独测试了traceroute，是因为我的项目里用到了这项功能。</p>
+<ol>
+<li>py-nmap</li>
+</ol>
+<p>在获取traceroute时，通过nm.analyse_nmap_xml_scan()是无法获取到跳转的结果，这时需要nm.get_nmap_last_output()来获取xml的结果。</p>
+<ol>
+<li>py-libnmap</li>
+</ol>
+<p>由于lib的基本输出方式是输出xml，但是它的解析函数用起来也不方便，所以还是推荐自己编写解析器。</p>
+<h2 id="0x03-对比"><a href="#0x03-对比" class="headerlink" title="0x03 对比"></a>0x03 对比</h2><p>作为调用原理相同，甚至实现方法也相近的两个库，有一个最明显的区别就是py-nmap趋向于简洁，而py-libnmap趋向于功能完整。对于快捷的扫描，推荐使用nmap包，而对于拥有入库、高级对象封装等功能的项目则可以使用libnmap。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2017/08/30/alixss/" style="float: left;">
+        ← 阿里XSS挑战赛思路及PoC
+    </a>
+    
+    
+    <a class="pull-right" href="/2017/07/18/rnntolabel3/">
+        基于递归神经网络的监督序列标记（3） →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>

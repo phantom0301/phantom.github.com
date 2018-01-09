@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>基于递归神经网络的监督序列标记（3） | 零の杂货铺</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="零の杂货铺">
+    <meta name="author" content="Phantom">
+    <meta name="description" content="Free and Share" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="零の杂货铺" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//phantom0301.cc/css/Montserrat.css' rel='stylesheet' type='text/css'>
+    <link href='//phantom0301.cc/css/Open Sans.css' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://phantom0301.cc/css/Montserrat400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Montserrat700.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans400.css' rel='stylesheet' type='text/css'>
+    <link href='http://phantom0301.cc/css/Open Sans600.css' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="atom.xml">
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">Home</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            <li>
+                <a class="sb-toggle-submenu">Works<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                        <li><a href="/sitemap.xml" target="_BLANK" class="animsition-link">Sitemap</a></li>
+                    
+                        <li><a href="/atom.xml" target="_BLANK" class="animsition-link">Rss</a></li>
+                    
+                </ul>
+            </li>
+            
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/CTF/" class="animsition-link">CTF<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Docker/" class="animsition-link">Docker<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/HEXO/" class="animsition-link">HEXO<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/JAVA/" class="animsition-link">JAVA<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Javascript/" class="animsition-link">Javascript<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/Openstack/" class="animsition-link">Openstack<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/python/" class="animsition-link">python<small>(7)</small></a></li>
+				    
+				    <li><a href="/categories/ubuntu/" class="animsition-link">ubuntu<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/xss/" class="animsition-link">xss<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/安全基础/" class="animsition-link">安全基础<small>(6)</small></a></li>
+				    
+				    <li><a href="/categories/安全工具/" class="animsition-link">安全工具<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/审计/" class="animsition-link">审计<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/工具/" class="animsition-link">工具<small>(1)</small></a></li>
+				    
+				    <li><a href="/categories/感悟/" class="animsition-link">感悟<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/蜜罐/" class="animsition-link">蜜罐<small>(3)</small></a></li>
+				    
+				    <li><a href="/categories/读书笔记/" class="animsition-link">读书笔记<small>(8)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+            <li>
+                <a class="sb-toggle-submenu">Links<span class="sb-caret"></span></a>
+                <ul class="sb-submenu">
+                    
+                    <li><a href="http://www.ourren.com/" class="animsition-link">ourren</a></li>
+                    
+                    <li><a href="https://www.sec-wiki.com/" class="animsition-link">sec-wiki</a></li>
+                    
+                    <li><a href="http://anquanquan.info/" class="animsition-link">安全圈</a></li>
+                    
+                    <li><a href="http://go.kieran.top/" class="animsition-link">Kieran</a></li>
+                    
+                    <li><a href="http://wps2015.org/" class="animsition-link">wps2015的博客</a></li>
+                    
+                    <li><a href="http://www.mauu.me/" class="animsition-link">mauu的博客</a></li>
+                    
+                    <li><a href="http://ecma.io/" class="animsition-link">该隐的博客</a></li>
+                    
+                    <li><a href="http://ohroot.com/" class="animsition-link">ohroot的博客</a></li>
+                    
+                    <li><a href="http://www.sccsec.com/" class="animsition-link">胖胖的博客</a></li>
+                    
+                    <li><a href="https://www.leavesongs.com/" class="animsition-link">p牛的博客</a></li>
+                    
+                    <li><a href="http://phantom0301.github.io" class="animsition-link">phantom0301 for gitbub</a></li>
+                    
+                    <li><a href="http://phantom0301.coding.me" class="animsition-link">phantom0301 for coding</a></li>
+                    
+                    <li><a href="http://blackwolfsec.github.io" class="animsition-link">blackwolfsec</a></li>
+                    
+                    <li><a href="http://wsyks.github.io/" class="animsition-link">wsyks</a></li>
+                    
+                    <li><a href="https://stfltr.github.io/" class="animsition-link">zzw</a></li>
+                    
+                </ul>
+            </li>
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu secondary">
+            <li><a href="/about/" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">零の杂货铺</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a></li>
+                            
+                            
+                            <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a></li>
+                            
+                            
+                            <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a></li>
+                            
+                            
+                            <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a></li>
+                            
+                            
+                            <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a></li>
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>君は春の中にいる、かけがえのない春の中にいる.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>你驻足于春色中,于那独一无二的春色之中.</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2017-07-18T13:14:15.000Z" itemprop="datePublished">
+          2017-07-18
+      </time>
+    
+    
+    | 
+    <a href='/tags/机器学习/'>机器学习</a>,
+    
+    <a href='/tags/神经网络/'>神经网络</a>,
+    
+    <a href='/tags/读书笔记/'>读书笔记</a>
+    
+    
+</span>
+                <h1>基于递归神经网络的监督序列标记（3）</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<p>负责的项目代码初版7月18日全部完成了，有时间继续补坑。然而之后又是出差，所以这篇一直拖到了8月14日才完成~</p>
+<a id="more"></a>
+<h2 id="0x01-长短时记忆网络结构"><a href="#0x01-长短时记忆网络结构" class="headerlink" title="0x01 长短时记忆网络结构"></a>0x01 长短时记忆网络结构</h2><p>前面说过了循环神经网络的优点在于它们处理序列时的使用上下文的能力。但是，对于标准的循环神经网络来说，实际中能够利用的上下文范围是十分有限的。由于多重循环的关系，给定的输入在隐藏层中的影响要么减弱，要么指数式增加。这种影响叫做梯度消失。二十世纪九十年代曾经有很多尝试来解决这一问题。它们使用了非梯度的训练算法，比如模拟退火、离散误差传播、时间常数和层次序列压缩。而这里重点要说长短时记忆算法。</p>
+<p>长短时记忆结构由一组可重复连接的子网组成，称为记忆块。这些块可以看成是计算机中内存芯片的一个细微版本。每个块包含一个或者多个自连接的内存单元和三个乘法单元，分别在输入、输出和遗忘门的地方，它们为每个神经元提供了连续读、写和重置操作。长短时记忆与标准循环神经网络类似，只是隐藏层中的求和单元被记忆块替代。记忆块也可以和求和单元混用，尽管通常不这样做。而它们两者的输出层都是相同的。乘法门允许长短时记忆单元长时间的存储和访问信息，从而减轻梯度消失问题。比如，只要输入门保持关闭，神经元的激活就不会被新输入覆盖，因此，当打开输出门时，之前的状态就可以被用于之后的网络中。通过这一机制对梯度信息进行保护。</p>
+<p>在过去的十年中，长短时记忆在一系列需要长范围记忆的任务中被证明是成功的，包括上下文无关的语言学习、扩展噪声序列中的召回高精度实数以及要求精确计时和计数的任务。特别是在解决其他循环神经网络所无法解决的问题上。</p>
+<p>长短时记忆已经被应用在许多真实问题中，包括蛋白质二级预测、音乐生成、强化学习、语音识别和手写体识别。正如预期的那样，它的优势就在于解决对长程上下文依赖的问题。</p>
+<h2 id="0x02-预处理带来的影响"><a href="#0x02-预处理带来的影响" class="headerlink" title="0x02 预处理带来的影响"></a>0x02 预处理带来的影响</h2><p>以上的讨论抛出了一个对预处理影响而言重要的观点，如果我们能够将包含长程上下文依赖的任务转换为只包含短期依赖的任务，我们就不需要LSTM了。例如，一个原始的语音信号通常有40千赫左右的采样率。很明显，当对这个语音进行标记或者建模时，我们需要用很长的时间步长来进行序列学习。然而，当信号先转换成100赫兹的频率倒谱系统时，利用上下文范围相对较短的算法对数据进行处理就是可行的，比如隐马尔科夫模型。</p>
+<p>尽管预处理会带来这样的好处，但是如果这种转换是困难的或者是未知的，又或者我们只是单纯的希望不去设计预处理而得到较好的结果时，我们就需要能够处理长程依赖的算法。</p>
+<h2 id="0x03-梯度计算"><a href="#0x03-梯度计算" class="headerlink" title="0x03 梯度计算"></a>0x03 梯度计算</h2><p>就像上一章所讨论过的网络一样，LSTM是一个可微的函数近似器，通常用梯度下降来训练。当然，近几年还有人进行非梯度的LSTM训练方法研究。</p>
+<p>最初的LSTM训练算法采用一种近似误差梯度，同时结合了实时循环学习和反向传播。反向转播部分在一个时间步长后被截断，这里的长程依赖将由内存块处理，而不是通过原来连接的激活节点。截断梯度的好处是使算法完全在线，在每一个时间步长后都可以进行权重更新。这对于连续控制或者时间序列预测来说是一个重要的属性。</p>
+<p>当然，也可以用未截断的反向传播来精确计算LSTM的梯度。除了准确的特点外，这种梯度计算还有易于调优的优点，因为它可以用之前提到的技术进行数值检查。</p>
+<h2 id="0x04-构架变体"><a href="#0x04-构架变体" class="headerlink" title="0x04 构架变体"></a>0x04 构架变体</h2><p>原始的LSTM只包含输入门和输出门。而在拓展LSTM中，加入了连接到记忆单元的遗忘门和附加的窥孔权重。遗忘门的目的是为记忆单元提供一种重置的方法，对于那些需要遗忘输入的任务很重要。与此同时，窥孔连接提高了LSTM的学习能力，这些任务需要精确的时间和内部状态计数。</p>
+<p>由于LSTM完全由简单的乘法和加法单元组成以及它们之间的连接构成，因此可以直接通过创建块结构来进一步改变LSTM。事实上，它已经证明了在玩具问题上具有同样良好的效果，比如上下文自由的学习和上下文敏感的语言可以自动演变。</p>
+<h2 id="0x05-双向长短期记忆"><a href="#0x05-双向长短期记忆" class="headerlink" title="0x05 双向长短期记忆"></a>0x05 双向长短期记忆</h2><p>利用LSTM作为双向循环神经网络结构，双向LSTM在两个输入方向上提供了对远程上下文的访问，后面会继续讨论。</p>
+<h2 id="0x06-网络方程"><a href="#0x06-网络方程" class="headerlink" title="0x06 网络方程"></a>0x06 网络方程</h2><p>这一节提供了在一个循环神经网络中一个LSTM隐藏层激活和反向梯度计算的方程。</p>
+<p>和之前一样，我们有权重连接表示、网络输入单元、时间单位以及时间单位输入带来的表示、时间单位上的激活单元。LSTM方程仅仅提供一个单一记忆单元。对于多个块，简单的进行依次重复计算。只是在权重值上，我们多了遗忘门权重以及窥孔权重。其他参数还有激活函数、神经元状态的激活线性单元。</p>
+<p>注意，我们附加的这些单元只在神经元的内部可见，与标准循环神经网网络不同的是，一个LSTM层包含更多的输入，但只有神经元产生可见的输出给网络的其余部分。</p>
+<p>和标准循环神经网络相似，它的前向计算是循环的更新长度序列，反向传播通过时间倒序递减计算单位导数。</p>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2017/08/17/nmapvslibnmap/" style="float: left;">
+        ← python-nmap与python-libnmap对比
+    </a>
+    
+    
+    <a class="pull-right" href="/2017/06/26/rnntolabel2/">
+        基于递归神经网络的监督序列标记（2） →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo">
+
+</div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Phantom. All Rights Reserved.
+                </p>
+                <p>Theme By <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    <li><a href="https://github.com/phantom0301" title="Github" target="_blank"><i class="icon-github"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://twitter.com/" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://www.facebook.com/" title="Facebook" target="_blank"><i class="icon-facebook"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="https://google.com/" title="Google-Plus" target="_blank"><i class="icon-google-plus"></i></a>&nbsp;</li>
+                    
+                    
+                    <li><a href="http://weibo.com/" title="Sina-Weibo" target="_blank"><i class="icon-sina-weibo"></i></a>&nbsp;</li>
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+
+</body>
+
+</html>

